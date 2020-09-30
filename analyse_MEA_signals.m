@@ -72,7 +72,7 @@ function [beat_period, fpd] = extract_beats(time, data, window, bdt)
     beat_indx = 1;
     max_beat_period = 1.5;  %seconds
     min_beat_period = 0.5;  %seconds
-    post_spike_hold_off = 0.3;   %seconds
+    post_spike_hold_off = 0.2;   %seconds
     
     
     %% New approach: while(1) until final element of the segment being analysed is past the duration
@@ -84,57 +84,63 @@ function [beat_period, fpd] = extract_beats(time, data, window, bdt)
        %to be analysed
        
        %Take segments of data from each window to search for the next beat 
-       %if beat_indx == 1
-       if t == 0
-          %wind_indx = find(time >= 0 & time <= window);  
-          wind_indx = find(time >= t & time <= t+window);
+       if beat_indx == 1
+       %if t == 0
+          wind_indx = find(time >= 0 & time <= window);  
+          %wind_indx = find(time >= t & time <= t+window);
        else
-          %wind_indx = find(time >= time(beat_indx) & time <= (time(beat_indx)+window)); 
-          wind_indx = find(time >= t & time <= t+window);
+          wind_indx = find(time >= time(prev_beat_indx) & time <= (time(prev_beat_indx)+window)); 
+          %wind_indx = find(time >= t & time <= t+window);
        end
+       
+       t_ime = time(wind_indx);
+       d_ata = data(wind_indx);
+       
+       %{
        disp('start search window')
        disp(wind_indx(1))
        disp('end search window')
        disp(wind_indx(end))
        
-       t_ime = time(wind_indx);
-       d_ata = data(wind_indx);
+       
        figure()
        plot(t_ime, d_ata);
        title('window to be analysed')
        hold off;
-       
+       %} 
        %disp(max(d_ata))
        try
-           %{
+           
            post_spike_hold_off_time = t_ime(1)+post_spike_hold_off;
            pshot_indx = find(t_ime >= post_spike_hold_off_time);
+           pshot_indx_offset = pshot_indx(1);
+           
+           %{
            disp('start post hold off region');
            disp(pshot_indx(1))
+           
            disp('end post hold off region');
            disp(pshot_indx(end))
-           
-           figure();
-           plot(t_ime(pshot_indx), d_ata(pshot_indx))
-           
            %}
+        
            
-           %beat_indx = find(d_ata(pshot_indx) >= bdt);
-           beat_indx = find(d_ata >= bdt);
-           cross_threshold_indx = beat_indx(1);
-           beat_indx = beat_indx(1)+wind_indx(1)-1;
+           beat_indx = find(d_ata(pshot_indx) >= bdt);
+           %beat_indx = find(d_ata >= bdt);
+           beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+           %{
            disp('beat')
            disp(beat_indx)
            disp('prev')
            disp(prev_beat_indx)
-
+           %}
+       
        catch
            prev_beat_indx = beat_indx;
-           disp('continue')
-           disp(count)
-           if count == 0
-               
+           bdt = bdt*0.1;
+           if prev_beat_indx == 1
+               beat_indx = 1;
            end
+           disp('fail beat detection, continue')
            continue;
        end
        
@@ -155,27 +161,34 @@ function [beat_period, fpd] = extract_beats(time, data, window, bdt)
           continue;
        end
        
-       %{
        if beat_period > max_beat_period
        %Check there is only one beat period.
-          bdt = bdt*0.9;
+          bdt = bdt*0.1;
           disp('bdt has been reduced due to beat period being too long')
           disp(bdt)
-          pause(15);
-          close('all');
+          
+          if prev_beat_indx == 1
+               beat_indx = 1;
+          else
+              prev_beat_indx = beat_indx;
+           end
           continue;
        end
        
        if beat_period < min_beat_period
-          bdt = bdt*1.1;
+          bdt = bdt*10;
           disp('bdt has been increased due to beat period being too short')
           disp(bdt)
-          pause(15);
-          close('all');
+          disp(prev_beat_indx)
+          if prev_beat_indx == 1
+               beat_indx = 1;
+          else
+              prev_beat_indx = beat_indx;
+          end
           continue;
        end
        
-       %}
+       
        
        %Now fit the data and find the peak of the t-wave then use this to
        %find FPD
@@ -208,7 +221,7 @@ function [beat_period, fpd] = extract_beats(time, data, window, bdt)
        title('Extracted Beat');
        %hold on;
        %plot(beat_time, fit);
-       %pause(5);
+       pause(5);
        %close(gcf)
        hold off;
        
@@ -224,7 +237,7 @@ function [beat_period, fpd] = extract_beats(time, data, window, bdt)
        
        prev_beat_indx = beat_indx;
        count = count + 1;
-       pause(5);
+       %pause(5);
        %close('all');
     end
     disp(count);
