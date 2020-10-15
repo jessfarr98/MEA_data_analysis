@@ -19,7 +19,7 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
         num_electrode_rows = shape_data(3);
         num_electrode_cols = shape_data(4);
         
-        num_well_rows = 3;
+        num_well_rows = 2;
         num_well_cols = 1;
         
         total_wells = num_well_rows*num_well_cols;
@@ -29,8 +29,12 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
         well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
         for w_r = 1:num_well_rows
             for w_c = 1:num_well_cols
-                well_count = well_count + 1;
+                
                 wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+                if strcmp(wellID, 'A01')
+                    continue;
+                end
+                well_count = well_count + 1;
                 disp(strcat('Displaying well: ', {' '}, wellID))
                 sub_plot_count = 1;
                 %for e_r = 1:num_electrode_rows
@@ -43,7 +47,7 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
                         if strcmp(class(WellRawData),'Waveform')
                             %if ~empty(WellRawData)
                             [time, data] = WellRawData.GetTimeVoltageVector;
-                            
+                            %data = data .* 1000;
                             if waveform == 0
                                 figure()
                                 plot_cutoff_end_indx = floor(size(time)*0.15);
@@ -59,8 +63,8 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
                              %subplot(num_electrode_rows, num_electrode_cols, sub_plot_count);
                              %set(fig ,'Visible', 'off');
                              plot(time(1:plot_cutoff_end_indx), data(1:plot_cutoff_end_indx));
-                             xlabel('Time');
-                             ylabel('Voltage');
+                             xlabel('Time (s)');
+                             ylabel('Voltage (mV)');
                              hold on;
                              %title(electrode_id);
                              %print(fullfile(plot_dir, electrode_id), '-dbitmap', '-r0');
@@ -85,6 +89,9 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
         well_count = 0;
         for w_r = 1:num_well_rows
             for w_c = 1:num_well_cols
+                if wellID == 'A01'
+                    continue
+                end
                 well_count = well_count + 1;
                 wellID = strcat(well_dictionary(w_r), '0', string(w_c));
 
@@ -211,21 +218,25 @@ function analyse_MEA_signals(input_file, beat_by_beat, spon_paced, well_threshol
 end
 
 function extract_beats(time, data, bdt, spon_paced)
+
     total_duration = time(end);
-    disp(total_duration)
+    
     prev_beat_indx = 1;
     beat_indx = 1;
     
     max_beat_period = 17;  %seconds
-    min_beat_period = 0.7;  %seconds
-    post_spike_hold_off = 0.2;   %seconds
-    window = 1.1;
+    min_beat_period = 0.2;  %seconds
+    post_spike_hold_off = 0.1;   %seconds
+    window = 2.2;
     
-    
+    activation_time_array = [];
+    beat_num_array = [];
+    cycle_length_array = [];
     %% New approach: while(1) until final element of the segment being analysed is past the duration
     %%               Find the first beat in the window frame
     count = 0;
     t = 0;
+    prev_activation_time = 0;
     %for t = 0:window:total_duration
     while(1)
        %disp(t+window)
@@ -260,8 +271,9 @@ function extract_beats(time, data, bdt, spon_paced)
            beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
 
        catch
+         
            %Update the beat detection threshold
-           bdt = bdt*0.1;
+           bdt = bdt*0.8;
            
            % If fails on the first iteration, set the beat index to be back to the first point
            if prev_beat_indx == 1
@@ -300,9 +312,12 @@ function extract_beats(time, data, bdt, spon_paced)
           disp(bdt)
           
           if prev_beat_indx ~= 1
-              bdt = bdt/2;
-              window = window*0.8;
               beat_indx = prev_beat_indx;
+              bdt = bdt/2;
+              %window = window*1.5;
+              if beat_time(end)+window > total_duration
+                   break;
+               end
           else
               prev_beat_indx = beat_indx;
           end
@@ -311,25 +326,50 @@ function extract_beats(time, data, bdt, spon_paced)
        end
        
        if beat_period < min_beat_period
-          disp('bdt has been increased due to beat period being too short')
-          disp(bdt)
-          if prev_beat_indx ~= 1
-              beat_indx = prev_beat_indx;
-              bdt = bdt*5;
-              window = window*1.5;
-          else
-              prev_beat_indx = beat_indx;
-          end
-          t = t - window;
-          continue;
+           disp('bdt has been increased due to beat period being too short')
+           disp(bdt)
+           %{
+           threshold_data = zeros(size(beat_time));
+           threshold_data(:) = bdt;
+           figure();
+           plot(beat_time, beat_data);
+           hold on;
+           plot(beat_time, threshold_data);
+           xlabel('Time (secs)')
+           ylabel('Voltage (V)')
+           title('Extracted Beat');
+           pause(3)
+           %}
+           if prev_beat_indx ~= 1
+               beat_indx = prev_beat_indx;
+               bdt = bdt*5;
+               
+               disp(beat_time(end))
+               disp(window)
+               disp(total_duration)
+               if beat_time(end)+window > total_duration
+                   break;
+               end
+           else
+               %Generally the first bit of the recording is short so assume this is time 0
+               prev_beat_indx = beat_indx;
+           end
+           t = t - window;
+           continue;
        end
             
-       depolarisation_complex_analysis(beat_time, beat_data, post_spike_hold_off)
+       [activation_time] = depolarisation_complex_analysis(beat_time, beat_data, post_spike_hold_off);
        
+       activation_time_array = [activation_time_array; activation_time];
+       cycle_length_array = [cycle_length_array; (activation_time-prev_activation_time)];
+       beat_num_array = [beat_num_array; count];
+       
+       
+       
+       %{
        threshold_data = zeros(size(beat_time));
        threshold_data(:) = bdt;
        
-       %{
        figure();
        plot(beat_time, beat_data);
        hold on;
@@ -337,26 +377,37 @@ function extract_beats(time, data, bdt, spon_paced)
        xlabel('Time (secs)')
        ylabel('Voltage (V)')
        title('Extracted Beat');
-       
-       %hold on;
-       %plot(beat_time, fit);
-       %pause(5);
-       %close(gcf)
-       hold off;
+       pause(5);
        %}
+             
 
-       
+       prev_activation_time = activation_time;
        prev_beat_indx = beat_indx;
        count = count + 1;
        t = t + window;
-       %pause(5);
-       %close('all');
     end
-    %disp(count);
+    disp(strcat('Total Duration = ', {' '}, string(total_duration)))
+    disp(count);
+    
+    
+    figure();
+    plot(beat_num_array, cycle_length_array, 'bo');
+    xlabel('Beat Number');
+    ylabel('Cycle Length (s)');
+    title('Cycle Length per Beat');
+    hold off;
+    
+    figure();
+    plot(cycle_length_array(1:end-1), cycle_length_array(2:end), 'bo');
+    xlabel('Cycle Length Previous Beat (s)');
+    ylabel('Cycle Length (s)');
+    title('Cycle Length vs Previous Beat Cycle Length');
+    hold off;
+    
 
 end
 
-function depolarisation_complex_analysis(time, data, post_spike_hold_off)
+function [activation_time] = depolarisation_complex_analysis(time, data, post_spike_hold_off)
     post_spike_hold_off_time = time(1)+post_spike_hold_off;
     pshot_indx = find(time >= post_spike_hold_off_time);
     pshot_indx_offset = pshot_indx(1);
@@ -366,22 +417,24 @@ function depolarisation_complex_analysis(time, data, post_spike_hold_off)
     depol_complex_data_derivative = gradient(depol_complex_data);
     %depol_complex_data_derivative = gradient(depol_complex_data_derivative);
     
-    max_slope_point = find(depol_complex_data_derivative == min(depol_complex_data_derivative));
+    activation_time_indx = find(depol_complex_data_derivative == min(depol_complex_data_derivative));
     
     %% To further refine the region to isolate the depol complex, perfrom std analysis
     
-    
+    %{
     figure()
     hold on;
     plot(depol_complex_time, depol_complex_data);
     plot(depol_complex_time, depol_complex_data_derivative);
-    plot(depol_complex_time(max_slope_point(1)), depol_complex_data(max_slope_point(1)), 'ro')
+    plot(depol_complex_time(activation_time_indx(1)), depol_complex_data(activation_time_indx(1)), 'ro')
     xlabel('Time (secs)')
     ylabel('Voltage (V)')
     title('Extracted Beat');
-    pause(5);
+    pause(2);
+    %}
+    activation_time = depol_complex_time(activation_time_indx(1));
     
-    
+    %% TO DO calculate max amplitude
     
     
 
