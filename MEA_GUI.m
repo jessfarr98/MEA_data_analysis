@@ -142,6 +142,7 @@ function MEA_GUI(raw_file)
       disp(b2b_options_dropdown.Value);
       disp(paced_spon_options_dropdown.Value);
       
+      
       if b2bdropdown.Value == 1
           beat_to_beat = 'on';
       else
@@ -169,7 +170,7 @@ function MEA_GUI(raw_file)
       
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      MEA_BDT_GUI(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis)
+      MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis)
       %% Now create GUI with plots and BDT thresholds
    end
    

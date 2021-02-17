@@ -2,35 +2,15 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
 %  Create and then hide the UI as it is being constructed.
 
 %% TO DO
-% Run button
+% Run analysis
 % General parameters like max and min beat period, post-spike hold-off.
-% Increase scroll capacity past screen limits
-
-
-
-    %{
-   f = figure('Visible','off','Position',[360,500,450,285]);
-   
-   % Construct the components.
-    hsurf    = uicontrol('Style','pushbutton',...
-                 'String','Surf','Position',[315,220,70,25],...
-                 'Callback',@surfbutton_Callback);
-
-
-    ha = axes('Units','pixels','Position',[50,60,200,185]);
-    align(hsurf,'Center','None');
-
-   
-   % Make the UI visible.
-   % Initialize the UI.
-   % Change units to normalized so components resize automatically.
-   f.Units = 'normalized';
-   ha.Units = 'normalized';
-   hsurf.Units = 'normalized';
-   %}
+% electrode thresholding option
+% Output GUI displaying results for everything with save plots function. 
+% Insert updated paced depol analysis
 
    % Generate the data to plot.   
    %raw_file = fullfile('Y:', 'Recordings for Jess', 'cardiac paced_paced ME 600us(000).raw');
+   disp('Generating Input GUI...');
    RawFileData = AxisFile(raw_file);
     
    RawData = RawFileData.DataSets.LoadData;
@@ -47,23 +27,19 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
    num_well_cols = 2;
    num_electrode_rows = 4;
    num_electrode_cols = 4;
-   
-    
+  
    screen_size = get(groot, 'ScreenSize');
    screen_width = screen_size(3);
    screen_height = screen_size(4)-100;
    
-   
    count = 0;
    well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
-   
    
    bdt_fig = uifigure;
    bdt_fig.Name = 'MEA BDT GUI';
    % left bottom width height
    main_pan = uipanel(bdt_fig, 'Position', [0 0 screen_width screen_height]);
    main_pan.Scrollable = 'on';
-   
    
    run_button = uibutton(main_pan,'push','Text', 'Run MEA Analysis', 'Position',[screen_width-190 10 80 40], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button));
    
@@ -76,38 +52,20 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
    p = uipanel(main_pan, 'Position', [0 0 screen_width-200 screen_height]);
    p.Scrollable = 'on';   
    set(bdt_fig, 'Visible', 'off')
-   %ax = uiaxes(bdt_fig);
-   
-   %figure();
-   
+
    well_bdt_array = [];
    well_t_wave_dur_array = [];
    well_t_wave_shape_array = [];
+   well_time_reg_start = [];
+   well_time_reg_end = [];
    
    well_figure_array = [];
+   
    for w_r = 1:num_well_rows
        for w_c = 1:num_well_cols
           
           count = count + 1;
-          wellID = strcat(well_dictionary(w_r), '_0', string(w_c));
-          %
-          
-          %{
-          disp(wellID)
-          % left bottom width height
-          disp(screen_height/num_well_rows);
-          sub_p = uipanel(p, 'Title', wellID, 'FontSize', 10,'Position', [((w_c-1)*((screen_width-200)/num_well_cols)) ((w_r-1)*(screen_height/num_well_rows)) (screen_width-200)/num_well_cols screen_height/num_well_rows]);
-          disp(strcat('X coord', string(((w_c-1)*((screen_width-200)/num_well_cols)))));
-          disp(strcat('Y coord', string(((w_r-1)*(screen_height/num_well_rows)))));
-          sub_p.Scrollable = 'off';
-          sub_p.AutoResizeChildren = 'off';
-          sub_ax = uiaxes(sub_p, 'Position', [2 15 ((screen_width-200)/num_well_cols)-10 (screen_height/num_well_rows)-19]);
-          hold(sub_ax,'on');
-          %disp(wellID)
-          %disp(sub_p);
-          
-          sub_panel_array = [sub_panel_array; sub_p];
-          %}
+          wellID = strcat(well_dictionary(w_r), '_0', string(w_c));          
           
           well_fig = uifigure;
           well_fig.Name = strcat(wellID, {''}, 'BDT GUI');
@@ -116,22 +74,10 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
           well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
           hold(well_ax, 'on');
           
-          submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[460 10 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
-          set(submit_in_well_button, 'Visible', 'off')
           
-          well_bdt_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'BDT'), 'FontSize', 12, 'Position', [10 60 100 40], 'Editable','off');
-          well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'Position', [10 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button));
-          
-          t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', strcat(wellID, {' '}, 'T-wave shape'), 'FontSize', 12,'Position', [120 60 100 40], 'Editable','off');
-          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'monophasic downwards', 'monophaic upwards', 'biphasic'}, 'FontSize', 12,'Position', [120 10 100 40]);
-          t_wave_up_down_dropdown.ItemsData = [1 2 3];
-          %well_bdt_ui_array = [well_bdt_ui_array ; well_bdt_ui];
-          
-          t_wave_duration_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'T-wave duration'), 'FontSize', 12, 'Position', [240 60 100 40], 'Editable','off');
-          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button));
-          
-         
           time_offset = 0;
+          max_voltage = NaN;
+          min_voltage = NaN;
           for e_r = 1:num_electrode_rows
              for e_c = 1:num_electrode_cols
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
@@ -144,7 +90,21 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
                     time = time + time_offset;
                     data = data*1000;
                     %plot(time, data);
-                    
+                    if isnan(max_voltage)
+                        max_voltage = max(data);
+                    else
+                        if max(data) > max_voltage
+                            max_voltage = max(data);
+                        end
+                    end
+                    if isnan(min_voltage)
+                        min_voltage = min(data);
+                        
+                    else
+                        if min(data) < min_voltage
+                            min_voltage = min(data);
+                        end
+                    end
                     plot(well_ax,time,data);
                     %hold on;
                     %title(sub_ax, wellID);
@@ -158,21 +118,65 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
                 end
              end
           end
-          %disp(length(axes_children(1).XData));
-          %time = linspace(0, time(end), length(time));
+          submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-200 100 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+          set(submit_in_well_button, 'Visible', 'off')
+          
+          well_bdt_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'BDT'), 'FontSize', 12, 'Position', [10 60 100 40], 'Editable','off');
+          well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'Position', [10 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
+          
+          t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', strcat(wellID, {' '}, 'T-wave shape'), 'FontSize', 12,'Position', [120 60 100 40], 'Editable','off');
+          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'monophasic downwards', 'monophaic upwards', 'biphasic'}, 'FontSize', 12,'Position', [120 10 100 40]);
+          t_wave_up_down_dropdown.ItemsData = [1 2 3];
+          
+          t_wave_duration_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'T-wave duration'), 'FontSize', 12, 'Position', [240 60 100 40], 'Editable','off');
+          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
+          
+          if strcmp(beat_to_beat, 'on')
+              if strcmp(analyse_all_b2b, 'time_region')
+                  time_start_text = uieditfield(well_p,'Text', 'Value', 'B2B Time region start time', 'FontSize', 12, 'Position', [360 60 100 40], 'Editable','off');
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end)));
+                  
+                  time_end_text = uieditfield(well_p,'Text', 'Value', 'B2B Time region end time', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end)));
+                  set(time_end_ui, 'Value', time(end))
+                  time_region_plot_data = linspace(min_voltage, max_voltage, length(data));
+                  start_data = ones(length(time), 1);
+                  start_data(:,1) = 0;
+                  end_data = ones(length(time), 1);
+                  end_data(:,1) = time(end);
+                  plot(well_ax, start_data, time_region_plot_data)
+                  plot(well_ax, end_data, time_region_plot_data)
+              end
+                 
+          else
+              if strcmp(stable_ave_analysis, 'time_region')
+                  time_start_text = uieditfield(well_p,'Text', 'Value', 'Stable Analysis time region start time', 'FontSize', 12, 'Position', [360 60 100 40], 'Editable','off');
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end)));
+                  
+                  time_end_text = uieditfield(well_p,'Text', 'Value', 'Stable Analysis time region end time', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end)));
+                  set(time_end_ui, 'Value', time(end))
+                  time_region_plot_data = linspace(min_voltage, max_voltage, length(data));
+                  start_data = ones(length(time), 1);
+                  start_data(:,1) = 0;
+                  end_data = ones(length(time), 1);
+                  end_data(:,1) = time(end);
+                  plot(well_ax, start_data, time_region_plot_data)
+                  plot(well_ax, end_data, time_region_plot_data)
+              end
+          end
+
           init_bdt_data = ones(length(time), 1);
-          %disp(get(well_bdt_ui, 'Value'));
-          %disp(size(bdt_data))
           init_bdt_data(:,1) = 0;
           plot(well_ax, time, init_bdt_data);
+          
+         
+          
           %hold off;
           
           hold(well_ax,'off');
           
-          
-          %set(well_fig, 'Visible', 'off')
-          %disp(get(well_fig, 'Visible'))
-          
+
           while(1)
              pause(0.01)
              if strcmp(get(well_fig, 'Visible'), 'off')
@@ -180,18 +184,14 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
              end
           end
           
-          %disp(get(well_fig, 'Visible'))
           
           well_figure_array = [well_figure_array; well_fig];
           well_bdt_array = [well_bdt_array; get(well_bdt_ui, 'Value')];
           well_t_wave_dur_array = [well_t_wave_dur_array; get(t_wave_duration_ui, 'Value')];
           well_t_wave_shape_array = [well_t_wave_shape_array; get(t_wave_up_down_dropdown, 'Value')];
-          %well_bdt = well_dt_ui.Value;
-          %well_bdt_array = [well_bdt_array; well_bdt];
-          %subplot(num_well_rows, num_well_cols, count)
+
        end
    end
-   %disp('Plotting')
    
    for wells = 1:length(well_figure_array)
       well_fig = well_figure_array(wells);
@@ -203,32 +203,44 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
    end
    
    
-   
-   
-   
-   function changeBDT(well_bdt_ui, well_p, submit_in_well_button)
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
-       
-       %% BDT CANNOT be equal to 0. 
+   function changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time)
+
+       % BDT CANNOT be equal to 0. 
        if get(well_bdt_ui, 'Value') == 0
            msgbox('BDT cannot be equal to 0','Oops!');
            return;
        end
        
        well_pan_components = get(well_p, 'Children');
+       t_wave_ok = 0;
+       start_time_ok = 1;
+       end_time_ok = 1;
        for i = 1:length(well_pan_components)
-           %{
-           well_bdt_ui_array(i).Value = well_bdt_ui_array(well_num).Value;
-           disp('Value')
-           disp(well_bdt_ui_array(i).Value)
-           %}
+           
            well_ui_con = well_pan_components(i);
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'T-Wave')
                if get(well_ui_con, 'Value') ~= 0 
-                   set(submit_in_well_button, 'Visible', 'on')
+                   t_wave_ok = 1;
+                   %set(submit_in_well_button, 'Visible', 'on')
+               end
+           end
+           
+           if strcmp(string(get(well_ui_con, 'Tag')), 'Start Time')
+               if get(well_ui_con, 'Value') == 0 
+                   start_time_ok = 0;
+                   %set(submit_in_well_button, 'Visible', 'on')
+               else
+                   start_time = get(well_ui_con, 'Value');
+               end
+           end
+           
+           if strcmp(string(get(well_ui_con, 'Tag')), 'End Time')
+               if get(well_ui_con, 'Value') == orig_end_time
+                   end_time_ok = 0;
+                   %set(submit_in_well_button, 'Visible', 'on')
+               else
+                   end_time = get(well_ui_con, 'Value');
                end
            end
            
@@ -246,49 +258,238 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
                end
                set(prev_bdt_plot, 'Visible', 'off');
 
-               %disp(length(axes_children(1).XData));
-               time_data = linspace(0, axes_children(1).XData(end), length(axes_children(1).XData));
-               bdt_data = ones(length(axes_children(1).XData), 1);
-               %disp(get(well_bdt_ui, 'Value'));
-               %disp(size(bdt_data))
+               time_data = linspace(0, prev_bdt_plot.XData(end), length(prev_bdt_plot.XData));
+               bdt_data = ones(length(prev_bdt_plot.XData), 1);
                bdt_data(:,1) = get(well_bdt_ui, 'Value');
                hold(well_ui_con, 'on');
                plot(well_ui_con, time_data, bdt_data);
                hold(well_ui_con, 'off');
            end
        end
+       if t_wave_ok == 1 && start_time_ok == 1 && end_time_ok == 1
+           if start_time < end_time
+              set(submit_in_well_button, 'Visible', 'on')
+           end
+       end
        
    end
 
-   function changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button)
+   function changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time)
        %disp('change T-wave duration')
        %disp('function entered')
        %disp(length(well_bdt_ui_array))
        %disp(get(p, 'Children'))
        
-       %% BDT CANNOT be equal to 0. 
+       % BDT CANNOT be equal to 0. 
        if get(t_wave_duration_ui, 'Value') == 0
            msgbox('T-Wave duration cannot be equal to 0','Oops!');
            return;
        end
        
        well_pan_components = get(well_p, 'Children');
+       bdt_ok = 0;
+       start_time_ok = 1;
+       end_time_ok = 1;
        for i = 1:length(well_pan_components)
-           %{
-           well_bdt_ui_array(i).Value = well_bdt_ui_array(well_num).Value;
-           disp('Value')
-           disp(well_bdt_ui_array(i).Value)
-           %}
            well_ui_con = well_pan_components(i);
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'BDT') 
                if get(well_ui_con, 'Value') ~= 0
-                  set(submit_in_well_button, 'Visible', 'on')
+                  %set(submit_in_well_button, 'Visible', 'on')
+                  bdt_ok = 1;
+               end
+           end
+           if strcmp(string(get(well_ui_con, 'Tag')), 'Start Time')
+               if get(well_ui_con, 'Value') == 0 
+                   start_time_ok = 0;
+                   %set(submit_in_well_button, 'Visible', 'on')
+               else
+                   start_time = get(well_ui_con, 'Value');
+               end
+           end
+           
+           if strcmp(string(get(well_ui_con, 'Tag')), 'End Time')
+               if get(well_ui_con, 'Value') == orig_end_time
+                   end_time_ok = 0;
+                   %set(submit_in_well_button, 'Visible', 'on')
+               else
+                   end_time = get(well_ui_con, 'Value');
                end
            end
        end 
+       if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1
+           if start_time < end_time
+              set(submit_in_well_button, 'Visible', 'on')
+           end
+       end
        
        
+   end
+
+
+   function changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, orig_end_time)
+       if get(time_start_ui, 'Value') >= get(time_end_ui, 'Value')
+           msgbox('Time region start time must be less than the end time.','Oops!');
+           set(time_start_ui, 'Value', 0);
+           return;
+       end
+       axes_children = get(well_ax, 'Children');
+       
+       time_region_plots = [];
+       for c = 1:length(axes_children)
+           child_x_data = axes_children(c).XData;
+           %disp(child_x_data(1))
+           %disp(floor(child_x_data(1)))
+           if child_x_data(1) == child_x_data(:)
+               
+               time_region_plots = [time_region_plots; axes_children(c)];
+               %break;
+           end
+       end
+       
+       plot1 = time_region_plots(1);
+       plot2 = time_region_plots(2);
+       if plot1.XData(1) < plot2.XData(1)
+           prev_start_plot = plot1;
+       else
+           prev_start_plot = plot2;
+       end
+       
+       set(prev_start_plot, 'Visible', 'off');
+       hold(well_ax, 'on');
+       ydata = linspace(min_voltage, max_voltage, length(prev_start_plot.YData));
+       xdata = ones(length(prev_start_plot.XData), 1);
+       xdata(:,1) = get(time_start_ui, 'Value');
+       plot(well_ax, xdata, ydata)
+       hold(well_ax, 'off');
+              
+       if get(time_start_ui, 'Value') ~= 0
+           well_pan_components = get(well_p, 'Children');
+           bdt_ok = 0;
+           start_time_ok = 1;
+           end_time_ok = 1;
+           t_wave_ok = 0;
+           for i = 1:length(well_pan_components)
+               well_ui_con = well_pan_components(i);
+
+               if strcmp(string(get(well_ui_con, 'Tag')), 'BDT') 
+                   if get(well_ui_con, 'Value') ~= 0
+                      %set(submit_in_well_button, 'Visible', 'on')
+                      bdt_ok = 1;
+                   end
+               end
+               if strcmp(string(get(well_ui_con, 'Tag')), 'T-Wave') 
+                   if get(well_ui_con, 'Value') ~= 0
+                      %set(submit_in_well_button, 'Visible', 'on')
+                      t_wave_ok = 1;
+                   end
+               end
+               if strcmp(string(get(well_ui_con, 'Tag')), 'Start Time')
+                   if get(well_ui_con, 'Value') == 0 
+                       start_time_ok = 0;
+                       %set(submit_in_well_button, 'Visible', 'on')
+                   else
+                       start_time = get(well_ui_con, 'Value');
+                   end
+               end
+
+               if strcmp(string(get(well_ui_con, 'Tag')), 'End Time')
+                   if get(well_ui_con, 'Value') == orig_end_time
+                       end_time_ok = 0;
+                       %set(submit_in_well_button, 'Visible', 'on')
+                   else
+                       end_time = get(well_ui_con, 'Value');
+                   end
+               end
+           end 
+           if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1 && t_wave_ok == 1
+               if start_time < end_time
+                  set(submit_in_well_button, 'Visible', 'on')
+               end
+           end
+       end
+   end
+
+   function changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, orig_end_time)
+       if get(time_start_ui, 'Value') >= get(time_end_ui, 'Value')
+           msgbox('Time region end time must be greater than the start time.','Oops!');
+           %return;
+           set(time_end_ui, 'Value', orig_end_time);
+       end
+       
+       axes_children = get(well_ax, 'Children');
+       
+       time_region_plots = [];
+       for c = 1:length(axes_children)
+           child_x_data = axes_children(c).XData;
+           if floor(child_x_data(:)) == floor(child_x_data(1))
+               time_region_plots = [time_region_plots; axes_children(c)];
+               %break;
+           end
+       end
+       
+       plot1 = time_region_plots(1);
+       plot2 = time_region_plots(2);
+       if plot1.XData(1) > plot2.XData(1)
+           prev_start_plot = plot1;
+       else
+           prev_start_plot = plot2;
+       
+       end
+       
+       set(prev_start_plot, 'Visible', 'off');
+       hold(well_ax, 'on')
+       ydata = linspace(min_voltage, max_voltage, length(prev_start_plot.YData));
+       xdata = ones(length(prev_start_plot.XData), 1);
+       xdata(:,1) = get(time_end_ui, 'Value');
+       plot(well_ax, xdata, ydata)
+       hold(well_ax, 'off');
+       
+       if get(time_end_ui, 'Value') ~= orig_end_time
+           well_pan_components = get(well_p, 'Children');
+           bdt_ok = 0;
+           start_time_ok = 1;
+           end_time_ok = 1;
+           t_wave_ok = 0;
+           for i = 1:length(well_pan_components)
+               well_ui_con = well_pan_components(i);
+
+               if strcmp(string(get(well_ui_con, 'Tag')), 'BDT') 
+                   if get(well_ui_con, 'Value') ~= 0
+                      %set(submit_in_well_button, 'Visible', 'on')
+                      bdt_ok = 1;
+                   end
+               end
+               if strcmp(string(get(well_ui_con, 'Tag')), 'T-Wave') 
+                   if get(well_ui_con, 'Value') ~= 0
+                      %set(submit_in_well_button, 'Visible', 'on')
+                      t_wave_ok = 1;
+                   end
+               end
+               if strcmp(string(get(well_ui_con, 'Tag')), 'Start Time')
+                   if get(well_ui_con, 'Value') == 0 
+                       start_time_ok = 0;
+                       %set(submit_in_well_button, 'Visible', 'on')
+                   else
+                       start_time = get(well_ui_con, 'Value');
+                   end
+               end
+
+               if strcmp(string(get(well_ui_con, 'Tag')), 'End Time')
+                   if get(well_ui_con, 'Value') == orig_end_time
+                       end_time_ok = 0;
+                       %set(submit_in_well_button, 'Visible', 'on')
+                   else
+                       end_time = get(well_ui_con, 'Value');
+                   end
+               end
+           end 
+           if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1 && t_wave_ok == 1
+               if start_time < end_time
+                  set(submit_in_well_button, 'Visible', 'on')
+               end
+           end
+       end
    end
 
    function submitButtonPushed(submit_in_well_button, well_fig)
