@@ -4,9 +4,11 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
 %% TO DO
 % Run analysis
 % General parameters like max and min beat period, post-spike hold-off.
-% electrode thresholding option
 % Output GUI displaying results for everything with save plots function. 
 % Insert updated paced depol analysis
+% Well range analysis - just do particular wells.
+% propagation maps
+
 
    % Generate the data to plot.   
    %raw_file = fullfile('Y:', 'Recordings for Jess', 'cardiac paced_paced ME 600us(000).raw');
@@ -256,20 +258,24 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
 
 
                end
-               set(prev_bdt_plot, 'Visible', 'off');
-
+               %set(prev_bdt_plot, 'Visible', 'off');
+               bdt_data = ones(length(prev_bdt_plot.XData), 1);
+               bdt_data(:,1) = get(well_bdt_ui, 'Value');
+               prev_bdt_plot.YData = bdt_data;
+               %{
                time_data = linspace(0, prev_bdt_plot.XData(end), length(prev_bdt_plot.XData));
                bdt_data = ones(length(prev_bdt_plot.XData), 1);
                bdt_data(:,1) = get(well_bdt_ui, 'Value');
                hold(well_ui_con, 'on');
                plot(well_ui_con, time_data, bdt_data);
                hold(well_ui_con, 'off');
+               %}
            end
        end
        if t_wave_ok == 1 && start_time_ok == 1 && end_time_ok == 1
-           if start_time < end_time
-              set(submit_in_well_button, 'Visible', 'on')
-           end
+           %if start_time < end_time
+           set(submit_in_well_button, 'Visible', 'on')
+           %end
        end
        
    end
@@ -318,9 +324,9 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
            end
        end 
        if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1
-           if start_time < end_time
-              set(submit_in_well_button, 'Visible', 'on')
-           end
+           %if start_time < end_time
+           set(submit_in_well_button, 'Visible', 'on')
+           %end
        end
        
        
@@ -331,7 +337,6 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
        if get(time_start_ui, 'Value') >= get(time_end_ui, 'Value')
            msgbox('Time region start time must be less than the end time.','Oops!');
            set(time_start_ui, 'Value', 0);
-           return;
        end
        axes_children = get(well_ax, 'Children');
        
@@ -349,20 +354,24 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
        
        plot1 = time_region_plots(1);
        plot2 = time_region_plots(2);
+       disp(plot1.XData(1));
+       disp(plot2.XData(1));
        if plot1.XData(1) < plot2.XData(1)
            prev_start_plot = plot1;
        else
            prev_start_plot = plot2;
        end
+       disp(prev_start_plot.XData(1));
        
-       set(prev_start_plot, 'Visible', 'off');
-       hold(well_ax, 'on');
+       %set(prev_start_plot, 'Visible', 'off');
+       %hold(well_ax, 'on');
        ydata = linspace(min_voltage, max_voltage, length(prev_start_plot.YData));
        xdata = ones(length(prev_start_plot.XData), 1);
        xdata(:,1) = get(time_start_ui, 'Value');
-       plot(well_ax, xdata, ydata)
-       hold(well_ax, 'off');
-              
+       %plot(well_ax, xdata, ydata)
+       %hold(well_ax, 'off');
+       prev_start_plot.XData = xdata;
+       
        if get(time_start_ui, 'Value') ~= 0
            well_pan_components = get(well_p, 'Children');
            bdt_ok = 0;
@@ -403,9 +412,9 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
                end
            end 
            if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1 && t_wave_ok == 1
-               if start_time < end_time
-                  set(submit_in_well_button, 'Visible', 'on')
-               end
+               %if start_time < end_time
+               set(submit_in_well_button, 'Visible', 'on')
+               %end
            end
        end
    end
@@ -437,13 +446,14 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
        
        end
        
-       set(prev_start_plot, 'Visible', 'off');
-       hold(well_ax, 'on')
+       %set(prev_start_plot, 'Visible', 'off');
+       %hold(well_ax, 'on');
        ydata = linspace(min_voltage, max_voltage, length(prev_start_plot.YData));
        xdata = ones(length(prev_start_plot.XData), 1);
        xdata(:,1) = get(time_end_ui, 'Value');
-       plot(well_ax, xdata, ydata)
-       hold(well_ax, 'off');
+       %plot(well_ax, xdata, ydata)
+       %hold(well_ax, 'off');
+       prev_start_plot.XData = xdata;
        
        if get(time_end_ui, 'Value') ~= orig_end_time
            well_pan_components = get(well_p, 'Children');
@@ -485,9 +495,9 @@ function MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, sta
                end
            end 
            if bdt_ok == 1 && start_time_ok == 1 && end_time_ok == 1 && t_wave_ok == 1
-               if start_time < end_time
-                  set(submit_in_well_button, 'Visible', 'on')
-               end
+               %if start_time < end_time
+               set(submit_in_well_button, 'Visible', 'on')
+               %end
            end
        end
    end
