@@ -1,6 +1,6 @@
 function MEA_GUI(raw_file)
 %  Create and then hide the UI as it is being constructed.
-
+    close('all');
     %{
    f = figure('Visible','off','Position',[360,500,450,285]);
    
@@ -80,7 +80,7 @@ function MEA_GUI(raw_file)
    b2b_options_dropdown.ItemsData = [1 2];
    
    stable_options_text = uieditfield(start_fig,'Text','Position',[410 180 140 22], 'Value','Stable/Average', 'Editable','off');
-   stable_options_dropdown = uidropdown(start_fig, 'Items', {'golden electrode', 'average'},'Position',[410 155 140 22]);
+   stable_options_dropdown = uidropdown(start_fig, 'Items', {'golden electrode', 'average waveform'},'Position',[410 155 140 22]);
    stable_options_dropdown.ItemsData = [1 2];
    set(stable_options_text,'Visible','off')
    set(stable_options_dropdown,'Visible','off')

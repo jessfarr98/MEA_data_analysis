@@ -133,7 +133,7 @@ function MEA_BDT_GUI(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable
                     %pause(10)
                     %plot(time, data);
                     time_offset = time_offset+0.015;
-                    hold on;
+                    %hold on;
                 else
                     disp(wellID)
                     disp('no data');
