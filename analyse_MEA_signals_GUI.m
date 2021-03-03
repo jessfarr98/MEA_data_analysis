@@ -1,4 +1,4 @@
-function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array)
+function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar)
 
     disp('in analysis')
     disp(spon_paced)
@@ -81,7 +81,8 @@ function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stab
     
     if strcmpi(well_thresholding, 'on')
         disp('well');
-        well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims)
+        %disp(well_min_bp_array);
+        well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, [added_wells], well_min_bp_array, well_max_bp_array, bipolar)
         
     else
         plate_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, average_waveform_duration, spon_paced, bdt, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir)
@@ -96,17 +97,19 @@ function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stab
     disp(['Total run time was ' num2str(floor(elapsed_time_hours)) ' hours and ' num2str(mod(floor(elapsed_time_mins), 60)) ' minutes.']);
 end
 
-function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims)
+function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, added_wells, well_min_bp_array, well_max_bp_array, bipolar)
     shape_data = size(AllDataRaw);
     num_well_rows = shape_data(1);
     num_well_cols = shape_data(2);
     num_electrode_rows = shape_data(3);
     num_electrode_cols = shape_data(4);
 
+    %{
     num_well_rows = 1;
     num_well_cols = 1;
     num_electrode_rows = 4;
     num_electrode_cols = 4;
+    %}
 
     total_wells = num_well_rows*num_well_cols;
     well_thresholds = double.empty(total_wells, 0);
@@ -118,8 +121,15 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
     for w_r = 1:num_well_rows
         for w_c = 1:num_well_cols
-
+            
             wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+            %disp(added_wells);
+            if ~contains(added_wells, 'all')
+                if ~contains(added_wells, wellID)
+                    continue;
+                end
+            end
+            
             %if strcmp(wellID, 'A01')
             %    continue;
             %end
@@ -153,7 +163,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                 end
                 
                 while(1)
-                    [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims);
+                    [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar);
 
                     if strcmpi(beat_to_beat, 'off')
                         if strcmp(stable_ave_analysis, 'stable')
@@ -306,7 +316,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     end
 end
 
-function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims)
+function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar)
     
     %well_count = 0;
     %well_electrode_data = [];
@@ -358,6 +368,8 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                         else
                             t_wave_shape = 'bi';
                         end
+                        min_bp = well_min_bp_array(well_count);
+                        max_bp = well_max_bp_array(well_count);
                         t_wave_duration = well_t_wave_durations(well_count);
                         time_region1 = 'N/A';
                         time_region2 = 'N/A';
@@ -366,13 +378,13 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                             time_region2 = well_time_reg_end_array(well_count);
                         end
                         if strcmp(spon_paced, 'spon')
-                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims);     
+                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp);     
                         
                         elseif strcmp(spon_paced, 'paced')
-                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims);     
+                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp);     
                         end
-                        % conduction_map goes here
-                        start_activation_times = [start_activation_times; activation_time_array(1)];
+                        
+                        start_activation_times = [start_activation_times; activation_time_array(2)];
                         
                         if strcmpi(beat_to_beat, 'off')
                             if strcmp(stable_ave_analysis, 'stable')
@@ -393,7 +405,11 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                 end
                 %well_electrode_data = [well_electrode_data; electrode_data];
             end
-            conduction_map(start_activation_times, num_electrode_rows, num_electrode_cols)
+            conduction_map(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
+            if strcmp(bipolar, 'on')
+                calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols);
+            
+            end
         %end
     %end
 
@@ -1047,7 +1063,7 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
 
 end
 
-function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims)
+function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp)
 
     if strcmpi(beat_to_beat, 'on')
         disp(electrode_id);
@@ -1069,9 +1085,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     prev_beat_indx = 1;
     beat_indx = 1;
     
-    max_beat_period = 1.5;
+    max_beat_period = max_bp;
     %max_beat_period = 17;  %seconds
-    min_beat_period = 0.2;  %seconds
+    min_beat_period = min_bp;  %seconds
     post_spike_hold_off = 0.1;   %seconds
     stim_spike_hold_off = 0.002;
     window = 5;
@@ -1086,6 +1102,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     t_wave_peak_array = [];
     max_depol_time_array = [];
     min_depol_time_array = [];
+    max_depol_point_array = [];
+    min_depol_point_array = [];
+    
    
     
     count = 0;
@@ -1232,7 +1251,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
        else
            stim_time = 'N/A';
        end
-       [activation_time, amplitude, max_depol_time, min_depol_time] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
+       [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
        [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
        
        %if count == 0
@@ -1265,6 +1284,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
        t_wave_peak_array = [t_wave_peak_array; t_wave_peak];
        max_depol_time_array = [max_depol_time_array; max_depol_time];
        min_depol_time_array = [min_depol_time_array; min_depol_time];
+       max_depol_point_array = [max_depol_point_array; max_depol_point];
+       min_depol_point_array = [min_depol_point_array; min_depol_point];
 
        prev_activation_time = activation_time;
        prev_beat_indx = beat_indx;
@@ -1275,6 +1296,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     disp(count);
     
 
+    %{
     if strcmpi(beat_to_beat, 'on')
         for i = 2:length(activation_time_array)
             disp(strcat('Beat no. ', num2str(i)))
@@ -1304,6 +1326,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
             t_wave_peak = t_wave_peak_array(i);
             max_depol_time = max_depol_time_array(i);
             min_depol_time = min_depol_time_array(i);
+            max_depol = max_depol_point_array(i);
+            min_depol = min_depol_point_array(i);
             
             %[t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time_data, beat_data, beat_to_beat, activation_time_array(i), i, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
             
@@ -1315,9 +1339,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
             %peak_indx = find(beat_data == t_wave_peak);
             %t_wave_peak_time = time_data(peak_indx(1));
             plot(t_wave_peak_time, t_wave_peak, 'ro');
-            max_depol = beat_data(time_data == max_depol_time);
+            %max_depol = beat_data(time_data == max_depol_time);
             %disp(min_depol_time)
-            min_depol = beat_data(time_data == min_depol_time);
+            %min_depol = beat_data(time_data == min_depol_time);
             act_point = beat_data(time_data == activation_time);
             plot(max_depol_time, max_depol, 'go');
             plot(min_depol_time, min_depol, 'bo');
@@ -1334,8 +1358,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
         end
        
     end
+    %}
     
-    
+    %{
     figure();
     plot(beat_num_array, cycle_length_array, 'bo');
     xlabel('Beat Number');
@@ -1357,13 +1382,13 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_id));
     hold off;
     %pause(30);
-    
+    %}
     
     
 
 end
 
-function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims)
+function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp)
 
     if strcmpi(beat_to_beat, 'on')
         disp(electrode_id);
@@ -1385,9 +1410,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     prev_beat_indx = 1;
     beat_indx = 1;
     
-    max_beat_period = 1.5;
+    max_beat_period = max_bp;
     %max_beat_period = 17;  %seconds
-    min_beat_period = 0.2;  %seconds
+    min_beat_period = min_bp;  %seconds
     post_spike_hold_off = 0.2;   %seconds
     stim_spike_hold_off = 0.002;
     window = 5;
@@ -1424,6 +1449,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
         beat_period = beat_time(end) - beat_time(1);
        
         [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, prev_stim_time, electrode_id);
+        
         [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
        
         %if count == 0
@@ -1469,7 +1495,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     disp(strcat('Total Duration = ', {' '}, string(total_duration)))
     disp(count);
     
-
+    %{
     if strcmpi(beat_to_beat, 'on')
         for i = 2:length(activation_time_array)
             disp(strcat('Beat no. ', num2str(i)))
@@ -1553,11 +1579,10 @@ function [beat_num_array, cycle_length_array, activation_time_array, beat_start_
     hold off;
     %pause(30);
     
-    
+    %}
     
 
 end
-
 
 
 function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id)
@@ -1748,7 +1773,7 @@ function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, da
 
 end
 
-function conduction_map(activation_times, num_electrode_rows, num_electrode_cols)
+function conduction_map(activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
     %% Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     
     conduction_velocities = [];
@@ -1761,43 +1786,240 @@ function conduction_map(activation_times, num_electrode_rows, num_electrode_cols
     electrode_ids = [];
     disp(activation_times);
     
+    %% 4_1 is the stim electrode
+    %% for spontaneous the origin electrode is the one with earliest activation time.
+    %% negative values possible QC
+    %% Plot activation times.
+    
     %% WRONG - NEED TO TAKE FIRST ACTIVATION TIME FROM FIRST BEAT FOR EACH ELECTRODE AND THEN CALL THIS FUNCTION
-    %for e_r = num_electrode_rows:-1:1
-    %    for e_c = 1:num_electrode_cols
-    for e_r = 1:num_electrode_rows
-        for e_c = num_electrode_cols:-1:1
-            if e_r == 1 && e_c == 1
-                dx = 0;
-                dt = 1;
-            else
-                dx = sqrt(e_r^2 + e_c^2);
-                dt = activation_times(count)-activation_times(13);
+    
+    % 4_1 is the pacing electrode
+    quiver_X = [];
+    quiver_Y = [];
+    quiver_U = [];
+    quiver_V = [];
+    if strcmp(spon_paced, 'paced')
+        %% Need to do this locally not with origin electrode
+        for e_r = 1:num_electrode_rows
+            for e_c = num_electrode_cols:-1:1
+                % For each electrode find it's adjacent electrodes travelling from bottom right to top left
+                % If bottom left (1,1) just calculate (e-r,e_c+1)
+                % If bottom row (e_r == 1) just calculate (e_r+1, e_c), (e_r, e_c)
+                % If top left ignore
+                %dx = sqrt(e_r^2 + e_c^2);
+                %dt = activation_times(count)-activation_times(13);
+                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
+                electrode_ids = [electrode_ids; e_id];
+                if e_c == 1
+                
+                    if e_r == 1
+                        % Bottom left - just calculate (e_r, e_c+1)
+                        disp('bottom left')
+                        disp(e_r)
+                        disp(e_c)
+                        %above
+                        adj_row = e_r;
+                        adj_col = e_c+1;
+                        
+                        [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+                        
+                    else
+                       % General bottom row case
+                       disp('bottom row general')
+                       disp(e_r)
+                       disp(e_c)
+                       % above
+                       adj_row = e_r
+                       adj_col = e_c+1
+                        
+                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+                        
+                       %north west 
+                       adj_row = e_r-1
+                       adj_col = e_c+1
+                        
+                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+                        
+                       
+                       %left
+                       adj_row = e_r-1
+                       adj_col = e_c
+                        
+                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+                        
+                        
+                    end
+                else
+                    if e_c == 4
+                       % top row
+                       if e_r == 1
+                           disp('top left')
+                           disp(e_r)
+                           disp(e_c)
+                          % Top left
+                          continue; 
+                       elseif e_r == 4
+                           % Top right
+                           disp('top right')
+                           disp(e_r)
+                           disp(e_c)
+                           %left
+                           adj_row = e_r-1
+                           adj_col = e_c
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+
+                       else
+                           % General top row case
+                           disp('general top case')
+                           disp(e_r)
+                           disp(e_c)
+                           %left
+                           adj_row = e_r-1
+                           adj_col = e_c
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+
+                           
+                       end
+                    else
+                       % General case
+                       % above
+                       if e_r == 1
+                           %left hand case
+                           disp('Left column')
+                           disp(e_r)
+                           disp(e_c)
+                           
+                           %above
+                           adj_row = e_r
+                           adj_col = e_c+1
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+
+                           
+                       else
+                           disp('general case')
+                           disp(e_r)
+                           disp(e_c)
+                           
+                           %above
+                           adj_row = e_r
+                           adj_col = e_c+1
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+
+                           %north west 
+                           adj_row = e_r-1
+                           adj_col = e_c+1
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+
+
+                           %left
+                           adj_row = e_r-1;
+                           adj_col = e_c;
+
+                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
+                       end
+                       
+                    end
+                end
+                count = count+1;
             end
-            %num2str(e_r)
-            e_id = strcat(num2str(e_r),{' '},num2str(e_c));
-            
-            
-            dx_array = [dx_array; dx];
-            dt_array = [dt_array; dt];
-            electrode_ids = [electrode_ids; e_id];
-            count = count+1;
+        end
+        
+        %{
+        % Origin electrode analysis
+        for e_r = 1:num_electrode_rows
+            for e_c = num_electrode_cols:-1:1
+                if e_r == 4 && e_c == 1
+                    dx = 0;
+                    dt = 1;
+                else
+                    dx = sqrt(e_r^2 + e_c^2);
+                    dt = activation_times(count)-activation_times(13);
+                end
+                %num2str(e_r)
+                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
+
+
+                dx_array = [dx_array; dx];
+                dt_array = [dt_array; dt];
+                electrode_ids = [electrode_ids; e_id];
+                count = count+1;
+            end
+        end
+        %}
+    elseif strcmp(spon_paced, 'spon')
+        min_act = min(activation_times);
+        min_act_indx = find(activation_times == min_act)
+        
+        init_e_c = mod(min_act_indx, 4);
+        init_e_r = (min_act_indx-init_e_c)/4;
+        init_e_r = init_e_r+1;
+        if init_e_r == 0
+            init_e_r =1;
+        end
+        if init_e_c == 1
+            init_e_c = 4;
+        elseif init_e_c == 2
+            init_e_c = 3;
+        elseif init_e_c == 3
+            init_e_c = 2;
+        elseif init_e_c == 0
+            init_e_c = 1;
+        end
+        disp('init_e_r');
+        disp(init_e_r);
+        disp('init_e_c');
+        disp(init_e_c);
+        for e_r = 1:num_electrode_rows
+            for e_c = num_electrode_cols:-1:1
+                if e_r == init_e_r && e_c == init_e_c
+                    disp('count');
+                    disp(count);
+                    dx = 0;
+                    dt = 1;
+                else
+                    dx = sqrt(e_r^2 + e_c^2);
+                    dt = activation_times(count)-activation_times(13);
+                end
+                %num2str(e_r)
+                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
+
+
+                dx_array = [dx_array; dx];
+                dt_array = [dt_array; dt];
+                electrode_ids = [electrode_ids; e_id];
+                count = count+1;
+            end
         end
     end
     
     conduction_velocities = dx_array./dt_array;
     
-    
+    activation_times = reshape(activation_times, [num_electrode_rows, num_electrode_cols]);
+    %{
     disp('conduction velocities b4 reshape')
     disp(conduction_velocities);
     
     conduction_velocities = reshape(conduction_velocities, [num_electrode_rows, num_electrode_cols]);
     
-    disp('dx')
-    disp(dx_array)
-    disp('dt')
-    disp(dt_array)
     disp('conduction velocities after reshape')
     disp(conduction_velocities);
+    
+    disp('dx')
+    disp(dx_array)
+    
+    disp('dt b4 reshape')
+    disp(dt_array)
+    
+    dt_array = reshape(dt_array, [num_electrode_rows, num_electrode_cols]);
+    
+    disp('dt b4 reshape')
+    disp(dt_array)
+    %}
     
     disp('elec ids b4 reshape');
     disp(electrode_ids);
@@ -1809,15 +2031,196 @@ function conduction_map(activation_times, num_electrode_rows, num_electrode_cols
     
     xlabels = {'1', '2', '3', '4'};
     ylabels = {'4', '3', '2', '1'};
-    heatmap(xlabels, ylabels, conduction_velocities);
+    %heatmap(xlabels, ylabels, conduction_velocities);
+    
+    %quiv_ax = figure();
+    tiledlayout(1,1)
+    quiv_ax = nexttile;
+    quiver(quiv_ax, quiver_X, quiver_Y, quiver_U, quiver_V)
+    hold off;
+    
+    h_fig = figure();
+    heatmap(h_fig, xlabels, ylabels, activation_times);
+    %hold off;
+    
+    %{
+    disp('X')
+    disp(quiver_X)
+    disp('Y')
+    disp(quiver_Y)
+    disp('U')
+    disp(quiver_U)
+    disp('V')
+    disp(quiver_V)
+    %}
+    
     
     
 
 
 end
 
+function [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row)
+    
+    if adj_col == 1
+        add_e_c = 4;
+    elseif adj_col == 2
+        add_e_c = 3;
+    elseif adj_col == 3
+        add_e_c = 2;
+    elseif adj_col == 4
+        add_e_c = 1;
+    end
 
+    dt = activation_times(adj_row*add_e_c)- activation_times(count);
+    
 
+    quiver_X = [quiver_X; e_r];
+    quiver_Y = [quiver_Y; e_c];
+    if adj_row == e_r
+        X = 0;
+    elseif adj_row < e_r
+        X = -1;
+    end
+    if adj_col == e_c
+        Y = 0;
+    elseif adj_col > e_c
+        Y = 1;
+    end
+    
+    dx = sqrt((X)^2 + (Y)^2);    
+    %v = dx/dt;
+    v = dt;
+    if isinf(v)
+        disp('inf')
+    end
+    quiver_U = [quiver_U; v*X];
+    quiver_V = [quiver_V; v*Y];
+
+end
+
+function calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols)
+    
+    electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
+    electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
+    %electrode_data = BipolarData.empty(length(electrodes), 0);
+    bipolar_data = BipolarData.empty(length(electrode_pairs), 0);
+
+    for j = 1:(length(electrode_pairs))
+        bipolar_data(j).electrode_id = '';
+        bipolar_data(j).wave_form = [];
+        bipolar_data(j).time = [];
+    end
+    bipolar_count = 0;
+    
+    while(1)
+        
+        if isempty(electrodes)
+            break;
+        end
+        found_init = 0;
+        for e_r = 1:num_electrode_rows
+            for e_c = num_electrode_cols:-1:1
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
+                yes_contains = contains(electrodes, electrode_id);
+                init_elec = electrodes(yes_contains);
+                electrodes = electrodes(~contains(electrodes, electrode_id));
+                if ~isempty(init_elec)
+                    init_bipolar_e_r = e_r;
+                    init_bipolar_e_c = e_c;
+                    found_init = 1;
+                    %disp(electrode_id)
+                    break;
+                end
+                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+            end
+            if found_init == 1
+                break;
+            end
+        end
+
+        found_pair1 = 0;
+        found_pair2 = 0;
+        for e_r = 1:num_electrode_rows
+            
+            for e_c = num_electrode_cols:-1:1
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
+                yes_contains = contains(electrodes, electrode_id);
+                init_elec = electrodes(yes_contains);
+                if ~isempty(init_elec)
+                    if e_r == init_bipolar_e_r && e_c == init_bipolar_e_c
+                        continue;
+                    end
+                    pair1 = strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c),':',num2str(e_r),'_',num2str(e_c));
+                    
+                    pair2 = strcat(num2str(e_r),'_',num2str(e_c),':',num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c));
+                    
+                    pair1_contains = contains(electrode_pairs, pair1);
+                    pair_1_val = electrode_pairs(pair1_contains);
+                    
+                    pair2_contains = contains(electrode_pairs, pair2);
+                    pair_2_val = electrode_pairs(pair2_contains);
+                    
+                    if ~isempty(pair_1_val)
+                        %disp('adding')
+                        %disp(pair1)
+                        found_pair1 = 1;
+                        bipolar_count = bipolar_count+1;
+                        bipolar_data(bipolar_count).electrode_id = pair1;
+                        
+                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+                        [time1, data1] = WellRawData.GetTimeVoltageVector;
+                        
+                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
+                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
+                        
+                        bipolar_data(bipolar_count).wave_form = data1-data2;
+                        
+                        bipolar_data(bipolar_count).time = time2;
+                        
+                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair1));
+                        %break;
+                    end
+                    if ~isempty(pair_2_val)
+                        %disp('adding')
+                        %disp(pair2)
+                        found_pair2 = 1;
+                        bipolar_count = bipolar_count+1;
+                        bipolar_data(bipolar_count).electrode_id = pair2;
+                        
+                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+                        [time1, data1] = WellRawData.GetTimeVoltageVector;
+                        
+                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
+                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
+                        
+                        bipolar_data(bipolar_count).wave_form = data2-data1;
+                        
+                        bipolar_data(bipolar_count).time = time2;
+                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair2));
+                        %break;
+                    end
+ 
+                    
+                end
+                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+            end            
+        end
+    end
+    
+    %disp('remaining pairs')
+    %disp(electrode_pairs)
+    %disp('Plotting')
+    for bp = 1:bipolar_count
+        %disp(bipolar_data(bp).electrode_id);
+        figure();
+        plot(bipolar_data(bp).time, bipolar_data(bp).wave_form);
+        title(strcat(bipolar_data(bp).electrode_id, {' '}, 'Bipolar Electrogram'));
+        
+    end
+    
+
+end
 
 function dir_name = prompt_user(filename_prompt, file_dir, data_dir) 
 %% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir

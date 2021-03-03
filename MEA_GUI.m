@@ -35,14 +35,17 @@ function MEA_GUI(raw_file)
    num_electrode_rows = shape_data(3);
    num_electrode_cols = shape_data(4);
     
+   %{
    num_well_rows = 1;
    num_well_cols = 1;
    num_electrode_rows = 1;
    num_electrode_cols = 1;
+   %}
     
    count = 1;
    well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
     
+   %{
    for w_r = 1:num_well_rows
        for w_c = 1:num_well_cols
           wellID = strcat(well_dictionary(w_r), '_0', string(w_c));
@@ -59,11 +62,12 @@ function MEA_GUI(raw_file)
           end
        end
    end
-
+   %}
    start_fig = uifigure;
-   ax = uiaxes(start_fig);
+   %ax = uiaxes(start_fig);
 
-   plot(ax,time,data);
+   %plot(ax,time,data);
+   
    
    start_fig.Name = 'MEA GUI';
 
@@ -74,6 +78,10 @@ function MEA_GUI(raw_file)
    
    beat_to_beat = '';
    %well_thresholding = '';
+   
+   bipolar_text = uieditfield(start_fig,'Text','Position',[410 270 140 22], 'Value','Calculate Bipolar Electrogram', 'Editable','off');
+   bipolar_dropdown = uidropdown(start_fig, 'Items', {'on', 'off'},'Position',[410 245 140 22]);
+   bipolar_dropdown.ItemsData = [1 2];
    
    b2b_options_text = uieditfield(start_fig,'Text','Position',[410 230 140 22], 'Value','Beat2Beat Options', 'Editable','off');
    b2b_options_dropdown = uidropdown(start_fig, 'Items', {'all', 'time region'},'Position',[410 205 140 22]);
@@ -90,15 +98,20 @@ function MEA_GUI(raw_file)
    b2bdropdown = uidropdown(start_fig, 'Items', {'on', 'off'}, 'Position',[410 115 140 22], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown));
    b2bdropdown.ItemsData = [1 2];
    
+   
    paced_spon_text = uieditfield(start_fig,'Text','Position',[410 90 140 22], 'Value','Paced/Spontaneous', 'Editable','off');
    paced_spon_options_dropdown = uidropdown(start_fig, 'Items', {'paced', 'spontaneous'},'Position',[410 65 140 22]);
    paced_spon_options_dropdown.ItemsData = [1 2];
      
+   
+   select_wells_button = uibutton(start_fig,'push','Text', 'Choose Particular Wells', 'Position',[410, 340, 140, 22], 'ButtonPushedFcn', @(select_wells_button,event) chooseWellsPushed(select_wells_button, num_well_rows, num_well_cols));
+   
+   added_wells = 'all';
    %well_thresh_text  = (p, 'Style','text','String','Well Specific Thresholding',... 'Position',[325,90,60,15]);
    %well_thresh_text = uieditfield(fig,'Text','Position',[410 90 140 22], 'Value','Well Thresholding');
    %well_thresh_dropdown = uidropdown(fig, 'Items', {'on', 'off'},'Position',[410 65 140 22], 'ValueChangedFcn',@(well_thresh_dropdown,event) well_thresh_popup_menu_Callback(well_thresh_dropdown, well_thresholding));
 
-   run_button = uibutton(start_fig,'push','Text', 'Choose Well Inputs', 'Position',[410, 380, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig));
+   run_button = uibutton(start_fig,'push','Text', 'Choose Well Inputs', 'Position',[410, 380, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown));
    
    function b2bdropdown_menu_Callback(b2bdropdown,beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown) 
       beat_to_beat = b2bdropdown.Value;
@@ -135,18 +148,25 @@ function MEA_GUI(raw_file)
    end
    %}
 
-   function runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig)
+   function runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown)
       disp('worked')
       disp(b2bdropdown.Value);
       disp(stable_options_dropdown.Value);
       disp(b2b_options_dropdown.Value);
       disp(paced_spon_options_dropdown.Value);
       
+      disp(added_wells);
       
       if b2bdropdown.Value == 1
           beat_to_beat = 'on';
       else
           beat_to_beat = 'off';
+      end
+      
+      if bipolarDropdown.Value == 1
+          bipolar = 'on';
+      else
+          bipolar = 'off';
       end
       
       if paced_spon_options_dropdown.Value == 1
@@ -170,8 +190,15 @@ function MEA_GUI(raw_file)
       
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis)
+      MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar)
       %% Now create GUI with plots and BDT thresholds
+   end
+
+   function chooseWellsPushed(select_wells_buttons, num_well_rows, num_well_cols)
+       %disp('TBI');
+       
+       added_wells = MEA_GUI_select_wells(num_well_rows, num_well_cols);
+       %disp(added_wells);
    end
    
    
