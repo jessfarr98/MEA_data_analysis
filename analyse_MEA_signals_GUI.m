@@ -1,7 +1,9 @@
-function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar)
+function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array)
 
     disp('in analysis')
     disp(spon_paced)
+    disp(beat_to_beat)
+    disp(stable_ave_analysis)
 % analyse_MEA_signals(fullfile('data', '20200526_70-1915_empty(001).raw'), 'off', 'spon', 'on', 1)
 
 
@@ -77,12 +79,13 @@ function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stab
        end
     end
     %}
+    
     well_thresholding = 'on';
     
     if strcmpi(well_thresholding, 'on')
         disp('well');
         %disp(well_min_bp_array);
-        well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, [added_wells], well_min_bp_array, well_max_bp_array, bipolar)
+        well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, [added_wells], well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array)
         
     else
         plate_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, average_waveform_duration, spon_paced, bdt, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir)
@@ -97,47 +100,42 @@ function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stab
     disp(['Total run time was ' num2str(floor(elapsed_time_hours)) ' hours and ' num2str(mod(floor(elapsed_time_mins), 60)) ' minutes.']);
 end
 
-function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, added_wells, well_min_bp_array, well_max_bp_array, bipolar)
+function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, Stims, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array)
     shape_data = size(AllDataRaw);
     num_well_rows = shape_data(1);
     num_well_cols = shape_data(2);
     num_electrode_rows = shape_data(3);
     num_electrode_cols = shape_data(4);
 
+    
     %{
-    num_well_rows = 1;
-    num_well_cols = 1;
-    num_electrode_rows = 4;
-    num_electrode_cols = 4;
+    %num_well_rows = 1;
+    %num_well_cols = 1;
+    num_electrode_rows = 1;
+    num_electrode_cols = 1;
     %}
 
     total_wells = num_well_rows*num_well_cols;
-    well_thresholds = double.empty(total_wells, 0);
+    %well_thresholds = double.empty(total_wells, 0);
     
-    stable_ave_analysis = 'unknown';
+    %stable_ave_analysis = 'unknown';
     plot_ave_dir = NaN;
 
     well_count = 0;
     well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
+    well_electrode_data = [];
     for w_r = 1:num_well_rows
         for w_c = 1:num_well_cols
             
             wellID = strcat(well_dictionary(w_r), '0', string(w_c));
-            %disp(added_wells);
             if ~contains(added_wells, 'all')
                 if ~contains(added_wells, wellID)
                     continue;
                 end
             end
             
-            %if strcmp(wellID, 'A01')
-            %    continue;
-            %end
             well_count = well_count + 1;
-            disp(strcat('Displaying well: ', {' '}, wellID))
-            sub_plot_count = 1;
-            %for e_r = 1:num_electrode_rows
-
+            %disp(strcat('Displaying well: ', {' '}, wellID))
             waveform = 0;
             time_offset = 0;
             for e_r = num_electrode_rows:-1:1
@@ -156,17 +154,31 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
             end
             if waveform == 1
                 %% EXTRACT ARRAY VALUES HERE AND FEED INTO ANALYSIS PIPELINE. MOVE DIR PROMPT TO START OF CODE
-                
+                %{
                 if isnan(plot_ave_dir)
                     plot_ave_dir_prompt = 'Please enter the name of the directory that will store the plots of the waveforms used to calculate the average waveforms for each electrode:\n';
                     plot_ave_dir = prompt_user(plot_ave_dir_prompt, 'dir', 'data');
                 end
+                %}
                 
+                [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array);
+                if isempty(well_electrode_data)
+                    %well_electrode_data = {electrode_data};
+                    well_electrode_data = electrode_data;
+                else
+                    well_electrode_data = [well_electrode_data; electrode_data];
+                end
+                %MEA_GUI_analysis_display_results(AllDataRaw, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, electrode_data)
+    
+                % Command line results output
+                %{
                 while(1)
                     [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar);
 
                     if strcmpi(beat_to_beat, 'off')
+                        disp(stable_ave_analysis)
                         if strcmp(stable_ave_analysis, 'stable')
+                            disp('stable plots');
                             min_stdevs = [electrode_data(:).min_stdev];
                             min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
 
@@ -200,6 +212,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                             %}
                             if strcmpi(change_window, 'yes')
                                 if strcmp(stable_ave_analysis, 'stable')
+                                    disp('plot stable elecs and GE');
                                     hold off;
                                     %celldisp(size(electrode_data(min_electrode_beat_stdev_indx).average_waveform));
                                     %pause(100);
@@ -259,13 +272,13 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                                         end
                                     end
                                     
-                                    [activation_time, amplitude, max_depol_time, min_depol_time] = rate_analysis(golden_electrode_data.time, golden_electrode_data.average_waveform, 0.1);
+                                    [activation_time, amplitude, max_depol_time, max_depol, min_depol_time, min_depol] = rate_analysis(golden_electrode_data.time, golden_electrode_data.average_waveform, 0.1, 0.001, spon_paced, golden_electrode_data.time(1), 'GE');
                                     [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(golden_electrode_data.time, golden_electrode_data.average_waveform, beat_to_beat, activation_time, NaN, spon_paced, 'down', NaN, NaN, NaN);
                                     disp(strcat('FPD = ', num2str(FPD)));
                                     disp(strcat('Depol amplitude = ', num2str(amplitude)))
                                     t_time_indx = find(golden_electrode_data.time >= t_wave_peak_time);
-                                    max_depol = golden_electrode_data.average_waveform(golden_electrode_data.time == max_depol_time);
-                                    min_depol = golden_electrode_data.average_waveform(golden_electrode_data.time == min_depol_time);
+                                    %max_depol = golden_electrode_data.average_waveform(golden_electrode_data.time == max_depol_time);
+                                    %min_depol = golden_electrode_data.average_waveform(golden_electrode_data.time == min_depol_time);
                                     act_point = golden_electrode_data.average_waveform(golden_electrode_data.time == activation_time);
                                     plot(t_wave_peak_time, golden_electrode_data.average_waveform(t_time_indx(1)), 'ro');
                                     plot(max_depol_time, max_depol, 'ro');
@@ -276,7 +289,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                                 elseif strcmp(stable_ave_analysis, 'time_region')
                                     for i = 1:num_electrode_cols*num_electrode_rows
                                         if ~isempty(electrode_data(i).time)
-                                            [activation_time, amplitude, max_depol_time, min_depol_time] = rate_analysis(electrode_data(i).time, electrode_data(i).average_waveform, 0.1);
+                                            [activation_time, amplitude, max_depol_time, max_depol, min_depol_time, min_depol] = rate_analysis(electrode_data(i).time, electrode_data(i).average_waveform, 0.1, 0.001, spon_paced, electrode_data(i).time(1),  electrode_data(i).electrode_id);
                                             
                                             figure();
                                             plot(electrode_data(i).time, electrode_data(i).average_waveform);
@@ -284,8 +297,8 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                                             [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(electrode_data(i).time, electrode_data(i).average_waveform, beat_to_beat, activation_time, NaN, spon_paced, 'down', NaN, NaN, NaN); 
                                             t_time_indx = find(electrode_data(i).time >= t_wave_peak_time);
                                             plot(t_wave_peak_time, electrode_data(i).average_waveform(t_time_indx(1)), 'ro');
-                                            max_depol = electrode_data(i).average_waveform(electrode_data(i).time == max_depol_time);
-                                            min_depol = electrode_data(i).average_waveform(electrode_data(i).time == min_depol_time);
+                                            %max_depol = electrode_data(i).average_waveform(electrode_data(i).time == max_depol_time);
+                                            %min_depol = electrode_data(i).average_waveform(electrode_data(i).time == min_depol_time);
                                             act_point = electrode_data(i).average_waveform(electrode_data(i).time == activation_time);
                                             plot(max_depol_time, max_depol, 'ro');
                                             plot(min_depol_time, min_depol, 'ro');
@@ -311,109 +324,762 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                         break;
                     end
                 end
+                %}
             end
         end
     end
+    MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar)
+    
 end
 
-function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar)
+function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array)
     
-    %well_count = 0;
-    %well_electrode_data = [];
-    %for w_r = 1:num_well_rows
-        %for w_c = 1:num_well_cols
-            %if strcmpi(wellID, 'A01')
-            %    continue;
-            %end
-            %well_count = well_count + 1;
-            wellID = strcat(well_dictionary(w_r), '0', string(w_c));
-            
-            electrode_data = ElectrodeData.empty(num_electrode_cols*num_electrode_rows, 0);
+    wellID = strcat(well_dictionary(w_r), '0', string(w_c));
 
-            for j = 1:(num_electrode_cols*num_electrode_rows)
-                electrode_data(j).min_stdev = 0;
-                electrode_data(j).average_waveform = [];
-                electrode_data(j).time = [];
-                electrode_data(j).electrode_id = '';
-                electrode_data(j).stable_waveforms = {};
-                electrode_data(j).stable_times = {};
-                electrode_data(j).window = 0;
-            end
-            electrode_count = 0;
+    electrode_data = ElectrodeData.empty(num_electrode_cols*num_electrode_rows, 0);
 
-            start_activation_times = [];
-            for e_r = 1:num_electrode_rows
-                for e_c = num_electrode_cols:-1:1
+    for j = 1:(num_electrode_cols*num_electrode_rows)
+        electrode_data(j).min_stdev = 0;
+        electrode_data(j).average_waveform = [];
+        electrode_data(j).time = [];
+        electrode_data(j).data = [];
+        electrode_data(j).electrode_id = '';
+        electrode_data(j).stable_waveforms = {};
+        electrode_data(j).stable_times = {};
+        electrode_data(j).window = 0;
+        electrode_data(j).activation_times = [];
+        electrode_data(j).beat_num_array = []; 
+        electrode_data(j).cycle_length_array = [];
+        electrode_data(j).beat_start_times = [];
+        electrode_data(j).beat_periods = [];
+        electrode_data(j).t_wave_peak_times = [];
+        electrode_data(j).t_wave_peak_array = [];
+        electrode_data(j).max_depol_time_array = [];
+        electrode_data(j).min_depol_time_array = [];
+        electrode_data(j).max_depol_point_array = [];
+        electrode_data(j).min_depol_point_array = [];
+        electrode_data(j).activation_point_array = [];
+        electrode_data(j).Stims = [];
+        
+    end
+    electrode_count = 0;
 
-                    WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
-                    if strcmp(class(WellRawData),'Waveform')
-                    electrode_id = strcat(wellID, {'_'}, string(e_c), {'_'}, string(e_r));
-                    %if ~empty(WellRawData)
-                        if strcmpi(beat_to_beat, 'off')
-                            electrode_count = electrode_count+1;
-                        end
-                        [time, data] = WellRawData.GetTimeVoltageVector;
-                        %disp(well_bdts(well_count));
+    start_activation_times = [];
+    for e_r = 1:num_electrode_rows
+        for e_c = num_electrode_cols:-1:1
+            electrode_count = electrode_count+1;
+            WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+            if strcmp(class(WellRawData),'Waveform')
+            electrode_id = strcat(wellID, {'_'}, string(e_c), {'_'}, string(e_r));
+            %if ~empty(WellRawData)
+                %if strcmpi(beat_to_beat, 'off')
+                    %electrode_count = electrode_count+1;
+                %end
+                [time, data] = WellRawData.GetTimeVoltageVector;
+                %disp(well_bdts(well_count));
+
+                if strcmp(spon_paced, 'spon')
+                    bdt = well_bdts(well_count);
+                else
+                    bdt = 'N/A';
+                    stim_spike_hold_off = stim_spike_array(well_count);
+                end
+                post_spike_hold_off = post_spike_array(well_count);
+                
+                t_wave_shape = well_t_wave_shapes(well_count);
+   
+                if t_wave_shape == 1
+                    t_wave_shape = 'down';
+                elseif t_wave_shape == 2
+                    t_wave_shape = 'up';
+                else
+                    t_wave_shape = 'bi';
+                end
+                if strcmp(spon_paced, 'spon')
+                    min_bp = well_min_bp_array(well_count);
+                    max_bp = well_max_bp_array(well_count);
+                end
+                t_wave_duration = well_t_wave_durations(well_count);
+                time_region1 = 'N/A';
+                time_region2 = 'N/A';
+                if ~isempty(well_time_reg_start_array)
+                    time_region1 = well_time_reg_start_array(well_count);
+                    time_region2 = well_time_reg_end_array(well_count);
+                end
+                if strcmp(spon_paced, 'spon')
+                    [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off);     
+
+                elseif strcmp(spon_paced, 'paced')
+                    [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off);     
+                end
+
+                electrode_data(electrode_count).electrode_id = electrode_id;
+                electrode_data(electrode_count).Stims = Stims;
+                electrode_data(electrode_count).activation_times = activation_time_array;
+                electrode_data(electrode_count).beat_num_array = beat_num_array; 
+                electrode_data(electrode_count).cycle_length_array = cycle_length_array;
+                electrode_data(electrode_count).beat_start_times = beat_start_times;
+                electrode_data(electrode_count).beat_periods = beat_periods;
+                electrode_data(electrode_count).t_wave_peak_times = t_wave_peak_times;
+                electrode_data(electrode_count).t_wave_peak_array = t_wave_peak_array;
+                electrode_data(electrode_count).max_depol_time_array = max_depol_time_array;
+                electrode_data(electrode_count).min_depol_time_array = min_depol_time_array;
+                electrode_data(electrode_count).max_depol_point_array = max_depol_point_array;
+                electrode_data(electrode_count).min_depol_point_array = min_depol_point_array;
+                electrode_data(electrode_count).activation_point_array = activation_point_array;
+                
+                if strcmp(beat_to_beat, 'on')
+                    if strcmp (analyse_all_b2b, 'all')
+                        electrode_data(electrode_count).time = time;
+                        electrode_data(electrode_count).data = data;
+                    elseif strcmp(analyse_all_b2b, 'time_region')
                         
-                        if strcmp(spon_paced, 'spon')
-                            bdt = well_bdts(well_count);
-                        else
-                            bdt = 'N/A';
-                        end
-                        t_wave_shape = well_t_wave_shapes(well_count);
-                        if t_wave_shape == 1
-                            t_wave_shape = 'down';
-                        elseif t_wave_shape == 2
-                            t_wave_shape = 'up';
-                        else
-                            t_wave_shape = 'bi';
-                        end
-                        min_bp = well_min_bp_array(well_count);
-                        max_bp = well_max_bp_array(well_count);
-                        t_wave_duration = well_t_wave_durations(well_count);
-                        time_region1 = 'N/A';
-                        time_region2 = 'N/A';
-                        if ~isempty(well_time_reg_start_array)
-                            time_region1 = well_time_reg_start_array(well_count);
-                            time_region2 = well_time_reg_end_array(well_count);
-                        end
-                        if strcmp(spon_paced, 'spon')
-                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp);     
+                        electrode_data(electrode_count).time = time(find(time>= time_region1 & time<=time_region2));
+                        electrode_data(electrode_count).data = data(find(time>= time_region1 & time<=time_region2));
                         
-                        elseif strcmp(spon_paced, 'paced')
-                            [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp);     
-                        end
                         
-                        start_activation_times = [start_activation_times; activation_time_array(2)];
+                    end
+                else
+                    if strcmp (stable_ave_analysis, 'stable')
+                        electrode_data(electrode_count).time = time;
+                        electrode_data(electrode_count).data = data;
+                    elseif strcmp(stable_ave_analysis, 'time_region')
                         
-                        if strcmpi(beat_to_beat, 'off')
-                            if strcmp(stable_ave_analysis, 'stable')
-                                [average_waveform_duration, average_waveform, min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, well_stable_dur_array(well_count), electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID);
-                                %{
-                                electrode_data(electrode_count).min_stdev = min_stdev;
-                                electrode_data(electrode_count).average_waveform = average_waveform;
-                                electrode_data(electrode_count).time = artificial_time_space;
-                                electrode_data(electrode_count).electrode_id = electrode_id;
-                                %}
-                            elseif strcmp(stable_ave_analysis, 'time_region')
-                                disp('to be implemented')
-                                [average_waveform, electrode_data] = compute_average_time_region_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, electrode_data, electrode_count, electrode_id, beat_periods, beat_start_times, plot_ave_dir, wellID);
-                                
-                            end
-                        end
+                        electrode_data(electrode_count).time = time(find(time>= time_region1 & time<=time_region2));
+                        electrode_data(electrode_count).data = data(find(time>= time_region1 & time<=time_region2));
+                        
                     end
                 end
-                %well_electrode_data = [well_electrode_data; electrode_data];
+                %start_activation_times = [start_activation_times; activation_time_array(2)];
+
+                
+                if strcmpi(beat_to_beat, 'off')
+                    if strcmp(stable_ave_analysis, 'stable')
+                        disp(strcat('compute', electrode_id,'ave waveform'))
+                        [average_waveform_duration, average_waveform, min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, well_stable_dur_array(well_count), electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID);
+                        %{
+                        electrode_data(electrode_count).min_stdev = min_stdev;
+                        electrode_data(electrode_count).average_waveform = average_waveform;
+                        electrode_data(electrode_count).time = artificial_time_space;
+                        electrode_data(electrode_count).electrode_id = electrode_id;
+                        %}
+                    elseif strcmp(stable_ave_analysis, 'time_region')
+                        %disp('to be implemented')
+                        [average_waveform, electrode_data] = compute_average_time_region_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, electrode_data, electrode_count, electrode_id, beat_periods, beat_start_times, plot_ave_dir, wellID);
+
+                    end
+                end
+                
             end
-            conduction_map(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
-            if strcmp(bipolar, 'on')
-                calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols);
+            %elecrode_count = electrode_count+1;
+        end
+        %well_electrode_data = [well_electrode_data; electrode_data];
+    end
+    
+    %{
+    conduction_map(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
+    if strcmp(bipolar, 'on')
+        calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols);
+
+    end
+    %}
+
+
+end
+
+
+function [average_waveform_duration, average_waveform, min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, average_waveform_duration, electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID)
+    
+    % Chnage to using a time frame and then calc percentage 
+    %window = floor(size(beat_num_array)*0.25);
+    %window = window(1);
+    
+    total_duration = time(end);
+    %window = floor((total_duration/median(cycle_length_array)) / (average_waveform_duration/median(cycle_length_array)))
+    %window = round(average_waveform_duration/median(cycle_length_array))
+    window = round(average_waveform_duration/median(beat_periods))
+    
+    size_bna = size(beat_num_array);
+    size_bna = size_bna(1);
+    if window > size_bna
+        average_waveform_duration = input('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. Please enter a new duration (secs):');
+        while(1)
+            window = round(average_waveform_duration/median(beat_periods));
+            if window <= size_bna && window >1
+                break;
+            end
+        end
+    end
+    
+    
+    if window <= 1
+        average_waveform_duration = input('Error: the window size used to extract the average waveform is equal to 1. Please enter a new duration (secs):');
+        while(1)
+            window = round(average_waveform_duration/median(beat_periods));
+            if window <= size_bna && window >1
+                break;
+            end
+        end
+    end
+    std_devs_forward = [];
+    std_devs_reverse = [];
+    index_start_array = [];
+    index_end_array = [];
+    final_element = size_bna-1;
+    %disp('forward');
+    
+    for w = 1:final_element
+        %disp('window')
+        %disp(w)
+        end_window = w+window-1;
+        if end_window >= final_element
+            break
+        end
+        %disp(end_window)
+        std_dev_array = [];
+        index_start_array = [index_start_array; w];
+        %disp('each element')
+        for i = w:end_window
+            %disp(i)
+            %disp(beat_periods(i))
+            std_dev_array = [std_dev_array; beat_periods(i)];
             
-            end
-        %end
+        end
+        index_end_array = [index_end_array; i];
+        std_dev = std(std_dev_array);
+        std_devs_forward = [std_devs_forward; std_dev];
+        
+    end
+    index_start_array_rev = [];
+    index_end_array_rev = [];
+    %disp('reverse')
+    for w = final_element:-1:1
+        %disp('window')
+        %disp(w)
+        end_window = w-window+1;
+        %disp(end_window)
+        std_dev_array_rev = [];
+        
+        if end_window < 1
+            break
+        end
+        index_end_array_rev = [index_end_array_rev; w];
+        %disp('each element')
+        for i = w:-1:end_window
+            %disp(i)
+            
+            std_dev_array_rev = [std_dev_array_rev; beat_periods(i)];
+            
+        end
+        index_start_array_rev = [index_start_array_rev; i];
+        std_dev = std(std_dev_array_rev);
+        std_devs_reverse = [std_devs_forward; std_dev];
+        
+    end
+    
+    %disp(std_devs_forward)
+    %disp(std_devs_reverse)
+    indx_min_window_forward = find(std_devs_forward ~= 0);
+    try
+        indx_min_window_forward = find(std_devs_forward == min(std_devs_forward(indx_min_window_forward)));
+    catch
+        disp('FAIL INDX MIN WINDOW');
+        disp('indx')
+        disp(indx_min_window_forward);
+        disp('std devs')
+        disp(std_devs_forward)
+        disp('cycle lengths')
+        disp(cycle_length_array);
+        disp('activation times')
+        disp(activation_time_array);
+        disp('start indxs')
+        disp(index_start_array)
+        
+        pause(100000);
+    end
+    
+    indx_min_window_rev = find(std_devs_reverse ~= 0);
+    indx_min_window_rev = find(std_devs_reverse == min(std_devs_reverse(indx_min_window_rev)));
+    
+    if min(std_devs_forward(indx_min_window_forward))> min(std_devs_reverse(indx_min_window_rev))
+        %disp('rev')
+        try
+            start_indx_min_window = index_start_array_rev(indx_min_window_rev);
+            end_indx_min_window = index_end_array_rev(indx_min_window_rev);
+            min_stdev = min(std_devs_reverse(indx_min_window_rev));
+        catch
+            disp('FAIL')
+            disp('start array')
+            disp(index_start_array_rev)
+            disp('end array')
+            disp(index_end_array_rev)
+            disp('activation times')
+            disp(activation_times)
+            pause(20000);
+        end
+    else
+        %disp('for')
+        try
+        %disp(min(std_devs_forward(indx_min_window_forward)))
+        %disp(min(std_devs_reverse(indx_min_window_rev)))
+            start_indx_min_window = index_start_array(indx_min_window_forward);
+            end_indx_min_window = index_end_array(indx_min_window_forward);
+            min_stdev = min(std_devs_forward(indx_min_window_forward));
+        catch
+            disp('FAIL')
+            disp('start array')
+            disp(index_start_array_forward)
+            disp('end array')
+            disp(index_end_array_forward)
+            disp('activation times')
+            disp(activation_time_array)
+            pause(2000);
+        end
+    end
+
+    %disp(indx_min_window)
+    %disp(index_start_array)
+    
+    %start_indx_min_window = index_start_array(indx_min_window);
+    %end_indx_min_window = index_end_array(indx_min_window);
+    fig = figure();
+    set(fig ,'Visible', 'off');
+    plot(beat_num_array(start_indx_min_window:end_indx_min_window), beat_periods(start_indx_min_window:end_indx_min_window), 'ro')
+    %if ~exist(fullfile(plot_ave_dir, wellID, electrode_id), 'dir')
+    %    mkdir(fullfile(plot_ave_dir, wellID, electrode_id));        
     %end
+    %print(fullfile(plot_ave_dir, wellID, electrode_id, 'stable_ave_waveform_beat_periods'), '-dbitmap', '-r0');
+    
+    
+    %% Compute the average beat by overlaying activation times
+    %disp('activation times');
+    
+    average_waveform = [];
+    sampling_rate = NaN;
+    stable_data = StableWaveforms.empty(window, 0);
+    for j = 1:(window)
+        stable_data(j).waveform = [];
+        stable_data(j).time = [];
+    end
+    
+    wave_form_count = 0;
+    %{
+    stable_data = StableWaveforms.empty(window, 0);
+    for s = 1:window
+        stable_data(s).time = [];
+        stable_data(s).waveform = [];
+    end
+    electrode_data(electrode_count).stable_data = stable_data;
+    %}
+    stable_waves = {};
+    stable_times = {};
+    for i = (start_indx_min_window+1): end_indx_min_window+1
+        %disp(activation_time_array(i));
+        %disp(i)
+        if i > final_element
+            window = window-1;            
+            break;
+        end
+        wave_form_count = wave_form_count + 1;
+        prev_activation_time = activation_time_array(i-1);
+        activation_time = activation_time_array(i);
+        prev_beat_start = beat_start_times(i-1);
+        beat_start = beat_start_times(i);
+        %disp('prev')
+        %disp(prev_activation_time)
+        %disp('curr')
+        %disp(activation_time)
+        indx_prev_act_time = find(time == prev_activation_time);
+        indx_prev_beat_time = find(time == prev_beat_start);
+        
+        indx_act_time = find(time == activation_time);
+        indx_beat_time = find(time == beat_start);
+        %disp(time(indx_act_time))
+        
+        %data_array = data(indx_prev_act_time:indx_act_time);
+        %time_array = time(indx_prev_act_time:indx_act_time);
+        data_array = data(indx_prev_beat_time:indx_beat_time);
+        time_array = time(indx_prev_beat_time:indx_beat_time);
+        store_data_array = data_array;
+        store_time_array = time_array;
+        %disp(data_array(1))
+        %pause(3)
+        if isempty(average_waveform)
+            average_waveform = data(indx_prev_beat_time:indx_beat_time); 
+            %average_waveform = data(indx_prev_act_time:indx_act_time); 
+            sampling_rate = time(2)-time(1);
+        else
+            size_wf = size(average_waveform);
+            %size_data = size(data(indx_prev_act_time:indx_act_time));
+            size_data = size(data(indx_prev_beat_time:indx_beat_time));
+            
+            if size_wf(1) > size_data(1)
+                num_extra_elements = size_wf(1) - size_data(1);
+                extra_elements = zeros(num_extra_elements, 1);
+                ext_ra_elements = Inf(num_extra_elements, 1);
+                %pause(10)
+                data_array = cat(1, data_array, extra_elements);
+                %pause(10)
+                time_array = cat(1, time_array, extra_elements);
+                store_data_array = cat(1, store_data_array, ext_ra_elements);
+                store_time_array = cat(1, store_time_array, ext_ra_elements);
+                
+            elseif size_data(1) > size_wf(1)
+                num_extra_elements = size_data(1) - size_wf(1);
+                extra_elements = zeros(num_extra_elements, 1);
+                %pause(10)
+                average_waveform = cat(1, average_waveform, extra_elements);
+                
+            end
+            %disp(size(average_waveform))
+            %disp(size(data_array))
+            %celldisp(stable_waves)
+        
+            %celldisp(stable_waves)
+            %pause(110);
+
+            average_waveform = average_waveform + data_array;
+        end
+
+        stable_waves = [stable_waves; {store_data_array}];
+        stable_times = [stable_times; {store_time_array}];
+        
+        %disp(size(stable_waves))
+        %plot(store_time_array, store_data_array);
+        %hold on;
+        %stable_data(end+1).time = time(indx_prev_act_time:indx_act_time);
+        %stable_data(end+1).waveform = data(indx_prev_act_time:indx_act_time);
+    end
+    %print(fullfile(plot_ave_dir, wellID, electrode_id, 'overlaid_average_waveforms'), '-dbitmap', '-r0');
+    %hold off;
+    %pause(10);
+    
+    %{
+    stable_beat_check = input('Do you want to keep the time frame used to extract the stable beats? (yes/no):\n', 's');
+    
+    if strcmpi(stable_beat_check, 'no')
+        average_waveform_duration = input('What is the approximate duration you would like to use for the window used to compute the average waveform that will be used for depol/t-wave analysis (seconds): ');
+        [average_waveform_duration] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, average_waveform_duration);
+    
+    else
+    %}
+    
+        average_waveform = average_waveform ./ window;
+        len_wf = size(average_waveform);
+        artificial_time_space = linspace(0,(sampling_rate*len_wf(1)),len_wf(1));
+        fig = figure();
+        set(fig ,'Visible', 'off');
+        plot(artificial_time_space, average_waveform)
+        %print(fullfile(plot_ave_dir, wellID, electrode_id, 'average_waveform'), '-dbitmap', '-r0');
+
+        
+    %end
+    %disp(window);
+    electrode_data(electrode_count).min_stdev = min_stdev;
+    electrode_data(electrode_count).average_waveform = average_waveform;
+    electrode_data(electrode_count).time = artificial_time_space;
+    electrode_data(electrode_count).electrode_id = electrode_id;
+    electrode_data(electrode_count).stable_waveforms = stable_waves;
+    electrode_data(electrode_count).stable_times = stable_times;
+    electrode_data(electrode_count).window = window;
+    %electrode_data(electrode_count).stable_data = stable_data;
+    %disp(electrode_data(electrode_count).stable_data);
+end
+
+function [average_waveform, electrode_data] = compute_average_time_region_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, electrode_data, electrode_count, electrode_id, beat_periods, beat_start_times, plot_ave_dir, wellID)
+
+    average_waveform = [];
+    sampling_rate = NaN;    
+    wave_form_count = 0;
+
+    stable_waves = {};
+    stable_times = {};
+    disp(size(beat_periods))
+    len = size(beat_periods);
+    len = len(1);
+    fig = figure();
+    set(fig ,'Visible', 'off');
+    hold on;
+    for i = 2:len
+        %disp(activation_time_array(i))
+        wave_form_count = wave_form_count + 1;
+        prev_activation_time = activation_time_array(i-1);
+        activation_time = activation_time_array(i);
+        prev_beat_start = beat_start_times(i-1);
+        beat_start = beat_start_times(i);
+
+        indx_prev_act_time = find(time == prev_activation_time);
+        indx_prev_beat_time = find(time == prev_beat_start);
+        
+        indx_act_time = find(time == activation_time);
+        indx_beat_time = find(time == beat_start);
+        
+        data_array = data(indx_prev_beat_time:indx_beat_time);
+        time_array = time(indx_prev_beat_time:indx_beat_time);
+        store_data_array = data_array;
+        store_time_array = time_array;
+        plot(time_array,data_array);
+        
+        if isempty(average_waveform)
+            average_waveform = data(indx_prev_beat_time:indx_beat_time);  
+            sampling_rate = time(2)-time(1);
+        else
+            size_wf = size(average_waveform);
+            size_data = size(data(indx_prev_beat_time:indx_beat_time));
+            
+            if size_wf(1) > size_data(1)
+                num_extra_elements = size_wf(1) - size_data(1);
+                extra_elements = zeros(num_extra_elements, 1);
+                ext_ra_elements = Inf(num_extra_elements, 1);
+                data_array = cat(1, data_array, extra_elements);
+                time_array = cat(1, time_array, extra_elements);
+               
+                store_data_array = cat(1, store_data_array, ext_ra_elements);
+                store_time_array = cat(1, store_time_array, ext_ra_elements);
+            elseif size_data(1) > size_wf(1)
+                num_extra_elements = size_data(1) - size_wf(1);
+                extra_elements = zeros(num_extra_elements, 1);
+                average_waveform = cat(1, average_waveform, extra_elements);
+                
+            end
+            
+            average_waveform = average_waveform + data_array;
+        end
+        
+        stable_waves = [stable_waves; {store_data_array}];
+        stable_times = [stable_times; {store_time_array}];
+        
+    end
+    title('overlaid waveforms')
+    %if ~exist(fullfile(plot_ave_dir, wellID, electrode_id), 'dir')
+        %mkdir(fullfile(plot_ave_dir, wellID, electrode_id));        
+    %end
+    %print(fullfile(plot_ave_dir, wellID, electrode_id, 'overlaid_average_waveforms'), '-dbitmap', '-r0');
+    
+    hold off;
+    
+    
+    average_waveform = average_waveform ./ len;
+    %disp(average_waveform)
+    len_wf = size(average_waveform);
+    artificial_time_space = linspace(0,(sampling_rate*len_wf(1)),len_wf(1));
+    fig = figure();
+    set(fig ,'Visible', 'off');
+    plot(artificial_time_space, average_waveform)
+    title('average waveform ' + wellID + {' '} + electrode_id)
+    %print(fullfile(plot_ave_dir, wellID, electrode_id, 'average_waveform'), '-dbitmap', '-r0');
+
+    electrode_data(electrode_count).min_stdev = NaN;
+    electrode_data(electrode_count).average_waveform = average_waveform;
+    electrode_data(electrode_count).time = artificial_time_space;
+    electrode_data(electrode_count).electrode_id = electrode_id;
+    electrode_data(electrode_count).stable_waveforms = stable_waves;
+    electrode_data(electrode_count).stable_times = stable_times;
+    electrode_data(electrode_count).window = len;
+    %electrode_data(electrode_count).stable_data = stable_data;
+
+end
 
 
+
+function calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols)
+    
+    electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
+    electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
+    %electrode_data = BipolarData.empty(length(electrodes), 0);
+    bipolar_data = BipolarData.empty(length(electrode_pairs), 0);
+
+    for j = 1:(length(electrode_pairs))
+        bipolar_data(j).electrode_id = '';
+        bipolar_data(j).wave_form = [];
+        bipolar_data(j).time = [];
+    end
+    bipolar_count = 0;
+    
+    while(1)
+        
+        if isempty(electrodes)
+            break;
+        end
+        found_init = 0;
+        for e_r = 1:num_electrode_rows
+            for e_c = num_electrode_cols:-1:1
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
+                yes_contains = contains(electrodes, electrode_id);
+                init_elec = electrodes(yes_contains);
+                electrodes = electrodes(~contains(electrodes, electrode_id));
+                if ~isempty(init_elec)
+                    init_bipolar_e_r = e_r;
+                    init_bipolar_e_c = e_c;
+                    found_init = 1;
+                    %disp(electrode_id)
+                    break;
+                end
+                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+            end
+            if found_init == 1
+                break;
+            end
+        end
+
+        found_pair1 = 0;
+        found_pair2 = 0;
+        for e_r = 1:num_electrode_rows
+            
+            for e_c = num_electrode_cols:-1:1
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
+                yes_contains = contains(electrodes, electrode_id);
+                init_elec = electrodes(yes_contains);
+                if ~isempty(init_elec)
+                    if e_r == init_bipolar_e_r && e_c == init_bipolar_e_c
+                        continue;
+                    end
+                    pair1 = strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c),':',num2str(e_r),'_',num2str(e_c));
+                    
+                    pair2 = strcat(num2str(e_r),'_',num2str(e_c),':',num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c));
+                    
+                    pair1_contains = contains(electrode_pairs, pair1);
+                    pair_1_val = electrode_pairs(pair1_contains);
+                    
+                    pair2_contains = contains(electrode_pairs, pair2);
+                    pair_2_val = electrode_pairs(pair2_contains);
+                    
+                    if ~isempty(pair_1_val)
+                        %disp('adding')
+                        %disp(pair1)
+                        found_pair1 = 1;
+                        bipolar_count = bipolar_count+1;
+                        bipolar_data(bipolar_count).electrode_id = pair1;
+                        
+                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+                        [time1, data1] = WellRawData.GetTimeVoltageVector;
+                        
+                        figure();
+                        plot(time1, data1)
+                        title(strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c)))
+                        
+                        
+                        
+                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
+                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
+                        
+                        figure();
+                        plot(time2, data2)
+                        title(strcat(num2str(e_r),'_',num2str(e_c)))
+                        
+                        bipolar_data(bipolar_count).wave_form = data1-data2;
+                        
+                        bipolar_data(bipolar_count).time = time2;
+                        
+                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair1));
+                        %break;
+                    end
+                    if ~isempty(pair_2_val)
+                        %disp('adding')
+                        %disp(pair2)
+                        found_pair2 = 1;
+                        bipolar_count = bipolar_count+1;
+                        bipolar_data(bipolar_count).electrode_id = pair2;
+                        
+                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+                        [time1, data1] = WellRawData.GetTimeVoltageVector;
+                        
+                        figure();
+                        plot(time1, data1)
+                        title(strcat(num2str(e_r),'_',num2str(e_c)))
+                        
+                        
+                        
+                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
+                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
+                        
+                        figure();
+                        plot(time2, data2)
+                        title(strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c)))
+                        
+                        bipolar_data(bipolar_count).wave_form = data2-data1;
+                        
+                        bipolar_data(bipolar_count).time = time2;
+                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair2));
+                        %break;
+                    end
+ 
+                    
+                end
+                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
+            end            
+        end
+    end
+    
+    %disp('remaining pairs')
+    %disp(electrode_pairs)
+    %disp('Plotting')
+    for bp = 1:bipolar_count
+        %disp(bipolar_data(bp).electrode_id);
+        figure();
+        plot(bipolar_data(bp).time, bipolar_data(bp).wave_form);
+        title(strcat(bipolar_data(bp).electrode_id, {' '}, 'Bipolar Electrogram'));
+        
+    end
+    
+
+end
+
+function dir_name = prompt_user(filename_prompt, file_dir, data_dir) 
+%% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
+%% file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
+
+    dir_name = input(filename_prompt, 's');
+    
+    % Embed the new files and directory in data directory so analyses are grouped
+    dir_name = fullfile(data_dir, dir_name);
+    
+    % Check that the filename has .csv on the end so the script doesn't die when it before writing the csv file
+    if strcmp(file_dir, 'file')
+        if ~contains(dir_name, '.csv')
+            dir_name = strcat(dir_name, '.csv');
+        end
+    end
+    
+    if exist(dir_name, file_dir)
+        % yes and no are the only valid entries. Loop continues if any other string is entered 
+        changed_name = 0;
+        while (1)
+            check = input ('The selected directory name already exists, do you wish to continue? If so data will be lost (yes/no):\n', 's');
+            if strcmpi(check, 'yes')
+                break;
+            elseif strcmpi(check, 'no')
+                dir_name = input(filename_prompt, 's');
+                dir_name = fullfile(data_dir, dir_name);
+                if ~exist(dir_name, file_dir)
+                    changed_name = 1;
+                    break;
+                end
+            end
+        end
+        if changed_name == 0
+            disp(['Overwriting' ' ' dir_name]);
+            switch file_dir
+                case 'dir' 
+                    if strcmp(dir_name, data_dir)
+                        disp('Error: Blocked from overwriting the entire data directory.');
+                        dir_name = prompt_user(filename_prompt, file_dir, parent_dir);  
+                    end
+                    rmdir (dir_name, 's');
+                case 'file'
+                    % Check that the file is open. If fopen returns -1 alert the user to close the file and throw an error
+                    fid = fopen(dir_name, 'w');
+                    if fid < 0
+                        error('Warning. The selected filename is open in another application and therefore cannot be overwritten. Please close and start run the script again.');
+                    end 
+                    fclose(fid);
+                    delete dir_name;
+            end
+        end
+    end
+    if strcmp(file_dir, 'dir')
+        mkdir(dir_name);
+    end
 end
 
 function plate_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, average_waveform_duration, spon_paced, bdt, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir)
@@ -667,1615 +1333,6 @@ function plate_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, 
             end
            
         end
-    end
-end
-
-
-function [average_waveform_duration, average_waveform, min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, average_waveform_duration, electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID)
-    
-    % Chnage to using a time frame and then calc percentage 
-    %window = floor(size(beat_num_array)*0.25);
-    %window = window(1);
-    
-    total_duration = time(end);
-    %window = floor((total_duration/median(cycle_length_array)) / (average_waveform_duration/median(cycle_length_array)))
-    %window = round(average_waveform_duration/median(cycle_length_array))
-    window = round(average_waveform_duration/median(beat_periods))
-    
-    size_bna = size(beat_num_array);
-    size_bna = size_bna(1);
-    if window > size_bna
-        average_waveform_duration = input('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. Please enter a new duration (secs):');
-        while(1)
-            window = round(average_waveform_duration/median(beat_periods));
-            if window <= size_bna && window >1
-                break;
-            end
-        end
-    end
-    
-    
-    if window <= 1
-        average_waveform_duration = input('Error: the window size used to extract the average waveform is equal to 1. Please enter a new duration (secs):');
-        while(1)
-            window = round(average_waveform_duration/median(beat_periods));
-            if window <= size_bna && window >1
-                break;
-            end
-        end
-    end
-    std_devs_forward = [];
-    std_devs_reverse = [];
-    index_start_array = [];
-    index_end_array = [];
-    final_element = size_bna-1;
-    %disp('forward');
-    
-    for w = 1:final_element
-        %disp('window')
-        %disp(w)
-        end_window = w+window-1;
-        if end_window >= final_element
-            break
-        end
-        %disp(end_window)
-        std_dev_array = [];
-        index_start_array = [index_start_array; w];
-        %disp('each element')
-        for i = w:end_window
-            %disp(i)
-            %disp(beat_periods(i))
-            std_dev_array = [std_dev_array; beat_periods(i)];
-            
-        end
-        index_end_array = [index_end_array; i];
-        std_dev = std(std_dev_array);
-        std_devs_forward = [std_devs_forward; std_dev];
-        
-    end
-    index_start_array_rev = [];
-    index_end_array_rev = [];
-    %disp('reverse')
-    for w = final_element:-1:1
-        %disp('window')
-        %disp(w)
-        end_window = w-window+1;
-        %disp(end_window)
-        std_dev_array_rev = [];
-        
-        if end_window < 1
-            break
-        end
-        index_end_array_rev = [index_end_array_rev; w];
-        %disp('each element')
-        for i = w:-1:end_window
-            %disp(i)
-            
-            std_dev_array_rev = [std_dev_array_rev; beat_periods(i)];
-            
-        end
-        index_start_array_rev = [index_start_array_rev; i];
-        std_dev = std(std_dev_array_rev);
-        std_devs_reverse = [std_devs_forward; std_dev];
-        
-    end
-    
-    %disp(std_devs_forward)
-    %disp(std_devs_reverse)
-    indx_min_window_forward = find(std_devs_forward ~= 0);
-    try
-        indx_min_window_forward = find(std_devs_forward == min(std_devs_forward(indx_min_window_forward)));
-    catch
-        disp('FAIL INDX MIN WINDOW');
-        disp('indx')
-        disp(indx_min_window_forward);
-        disp('std devs')
-        disp(std_devs_forward)
-        disp('cycle lengths')
-        disp(cycle_length_array);
-        disp('activation times')
-        disp(activation_time_array);
-        disp('start indxs')
-        disp(index_start_array)
-        
-        pause(100000);
-    end
-    
-    indx_min_window_rev = find(std_devs_reverse ~= 0);
-    indx_min_window_rev = find(std_devs_reverse == min(std_devs_reverse(indx_min_window_rev)));
-    
-    if min(std_devs_forward(indx_min_window_forward))> min(std_devs_reverse(indx_min_window_rev))
-        %disp('rev')
-        try
-            start_indx_min_window = index_start_array_rev(indx_min_window_rev);
-            end_indx_min_window = index_end_array_rev(indx_min_window_rev);
-            min_stdev = min(std_devs_reverse(indx_min_window_rev));
-        catch
-            disp('FAIL')
-            disp('start array')
-            disp(index_start_array_rev)
-            disp('end array')
-            disp(index_end_array_rev)
-            disp('activation times')
-            disp(activation_times)
-            pause(20000);
-        end
-    else
-        %disp('for')
-        try
-        %disp(min(std_devs_forward(indx_min_window_forward)))
-        %disp(min(std_devs_reverse(indx_min_window_rev)))
-            start_indx_min_window = index_start_array(indx_min_window_forward);
-            end_indx_min_window = index_end_array(indx_min_window_forward);
-            min_stdev = min(std_devs_forward(indx_min_window_forward));
-        catch
-            disp('FAIL')
-            disp('start array')
-            disp(index_start_array_forward)
-            disp('end array')
-            disp(index_end_array_forward)
-            disp('activation times')
-            disp(activation_time_array)
-            pause(2000);
-        end
-    end
-
-    %disp(indx_min_window)
-    %disp(index_start_array)
-    
-    %start_indx_min_window = index_start_array(indx_min_window);
-    %end_indx_min_window = index_end_array(indx_min_window);
-    fig = figure();
-    set(fig ,'Visible', 'off');
-    plot(beat_num_array(start_indx_min_window:end_indx_min_window), beat_periods(start_indx_min_window:end_indx_min_window), 'ro')
-    if ~exist(fullfile(plot_ave_dir, wellID, electrode_id), 'dir')
-        mkdir(fullfile(plot_ave_dir, wellID, electrode_id));        
-    end
-    print(fullfile(plot_ave_dir, wellID, electrode_id, 'stable_ave_waveform_beat_periods'), '-dbitmap', '-r0');
-    
-    
-    %% Compute the average beat by overlaying activation times
-    %disp('activation times');
-    
-    average_waveform = [];
-    sampling_rate = NaN;
-    stable_data = StableWaveforms.empty(window, 0);
-    for j = 1:(window)
-        stable_data(j).waveform = [];
-        stable_data(j).time = [];
-    end
-    
-    wave_form_count = 0;
-    %{
-    stable_data = StableWaveforms.empty(window, 0);
-    for s = 1:window
-        stable_data(s).time = [];
-        stable_data(s).waveform = [];
-    end
-    electrode_data(electrode_count).stable_data = stable_data;
-    %}
-    stable_waves = {};
-    stable_times = {};
-    for i = (start_indx_min_window+1): end_indx_min_window+1
-        %disp(activation_time_array(i));
-        %disp(i)
-        if i > final_element
-            window = window-1;            
-            break;
-        end
-        wave_form_count = wave_form_count + 1;
-        prev_activation_time = activation_time_array(i-1);
-        activation_time = activation_time_array(i);
-        prev_beat_start = beat_start_times(i-1);
-        beat_start = beat_start_times(i);
-        %disp('prev')
-        %disp(prev_activation_time)
-        %disp('curr')
-        %disp(activation_time)
-        indx_prev_act_time = find(time == prev_activation_time);
-        indx_prev_beat_time = find(time == prev_beat_start);
-        
-        indx_act_time = find(time == activation_time);
-        indx_beat_time = find(time == beat_start);
-        %disp(time(indx_act_time))
-        
-        %data_array = data(indx_prev_act_time:indx_act_time);
-        %time_array = time(indx_prev_act_time:indx_act_time);
-        data_array = data(indx_prev_beat_time:indx_beat_time);
-        time_array = time(indx_prev_beat_time:indx_beat_time);
-        store_data_array = data_array;
-        store_time_array = time_array;
-        %disp(data_array(1))
-        %pause(3)
-        if isempty(average_waveform)
-            average_waveform = data(indx_prev_beat_time:indx_beat_time); 
-            %average_waveform = data(indx_prev_act_time:indx_act_time); 
-            sampling_rate = time(2)-time(1);
-        else
-            size_wf = size(average_waveform);
-            %size_data = size(data(indx_prev_act_time:indx_act_time));
-            size_data = size(data(indx_prev_beat_time:indx_beat_time));
-            
-            if size_wf(1) > size_data(1)
-                num_extra_elements = size_wf(1) - size_data(1);
-                extra_elements = zeros(num_extra_elements, 1);
-                ext_ra_elements = Inf(num_extra_elements, 1);
-                %pause(10)
-                data_array = cat(1, data_array, extra_elements);
-                %pause(10)
-                time_array = cat(1, time_array, extra_elements);
-                store_data_array = cat(1, store_data_array, ext_ra_elements);
-                store_time_array = cat(1, store_time_array, ext_ra_elements);
-                
-            elseif size_data(1) > size_wf(1)
-                num_extra_elements = size_data(1) - size_wf(1);
-                extra_elements = zeros(num_extra_elements, 1);
-                %pause(10)
-                average_waveform = cat(1, average_waveform, extra_elements);
-                
-            end
-            %disp(size(average_waveform))
-            %disp(size(data_array))
-            %celldisp(stable_waves)
-        
-            %celldisp(stable_waves)
-            %pause(110);
-
-            average_waveform = average_waveform + data_array;
-        end
-
-        stable_waves = [stable_waves; {store_data_array}];
-        stable_times = [stable_times; {store_time_array}];
-        
-        %disp(size(stable_waves))
-        %plot(store_time_array, store_data_array);
-        %hold on;
-        %stable_data(end+1).time = time(indx_prev_act_time:indx_act_time);
-        %stable_data(end+1).waveform = data(indx_prev_act_time:indx_act_time);
-    end
-    %print(fullfile(plot_ave_dir, wellID, electrode_id, 'overlaid_average_waveforms'), '-dbitmap', '-r0');
-    %hold off;
-    %pause(10);
-    
-    %{
-    stable_beat_check = input('Do you want to keep the time frame used to extract the stable beats? (yes/no):\n', 's');
-    
-    if strcmpi(stable_beat_check, 'no')
-        average_waveform_duration = input('What is the approximate duration you would like to use for the window used to compute the average waveform that will be used for depol/t-wave analysis (seconds): ');
-        [average_waveform_duration] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, average_waveform_duration);
-    
-    else
-    %}
-    
-        average_waveform = average_waveform ./ window;
-        len_wf = size(average_waveform);
-        artificial_time_space = linspace(0,(sampling_rate*len_wf(1)),len_wf(1));
-        fig = figure();
-        set(fig ,'Visible', 'off');
-        plot(artificial_time_space, average_waveform)
-        print(fullfile(plot_ave_dir, wellID, electrode_id, 'average_waveform'), '-dbitmap', '-r0');
-
-        
-    %end
-    %disp(window);
-    electrode_data(electrode_count).min_stdev = min_stdev;
-    electrode_data(electrode_count).average_waveform = average_waveform;
-    electrode_data(electrode_count).time = artificial_time_space;
-    electrode_data(electrode_count).electrode_id = electrode_id;
-    electrode_data(electrode_count).stable_waveforms = stable_waves;
-    electrode_data(electrode_count).stable_times = stable_times;
-    electrode_data(electrode_count).window = window;
-    %electrode_data(electrode_count).stable_data = stable_data;
-    %disp(electrode_data(electrode_count).stable_data);
-end
-
-function [average_waveform, electrode_data] = compute_average_time_region_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, electrode_data, electrode_count, electrode_id, beat_periods, beat_start_times, plot_ave_dir, wellID)
-
-    average_waveform = [];
-    sampling_rate = NaN;    
-    wave_form_count = 0;
-
-    stable_waves = {};
-    stable_times = {};
-    disp(size(beat_periods))
-    len = size(beat_periods);
-    len = len(1);
-    fig = figure();
-    set(fig ,'Visible', 'off');
-    hold on;
-    for i = 2:len
-        %disp(activation_time_array(i))
-        wave_form_count = wave_form_count + 1;
-        prev_activation_time = activation_time_array(i-1);
-        activation_time = activation_time_array(i);
-        prev_beat_start = beat_start_times(i-1);
-        beat_start = beat_start_times(i);
-
-        indx_prev_act_time = find(time == prev_activation_time);
-        indx_prev_beat_time = find(time == prev_beat_start);
-        
-        indx_act_time = find(time == activation_time);
-        indx_beat_time = find(time == beat_start);
-        
-        data_array = data(indx_prev_beat_time:indx_beat_time);
-        time_array = time(indx_prev_beat_time:indx_beat_time);
-        store_data_array = data_array;
-        store_time_array = time_array;
-        plot(time_array,data_array);
-        
-        if isempty(average_waveform)
-            average_waveform = data(indx_prev_beat_time:indx_beat_time);  
-            sampling_rate = time(2)-time(1);
-        else
-            size_wf = size(average_waveform);
-            size_data = size(data(indx_prev_beat_time:indx_beat_time));
-            
-            if size_wf(1) > size_data(1)
-                num_extra_elements = size_wf(1) - size_data(1);
-                extra_elements = zeros(num_extra_elements, 1);
-                ext_ra_elements = Inf(num_extra_elements, 1);
-                data_array = cat(1, data_array, extra_elements);
-                time_array = cat(1, time_array, extra_elements);
-               
-                store_data_array = cat(1, store_data_array, ext_ra_elements);
-                store_time_array = cat(1, store_time_array, ext_ra_elements);
-            elseif size_data(1) > size_wf(1)
-                num_extra_elements = size_data(1) - size_wf(1);
-                extra_elements = zeros(num_extra_elements, 1);
-                average_waveform = cat(1, average_waveform, extra_elements);
-                
-            end
-            
-            average_waveform = average_waveform + data_array;
-        end
-        
-        stable_waves = [stable_waves; {store_data_array}];
-        stable_times = [stable_times; {store_time_array}];
-        
-    end
-    title('overlaid waveforms')
-    if ~exist(fullfile(plot_ave_dir, wellID, electrode_id), 'dir')
-        mkdir(fullfile(plot_ave_dir, wellID, electrode_id));        
-    end
-    print(fullfile(plot_ave_dir, wellID, electrode_id, 'overlaid_average_waveforms'), '-dbitmap', '-r0');
-    
-    hold off;
-    
-    
-    average_waveform = average_waveform ./ len;
-    %disp(average_waveform)
-    len_wf = size(average_waveform);
-    artificial_time_space = linspace(0,(sampling_rate*len_wf(1)),len_wf(1));
-    fig = figure();
-    set(fig ,'Visible', 'off');
-    plot(artificial_time_space, average_waveform)
-    title('average waveform ' + wellID + {' '} + electrode_id)
-    print(fullfile(plot_ave_dir, wellID, electrode_id, 'average_waveform'), '-dbitmap', '-r0');
-
-    electrode_data(electrode_count).min_stdev = NaN;
-    electrode_data(electrode_count).average_waveform = average_waveform;
-    electrode_data(electrode_count).time = artificial_time_space;
-    electrode_data(electrode_count).electrode_id = electrode_id;
-    electrode_data(electrode_count).stable_waveforms = stable_waves;
-    electrode_data(electrode_count).stable_times = stable_times;
-    electrode_data(electrode_count).window = len;
-    %electrode_data(electrode_count).stable_data = stable_data;
-
-end
-
-function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp)
-
-    if strcmpi(beat_to_beat, 'on')
-        disp(electrode_id);
-        if strcmp(analyse_all_b2b, 'time_region')
-            time_region_indx = find(time >= b2b_time_region1 & time <= b2b_time_region2);
-            time = time(time_region_indx);
-            data = data(time_region_indx);
-            
-        end
-    else
-        if strcmp(stable_ave_analysis, 'time_region')
-            time_region_indx = find(time >= average_waveform_time1 & time <= average_waveform_time2);
-            time = time(time_region_indx);
-            data = data(time_region_indx);
-        end
-    end
-    total_duration = time(end);
-    
-    prev_beat_indx = 1;
-    beat_indx = 1;
-    
-    max_beat_period = max_bp;
-    %max_beat_period = 17;  %seconds
-    min_beat_period = min_bp;  %seconds
-    post_spike_hold_off = 0.1;   %seconds
-    stim_spike_hold_off = 0.002;
-    window = 5;
-    
-    activation_time_array = [];
-    beat_num_array = [];
-    cycle_length_array = [];
-    beat_start_times = [];
-    beat_end_times = [];
-    beat_periods = [];
-    t_wave_peak_times = [];
-    t_wave_peak_array = [];
-    max_depol_time_array = [];
-    min_depol_time_array = [];
-    max_depol_point_array = [];
-    min_depol_point_array = [];
-    
-   
-    
-    count = 0;
-    t = 0;
-    prev_activation_time = 0;
-    %for t = 0:window:total_duration
-    fail_beat_detection = 0;
-    
-    disp(Stims);
-    %pause(20);
-    while(1)
-       %disp(t+window)
-       %Use the beat detection threshold to determine the regions that need
-       %to be analysed
-       
-       if (time(prev_beat_indx)+window) > total_duration
-           break;
-       end           
-           
-       %Take segments of data from each window to search for the next beat 
-       if beat_indx == 1
-       %if t == 0
-           wind_indx = find(time >= 0 & time <= total_duration);  
-          %wind_indx = find(time >= 0 & time <= window);  
-          %wind_indx = find(time >= t & time <= t+window);
-       else
-          wind_indx = find(time >= time(prev_beat_indx) & time <= total_duration); 
-          %wind_indx = find(time >= time(prev_beat_indx) & time <= (time(prev_beat_indx)+window)); 
-          %wind_indx = find(time >= t & time <= t+window);
-       end
-       
-       t_ime = time(wind_indx);
-       d_ata = data(wind_indx);
-
-       try 
-           post_spike_hold_off_time = t_ime(1)+post_spike_hold_off;
-           pshot_indx = find(t_ime >= post_spike_hold_off_time);
-           pshot_indx_offset = pshot_indx(1);
-                      
-           beat_indx = find(d_ata(pshot_indx) >= bdt);
-           beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
-
-       catch
-           %Update the beat detection threshold
-           bdt = bdt*0.8;
-           if isalmost(bdt, 0, 1E-10)
-               disp('end of recording')
-               break
-           end
-           
-           % If fails on the first iteration, set the beat index to be back to the first point
-           if prev_beat_indx == 1
-               beat_indx = 1;
-           else
-               beat_indx = prev_beat_indx;
-           end
-
-           t = t - window;
-           continue;
-       end
-       
-       %% Between 10 and 12 seconds 2 beats are being picked up as one
-       
-       beat_time = time(prev_beat_indx:beat_indx);
-       beat_data = data(prev_beat_indx:beat_indx);
-       
-       %% Trim and then scale and set back to time zero for each beat
-       %% Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 
-       %% Try training and test sets too. Separate the whole datasets so use 80% of the beat signals as the 20%
-       
-       try
-          beat_period = beat_time(end) - beat_time(1);
-       catch
-          beat_indx = prev_beat_indx;
-          continue;
-       end
-       
-       disp(strcat('Beat period = ', num2str(beat_period)));
-       disp(strcat('Beat start time = ', num2str(beat_time(1))));
-       disp(strcat('Beat end time = ', num2str(beat_time(end))));
-       
-       if beat_period > max_beat_period
-       %Check there is only one beat period.
-          disp('bdt has been reduced due to beat period being too long')
-          disp(bdt)
-          
-          %if prev_beat_indx ~= 1
-          beat_indx = prev_beat_indx;
-          bdt = bdt/2;
-          %window = window*1.5;
-          if beat_time(end)+window > total_duration
-               break;
-          end
-          if isalmost(bdt, 0, 1E-5)
-             disp('end of recording')
-             break
-          end
-          %else
-              %prev_beat_indx = beat_indx;
-              %prev_beat_indx = 1
-          %end
-          t = t - window;
-          continue;
-       end
-       
-       if beat_period < min_beat_period
-           fail_beat_detection = fail_beat_detection+1;
-           
-           if fail_beat_detection >= 10
-               break;
-           end
-           disp('bdt has been increased due to beat period being too short')
-           
-           disp(bdt)
-           disp(fail_beat_detection)
-
-           if prev_beat_indx ~= 1
-               beat_indx = prev_beat_indx;
-               bdt = bdt*5;
-               
-               disp(beat_time(end))
-               disp(window)
-               disp(total_duration)
-               if beat_time(end)+window > total_duration
-                   break;
-               end
-           else
-               %Generally the first bit of the recording is short so assume this is time 0
-               prev_beat_indx = beat_indx;
-           end
-           t = t - window;
-           continue;
-       end
-       fail_beat_detection = 0;
-       
-       if strcmp(spon_paced, 'paced')
-           if count == 0
-               stim_time = 0;
-           elseif count > length(Stims)
-              stim_time = beat_time(1);
-           else
-              stim_time = Stims(count);
-           end
-       else
-           stim_time = 'N/A';
-       end
-       [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
-       [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
-       
-       %if count == 0
-           %figure();
-       %end
-       
-       %{
-       hold off;
-       figure();
-       hold on;
-       plot(beat_time, beat_data);
-       plot(t_wave_peak_time, t_wave_peak, 'yo');
-       max_depol = beat_data(beat_time == max_depol_time);
-       min_depol = beat_data(beat_time == min_depol_time);
-       act_point = beat_data(beat_time == activation_time);
-       plot(max_depol_time, max_depol, 'go');
-       plot(min_depol_time, min_depol, 'bo');
-       plot(activation_time, act_point, 'ro');
-       hold off;
-       %}
-       %pause(10)
-           
-       activation_time_array = [activation_time_array; activation_time];
-       cycle_length_array = [cycle_length_array; (activation_time-prev_activation_time)];
-       beat_num_array = [beat_num_array; count];
-       beat_start_times = [beat_start_times; beat_time(1)];
-       beat_end_times = [beat_end_times; beat_time(end)];
-       beat_periods = [beat_periods; beat_period]; 
-       t_wave_peak_times = [t_wave_peak_times; t_wave_peak_time];
-       t_wave_peak_array = [t_wave_peak_array; t_wave_peak];
-       max_depol_time_array = [max_depol_time_array; max_depol_time];
-       min_depol_time_array = [min_depol_time_array; min_depol_time];
-       max_depol_point_array = [max_depol_point_array; max_depol_point];
-       min_depol_point_array = [min_depol_point_array; min_depol_point];
-
-       prev_activation_time = activation_time;
-       prev_beat_indx = beat_indx;
-       count = count + 1;
-       t = t + window;
-    end
-    disp(strcat('Total Duration = ', {' '}, string(total_duration)))
-    disp(count);
-    
-
-    %{
-    if strcmpi(beat_to_beat, 'on')
-        for i = 2:length(activation_time_array)
-            disp(strcat('Beat no. ', num2str(i)))
-            if i == 2
-                %figure();
-                %plot(time, data);
-                %title('First b2b extracted beat');
-                %t_wave_peak_seed = input('On inpection of the first 4 extracted beats please enter the time point to use as the estimated peak of the T-wave complex:\n');
-                %t_wave_search_ratio = input('What duration of the waveforms seem to be dominated by the T-wave complex?:\n');
-                figure();
-            end
-            beat_start = beat_start_times(i);
-            %disp(length(beat_start));
-            %disp(beat_start)
-            %if i == length(activation_time_array)
-            %    beat_end = time(end);
-            %else
-            beat_end = beat_end_times(i);
-            %end
-            beat_data = data(time >= beat_start & time <= beat_end);
-            time_data = time(time >= beat_start & time <= beat_end);
-            
-            
-            %[activation_time, amplitude, max_depol_time, min_depol_time] = rate_analysis(time_data, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
-            activation_time = activation_time_array(i);
-            t_wave_peak_time = t_wave_peak_times(i);
-            t_wave_peak = t_wave_peak_array(i);
-            max_depol_time = max_depol_time_array(i);
-            min_depol_time = min_depol_time_array(i);
-            max_depol = max_depol_point_array(i);
-            min_depol = min_depol_point_array(i);
-            
-            %[t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time_data, beat_data, beat_to_beat, activation_time_array(i), i, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
-            
-            %figure();
-            %disp(FPD)
-            %subplot(ceil(length(beat_start_times)/4), 4, i-1);
-            plot(time_data, beat_data);
-            hold on;
-            %peak_indx = find(beat_data == t_wave_peak);
-            %t_wave_peak_time = time_data(peak_indx(1));
-            plot(t_wave_peak_time, t_wave_peak, 'ro');
-            %max_depol = beat_data(time_data == max_depol_time);
-            %disp(min_depol_time)
-            %min_depol = beat_data(time_data == min_depol_time);
-            act_point = beat_data(time_data == activation_time);
-            plot(max_depol_time, max_depol, 'go');
-            plot(min_depol_time, min_depol, 'bo');
-            plot(activation_time, act_point, 'ro');
-            title(strcat('t-wave peak marked for electrode ', electrode_id));
-            
-            disp(strcat('FPD = ', num2str(FPD(1))));
-            disp(strcat('Depol amplitude = ', num2str(amplitude)))
-            
-            %hold off;
-            %pause(15);
-
-
-        end
-       
-    end
-    %}
-    
-    %{
-    figure();
-    plot(beat_num_array, cycle_length_array, 'bo');
-    xlabel('Beat Number');
-    ylabel('Cycle Length (s)');
-    title(strcat('Cycle Length per Beat', {' '}, electrode_id));
-    hold off;
-
-    figure();
-    plot(beat_num_array, beat_periods, 'bo');
-    xlabel('Beat Number');
-    ylabel('Beat Period (s)');
-    title(strcat('Beat Period per Beat', {' '}, electrode_id));
-    hold off;
-
-    figure();
-    plot(cycle_length_array(1:end-1), cycle_length_array(2:end), 'bo');
-    xlabel('Cycle Length Previous Beat (s)');
-    ylabel('Cycle Length (s)');
-    title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_id));
-    hold off;
-    %pause(30);
-    %}
-    
-    
-
-end
-
-function [beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp)
-
-    if strcmpi(beat_to_beat, 'on')
-        disp(electrode_id);
-        if strcmp(analyse_all_b2b, 'time_region')
-            time_region_indx = find(time >= b2b_time_region1 & time <= b2b_time_region2);
-            time = time(time_region_indx);
-            data = data(time_region_indx);
-            
-        end
-    else
-        if strcmp(stable_ave_analysis, 'time_region')
-            time_region_indx = find(time >= average_waveform_time1 & time <= average_waveform_time2);
-            time = time(time_region_indx);
-            data = data(time_region_indx);
-        end
-    end
-    total_duration = time(end);
-    
-    prev_beat_indx = 1;
-    beat_indx = 1;
-    
-    max_beat_period = max_bp;
-    %max_beat_period = 17;  %seconds
-    min_beat_period = min_bp;  %seconds
-    post_spike_hold_off = 0.2;   %seconds
-    stim_spike_hold_off = 0.002;
-    window = 5;
-    
-    activation_time_array = [];
-    beat_num_array = [];
-    cycle_length_array = [];
-    beat_start_times = [];
-    beat_end_times = [];
-    beat_periods = [];
-    t_wave_peak_times = [];
-    t_wave_peak_array = [];
-    max_depol_time_array = [];
-    min_depol_time_array = [];
-    max_depol_point_array = [];
-    min_depol_point_array = [];
-   
-    
-    count = 0;
-    t = 0;
-    prev_activation_time = 0;
-    %for t = 0:window:total_duration
-    fail_beat_detection = 0;
-    
-    disp(Stims);
-    %pause(20);
-    prev_stim_time = Stims(1);
-    for i = 2:length(Stims)
-        stim_time = Stims(i);
-        
-        beat_time = time(find(time >= prev_stim_time & time <= stim_time));
-        beat_data = data(find(time >= prev_stim_time & time <= stim_time));
-       
-        beat_period = beat_time(end) - beat_time(1);
-       
-        [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, prev_stim_time, electrode_id);
-        
-        [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
-       
-        %if count == 0
-            %figure();
-        %end
-       
-        %{
-        hold off;
-        figure();
-        hold on;
-        plot(beat_time, beat_data);
-        plot(t_wave_peak_time, t_wave_peak, 'yo');
-        max_depol = beat_data(beat_time == max_depol_time);
-        min_depol = beat_data(beat_time == min_depol_time);
-        act_point = beat_data(beat_time == activation_time);
-        plot(max_depol_time, max_depol, 'go');
-        plot(min_depol_time, min_depol, 'bo');
-        plot(activation_time, act_point, 'ro');
-        hold off;
-        %}
-        %pause(10)
-           
-        activation_time_array = [activation_time_array; activation_time];
-        cycle_length_array = [cycle_length_array; (activation_time-prev_activation_time)];
-        beat_num_array = [beat_num_array; count];
-        beat_start_times = [beat_start_times; beat_time(1)];
-        beat_end_times = [beat_end_times; beat_time(end)];
-        beat_periods = [beat_periods; beat_period]; 
-        t_wave_peak_times = [t_wave_peak_times; t_wave_peak_time];
-        t_wave_peak_array = [t_wave_peak_array; t_wave_peak];
-        max_depol_time_array = [max_depol_time_array; max_depol_time];
-        min_depol_time_array = [min_depol_time_array; min_depol_time];
-        max_depol_point_array = [max_depol_point_array; max_depol_point];
-        min_depol_point_array = [min_depol_point_array; min_depol_point];
-
-        prev_activation_time = activation_time;
-        prev_beat_indx = beat_indx;
-       
-        prev_stim_time = stim_time;
-        count = count + 1;
-        t = t + window;
-    end
-    disp(strcat('Total Duration = ', {' '}, string(total_duration)))
-    disp(count);
-    
-    %{
-    if strcmpi(beat_to_beat, 'on')
-        for i = 2:length(activation_time_array)
-            disp(strcat('Beat no. ', num2str(i)))
-            if i == 2
-                %figure();
-                %plot(time, data);
-                %title('First b2b extracted beat');
-                %t_wave_peak_seed = input('On inpection of the first 4 extracted beats please enter the time point to use as the estimated peak of the T-wave complex:\n');
-                %t_wave_search_ratio = input('What duration of the waveforms seem to be dominated by the T-wave complex?:\n');
-                figure();
-            end
-            beat_start = beat_start_times(i);
-            %disp(length(beat_start));
-            %disp(beat_start)
-            %if i == length(activation_time_array)
-            %    beat_end = time(end);
-            %else
-            beat_end = beat_end_times(i);
-            %end
-            beat_data = data(time >= beat_start & time <= beat_end);
-            time_data = time(time >= beat_start & time <= beat_end);
-            
-            
-            %[activation_time, amplitude, max_depol_time, min_depol_time] = rate_analysis(time_data, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
-            activation_time = activation_time_array(i);
-            t_wave_peak_time = t_wave_peak_times(i);
-            t_wave_peak = t_wave_peak_array(i);
-            max_depol_time = max_depol_time_array(i);
-            min_depol_time = min_depol_time_array(i);
-            max_depol = max_depol_point_array(i);
-            min_depol = min_depol_point_array(i);
-            
-            %[t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time_data, beat_data, beat_to_beat, activation_time_array(i), i, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
-            
-            %figure();
-            %disp(FPD)
-            %subplot(ceil(length(beat_start_times)/4), 4, i-1);
-            plot(time_data, beat_data);
-            hold on;
-            %peak_indx = find(beat_data == t_wave_peak);
-            %t_wave_peak_time = time_data(peak_indx(1));
-            plot(t_wave_peak_time, t_wave_peak, 'ro');
-            
-            act_point = beat_data(time_data == activation_time);
-            plot(max_depol_time, max_depol, 'go');
-            plot(min_depol_time, min_depol, 'bo');
-            plot(activation_time, act_point, 'ro');
-            title(strcat('t-wave peak marked for electrode ', electrode_id));
-            
-            disp(strcat('FPD = ', num2str(FPD(1))));
-            disp(strcat('Depol amplitude = ', num2str(amplitude)))
-            
-            %hold off;
-            %pause(15);
-
-
-        end
-       
-    end
-    
-    
-    figure();
-    plot(beat_num_array, cycle_length_array, 'bo');
-    xlabel('Beat Number');
-    ylabel('Cycle Length (s)');
-    title(strcat('Cycle Length per Beat', {' '}, electrode_id));
-    hold off;
-
-    figure();
-    plot(beat_num_array, beat_periods, 'bo');
-    xlabel('Beat Number');
-    ylabel('Beat Period (s)');
-    title(strcat('Beat Period per Beat', {' '}, electrode_id));
-    hold off;
-
-    figure();
-    plot(cycle_length_array(1:end-1), cycle_length_array(2:end), 'bo');
-    xlabel('Cycle Length Previous Beat (s)');
-    ylabel('Cycle Length (s)');
-    title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_id));
-    hold off;
-    %pause(30);
-    
-    %}
-    
-
-end
-
-
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id)
-
-    % propagation maps:
-    % sort the first act time per electrode per well and then calc
-    % delta_time between each 
-    % Can use diff prop patterns - see statistic compiler. Some are more
-    % common than others. Not default, need to be turned on. 
-
-    %{
-    if strcmp(electrode_id, 'A01_4_4')
-        figure()
-
-        plot(time, data);
-        title('Full beat');
-
-        disp('post spike hold off')
-        disp(post_spike_hold_off);
-        disp('tim spike hold off')
-        disp(stim_spike_hold_off);
-        disp('stim');
-        disp(stim_time);
-
-        disp('start time');
-        disp(time(1))
-        disp('end time')
-        disp(time(end))
-    
-    end
-    %}
-    if strcmp(spon_paced, 'spon')
-        post_spike_hold_off_time = time(1)+post_spike_hold_off;
-        pshot_indx = find(time >= post_spike_hold_off_time);
-        pshot_indx_offset = pshot_indx(1);
-        depol_complex_time = time(1:pshot_indx_offset);
-        depol_complex_data = data(1:pshot_indx_offset);
-    elseif strcmp(spon_paced, 'paced')
-        start_time_indx = find(time >= stim_time+stim_spike_hold_off);
-        
-        %start_time_indx(1)
-        post_spike_hold_off_time = stim_time+post_spike_hold_off;
-        pshot_indx = find(time >= post_spike_hold_off_time);
-        pshot_indx_offset = pshot_indx(1);
-        try
-            depol_complex_time = time(start_time_indx(1):pshot_indx_offset);
-            depol_complex_data = data(start_time_indx(1):pshot_indx_offset);
-            %{
-            disp(length(depol_complex_time))
-            disp('depol start')
-            disp(depol_complex_time(1))
-            disp('depol end')
-            disp(depol_complex_time(end))
-            %}
-            if length(depol_complex_time) < 1
-                depol_complex_time = time;
-                depol_complex_data = data;
-            end
-        catch 
-            %disp('catch')
-            depol_complex_time = time(1:pshot_indx_offset);
-            depol_complex_data = data(1:pshot_indx_offset);
-            disp(length(depol_complex_time))
-            if length(depol_complex_time) < 1
-                %disp('all')
-                depol_complex_time = time;
-                depol_complex_data = data;
-            end
-        end
-        
-    end
-    depol_complex_data_derivative = gradient(depol_complex_data);
-    %depol_complex_data_derivative = gradient(depol_complex_data_derivative);
-    
-    activation_time_indx = find(depol_complex_data_derivative == min(depol_complex_data_derivative));
-    
-    max_depol_point = max(depol_complex_data)
-    max_depol_time = time(find(depol_complex_data == max_depol_point))
-    
-    min_depol_point = min(depol_complex_data)
-    min_depol_time = time(find(depol_complex_data == min_depol_point))
-    
-    
-    if length(min_depol_time) > 1
-        min_depol_time = min_depol_time(1);
-        
-    end
-    if length(max_depol_time) > 1
-        max_depol_time = max_depol_time(1);
-        
-    end
-    
-    amplitude = max_depol_point - min_depol_point;
-    
-    %% To further refine the region to isolate the depol complex, perfrom std analysis
-    
-    try
-        activation_time = depol_complex_time(activation_time_indx(1));
-    catch
-        disp('error')
-    end
-    
-    %{
-    if strcmp(electrode_id, 'A01_4_4')
-        disp('time length')
-        disp(length(depol_complex_time));
-
-        figure()
-        hold on;
-        %plot(time, data);
-        plot(depol_complex_time, depol_complex_data);
-        %plot(depol_complex_time, depol_complex_data_derivative);
-        plot(max_depol_time, max_depol_point, 'ro');
-        plot(min_depol_time, min_depol_point, 'ro');
-        plot(depol_complex_time(activation_time_indx(1)), depol_complex_data(activation_time_indx(1)), 'ro')
-        xlabel('Time (secs)')
-        ylabel('Voltage (V)')
-        title('Extracted Depol. Complex');
-        hold off;
-        
-        disp('max')
-        disp(max_depol_time)
-        disp('min')
-        disp(min_depol_time)
-        disp('start depol');
-        disp(depol_complex_time(1))
-        disp('end depol')
-        disp(depol_complex_time(end))
-    end
-        %}
-    
-    %}
-    
-    %cpause(5);cl
-    %pause(5);
-    
-    
-    
-    %% TO DO calculate max amplitude
-    
-   
-end
-
-function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, data, beat_to_beat, activation_time, beat_no, spon_paced, mono_up_down, t_wave_peak, t_wave_search_duration, post_spike_holdoff)
-    
-    disp(mono_up_down);
-    if strcmpi(beat_to_beat, 'off')
-        t_wave_peak_time = input('On inpection of the waveform please enter the time point to use as the peak of the T-wave complex (seconds):\n');
-        t_wave_peak = data(time == t_wave_peak_time);
-    else
-        %{
-        %if strcmp(spon_paced, 'paced')
-            if beat_no == 1
-                %figure();
-                %plot(time, data);
-                %title('First b2b extracted beat');
-                t_wave_peak = input('On inpection of the first 4 extracted beats please enter the time point to use as the estimated peak of the T-wave complex:\n');
-            end
-        %elseif strcmp(spon_paced, 'spon')
-            %disp('beat to beat spontaneous data requires automated T-wave analysis')
-            %t_wave_peak = NaN;
-            %return;
-        %end
-        %}
-        %t_wave_search_duration = (time(end)-time(1))*t_wave_search_ratio;
-       
-        if strcmp(mono_up_down, 'up')
-            t_wave_indx = find(time >= time(1)+post_spike_holdoff & time <= time(1)+post_spike_holdoff+(t_wave_search_duration));
-            t_wave_time = time(t_wave_indx);
-            t_wave_data = data(t_wave_indx);
-            t_wave_peak = max(t_wave_data);
-            t_wave_peak_time = t_wave_time(t_wave_data == t_wave_peak);
-        elseif strcmp(mono_up_down, 'down')            
-            t_wave_indx = find(time >= time(1)+post_spike_holdoff & time <= time(1)+post_spike_holdoff+(t_wave_search_duration));
-            t_wave_time = time(t_wave_indx);
-            t_wave_data = data(t_wave_indx);
-            t_wave_peak = min(t_wave_data);
-            t_wave_peak_time = t_wave_time(t_wave_data == t_wave_peak);
-            %t_wave_peak = t_wave_peak(1);
-        end  
-    end
-    
-    %disp(activation_time)
-    %disp(t_wave_peak_time)
-    FPD = t_wave_peak_time - activation_time;
-    
-
-
-end
-
-function conduction_map(activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
-    %% Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
-    
-    conduction_velocities = [];
-    
-    init_e_r = 1;
-    init_e_c = 1;
-    dx_array = [];
-    dt_array = [];
-    count = 1;
-    electrode_ids = [];
-    disp(activation_times);
-    
-    %% 4_1 is the stim electrode
-    %% for spontaneous the origin electrode is the one with earliest activation time.
-    %% negative values possible QC
-    %% Plot activation times.
-    
-    %% WRONG - NEED TO TAKE FIRST ACTIVATION TIME FROM FIRST BEAT FOR EACH ELECTRODE AND THEN CALL THIS FUNCTION
-    
-    % 4_1 is the pacing electrode
-    quiver_X = [];
-    quiver_Y = [];
-    quiver_U = [];
-    quiver_V = [];
-    if strcmp(spon_paced, 'paced')
-        %% Need to do this locally not with origin electrode
-        for e_r = 1:num_electrode_rows
-            for e_c = num_electrode_cols:-1:1
-                % For each electrode find it's adjacent electrodes travelling from bottom right to top left
-                % If bottom left (1,1) just calculate (e-r,e_c+1)
-                % If bottom row (e_r == 1) just calculate (e_r+1, e_c), (e_r, e_c)
-                % If top left ignore
-                %dx = sqrt(e_r^2 + e_c^2);
-                %dt = activation_times(count)-activation_times(13);
-                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
-                electrode_ids = [electrode_ids; e_id];
-                if e_c == 1
-                
-                    if e_r == 1
-                        % Bottom left - just calculate (e_r, e_c+1)
-                        disp('bottom left')
-                        disp(e_r)
-                        disp(e_c)
-                        %above
-                        adj_row = e_r;
-                        adj_col = e_c+1;
-                        
-                        [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-                        
-                    else
-                       % General bottom row case
-                       disp('bottom row general')
-                       disp(e_r)
-                       disp(e_c)
-                       % above
-                       adj_row = e_r
-                       adj_col = e_c+1
-                        
-                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-                        
-                       %north west 
-                       adj_row = e_r-1
-                       adj_col = e_c+1
-                        
-                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-                        
-                       
-                       %left
-                       adj_row = e_r-1
-                       adj_col = e_c
-                        
-                       [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-                        
-                        
-                    end
-                else
-                    if e_c == 4
-                       % top row
-                       if e_r == 1
-                           disp('top left')
-                           disp(e_r)
-                           disp(e_c)
-                          % Top left
-                          continue; 
-                       elseif e_r == 4
-                           % Top right
-                           disp('top right')
-                           disp(e_r)
-                           disp(e_c)
-                           %left
-                           adj_row = e_r-1
-                           adj_col = e_c
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-
-                       else
-                           % General top row case
-                           disp('general top case')
-                           disp(e_r)
-                           disp(e_c)
-                           %left
-                           adj_row = e_r-1
-                           adj_col = e_c
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-
-                           
-                       end
-                    else
-                       % General case
-                       % above
-                       if e_r == 1
-                           %left hand case
-                           disp('Left column')
-                           disp(e_r)
-                           disp(e_c)
-                           
-                           %above
-                           adj_row = e_r
-                           adj_col = e_c+1
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-
-                           
-                       else
-                           disp('general case')
-                           disp(e_r)
-                           disp(e_c)
-                           
-                           %above
-                           adj_row = e_r
-                           adj_col = e_c+1
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-
-                           %north west 
-                           adj_row = e_r-1
-                           adj_col = e_c+1
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-
-
-                           %left
-                           adj_row = e_r-1;
-                           adj_col = e_c;
-
-                           [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row);
-                       end
-                       
-                    end
-                end
-                count = count+1;
-            end
-        end
-        
-        %{
-        % Origin electrode analysis
-        for e_r = 1:num_electrode_rows
-            for e_c = num_electrode_cols:-1:1
-                if e_r == 4 && e_c == 1
-                    dx = 0;
-                    dt = 1;
-                else
-                    dx = sqrt(e_r^2 + e_c^2);
-                    dt = activation_times(count)-activation_times(13);
-                end
-                %num2str(e_r)
-                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
-
-
-                dx_array = [dx_array; dx];
-                dt_array = [dt_array; dt];
-                electrode_ids = [electrode_ids; e_id];
-                count = count+1;
-            end
-        end
-        %}
-    elseif strcmp(spon_paced, 'spon')
-        min_act = min(activation_times);
-        min_act_indx = find(activation_times == min_act)
-        
-        init_e_c = mod(min_act_indx, 4);
-        init_e_r = (min_act_indx-init_e_c)/4;
-        init_e_r = init_e_r+1;
-        if init_e_r == 0
-            init_e_r =1;
-        end
-        if init_e_c == 1
-            init_e_c = 4;
-        elseif init_e_c == 2
-            init_e_c = 3;
-        elseif init_e_c == 3
-            init_e_c = 2;
-        elseif init_e_c == 0
-            init_e_c = 1;
-        end
-        disp('init_e_r');
-        disp(init_e_r);
-        disp('init_e_c');
-        disp(init_e_c);
-        for e_r = 1:num_electrode_rows
-            for e_c = num_electrode_cols:-1:1
-                if e_r == init_e_r && e_c == init_e_c
-                    disp('count');
-                    disp(count);
-                    dx = 0;
-                    dt = 1;
-                else
-                    dx = sqrt(e_r^2 + e_c^2);
-                    dt = activation_times(count)-activation_times(13);
-                end
-                %num2str(e_r)
-                e_id = strcat(num2str(e_r),{' '},num2str(e_c));
-
-
-                dx_array = [dx_array; dx];
-                dt_array = [dt_array; dt];
-                electrode_ids = [electrode_ids; e_id];
-                count = count+1;
-            end
-        end
-    end
-    
-    conduction_velocities = dx_array./dt_array;
-    
-    activation_times = reshape(activation_times, [num_electrode_rows, num_electrode_cols]);
-    %{
-    disp('conduction velocities b4 reshape')
-    disp(conduction_velocities);
-    
-    conduction_velocities = reshape(conduction_velocities, [num_electrode_rows, num_electrode_cols]);
-    
-    disp('conduction velocities after reshape')
-    disp(conduction_velocities);
-    
-    disp('dx')
-    disp(dx_array)
-    
-    disp('dt b4 reshape')
-    disp(dt_array)
-    
-    dt_array = reshape(dt_array, [num_electrode_rows, num_electrode_cols]);
-    
-    disp('dt b4 reshape')
-    disp(dt_array)
-    %}
-    
-    disp('elec ids b4 reshape');
-    disp(electrode_ids);
-    
-    electrode_ids = reshape(electrode_ids, [num_electrode_rows, num_electrode_cols]);
-    
-    disp('elec ids after reshape');
-    disp(electrode_ids);
-    
-    xlabels = {'1', '2', '3', '4'};
-    ylabels = {'4', '3', '2', '1'};
-    %heatmap(xlabels, ylabels, conduction_velocities);
-    
-    %quiv_ax = figure();
-    tiledlayout(1,1)
-    quiv_ax = nexttile;
-    quiver(quiv_ax, quiver_X, quiver_Y, quiver_U, quiver_V)
-    hold off;
-    
-    h_fig = figure();
-    heatmap(h_fig, xlabels, ylabels, activation_times);
-    %hold off;
-    
-    %{
-    disp('X')
-    disp(quiver_X)
-    disp('Y')
-    disp(quiver_Y)
-    disp('U')
-    disp(quiver_U)
-    disp('V')
-    disp(quiver_V)
-    %}
-    
-    
-    
-
-
-end
-
-function [quiver_X, quiver_Y, quiver_U, quiver_V] = calculate_vector(quiver_X, quiver_Y, quiver_U, quiver_V, e_r, e_c, activation_times, count, adj_col, adj_row)
-    
-    if adj_col == 1
-        add_e_c = 4;
-    elseif adj_col == 2
-        add_e_c = 3;
-    elseif adj_col == 3
-        add_e_c = 2;
-    elseif adj_col == 4
-        add_e_c = 1;
-    end
-
-    dt = activation_times(adj_row*add_e_c)- activation_times(count);
-    
-
-    quiver_X = [quiver_X; e_r];
-    quiver_Y = [quiver_Y; e_c];
-    if adj_row == e_r
-        X = 0;
-    elseif adj_row < e_r
-        X = -1;
-    end
-    if adj_col == e_c
-        Y = 0;
-    elseif adj_col > e_c
-        Y = 1;
-    end
-    
-    dx = sqrt((X)^2 + (Y)^2);    
-    %v = dx/dt;
-    v = dt;
-    if isinf(v)
-        disp('inf')
-    end
-    quiver_U = [quiver_U; v*X];
-    quiver_V = [quiver_V; v*Y];
-
-end
-
-function calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows, num_electrode_cols)
-    
-    electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
-    electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
-    %electrode_data = BipolarData.empty(length(electrodes), 0);
-    bipolar_data = BipolarData.empty(length(electrode_pairs), 0);
-
-    for j = 1:(length(electrode_pairs))
-        bipolar_data(j).electrode_id = '';
-        bipolar_data(j).wave_form = [];
-        bipolar_data(j).time = [];
-    end
-    bipolar_count = 0;
-    
-    while(1)
-        
-        if isempty(electrodes)
-            break;
-        end
-        found_init = 0;
-        for e_r = 1:num_electrode_rows
-            for e_c = num_electrode_cols:-1:1
-                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
-                yes_contains = contains(electrodes, electrode_id);
-                init_elec = electrodes(yes_contains);
-                electrodes = electrodes(~contains(electrodes, electrode_id));
-                if ~isempty(init_elec)
-                    init_bipolar_e_r = e_r;
-                    init_bipolar_e_c = e_c;
-                    found_init = 1;
-                    %disp(electrode_id)
-                    break;
-                end
-                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
-            end
-            if found_init == 1
-                break;
-            end
-        end
-
-        found_pair1 = 0;
-        found_pair2 = 0;
-        for e_r = 1:num_electrode_rows
-            
-            for e_c = num_electrode_cols:-1:1
-                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
-                yes_contains = contains(electrodes, electrode_id);
-                init_elec = electrodes(yes_contains);
-                if ~isempty(init_elec)
-                    if e_r == init_bipolar_e_r && e_c == init_bipolar_e_c
-                        continue;
-                    end
-                    pair1 = strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c),':',num2str(e_r),'_',num2str(e_c));
-                    
-                    pair2 = strcat(num2str(e_r),'_',num2str(e_c),':',num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c));
-                    
-                    pair1_contains = contains(electrode_pairs, pair1);
-                    pair_1_val = electrode_pairs(pair1_contains);
-                    
-                    pair2_contains = contains(electrode_pairs, pair2);
-                    pair_2_val = electrode_pairs(pair2_contains);
-                    
-                    if ~isempty(pair_1_val)
-                        %disp('adding')
-                        %disp(pair1)
-                        found_pair1 = 1;
-                        bipolar_count = bipolar_count+1;
-                        bipolar_data(bipolar_count).electrode_id = pair1;
-                        
-                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
-                        [time1, data1] = WellRawData.GetTimeVoltageVector;
-                        
-                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
-                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
-                        
-                        bipolar_data(bipolar_count).wave_form = data1-data2;
-                        
-                        bipolar_data(bipolar_count).time = time2;
-                        
-                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair1));
-                        %break;
-                    end
-                    if ~isempty(pair_2_val)
-                        %disp('adding')
-                        %disp(pair2)
-                        found_pair2 = 1;
-                        bipolar_count = bipolar_count+1;
-                        bipolar_data(bipolar_count).electrode_id = pair2;
-                        
-                        WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
-                        [time1, data1] = WellRawData.GetTimeVoltageVector;
-                        
-                        InitWellRawData = AllDataRaw{w_r, w_c, init_bipolar_e_r, init_bipolar_e_c};
-                        [time2, data2] = InitWellRawData.GetTimeVoltageVector;
-                        
-                        bipolar_data(bipolar_count).wave_form = data2-data1;
-                        
-                        bipolar_data(bipolar_count).time = time2;
-                        electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair2));
-                        %break;
-                    end
- 
-                    
-                end
-                %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c};
-            end            
-        end
-    end
-    
-    %disp('remaining pairs')
-    %disp(electrode_pairs)
-    %disp('Plotting')
-    for bp = 1:bipolar_count
-        %disp(bipolar_data(bp).electrode_id);
-        figure();
-        plot(bipolar_data(bp).time, bipolar_data(bp).wave_form);
-        title(strcat(bipolar_data(bp).electrode_id, {' '}, 'Bipolar Electrogram'));
-        
-    end
-    
-
-end
-
-function dir_name = prompt_user(filename_prompt, file_dir, data_dir) 
-%% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
-%% file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
-
-    dir_name = input(filename_prompt, 's');
-    
-    % Embed the new files and directory in data directory so analyses are grouped
-    dir_name = fullfile(data_dir, dir_name);
-    
-    % Check that the filename has .csv on the end so the script doesn't die when it before writing the csv file
-    if strcmp(file_dir, 'file')
-        if ~contains(dir_name, '.csv')
-            dir_name = strcat(dir_name, '.csv');
-        end
-    end
-    
-    if exist(dir_name, file_dir)
-        % yes and no are the only valid entries. Loop continues if any other string is entered 
-        changed_name = 0;
-        while (1)
-            check = input ('The selected directory name already exists, do you wish to continue? If so data will be lost (yes/no):\n', 's');
-            if strcmpi(check, 'yes')
-                break;
-            elseif strcmpi(check, 'no')
-                dir_name = input(filename_prompt, 's');
-                dir_name = fullfile(data_dir, dir_name);
-                if ~exist(dir_name, file_dir)
-                    changed_name = 1;
-                    break;
-                end
-            end
-        end
-        if changed_name == 0
-            disp(['Overwriting' ' ' dir_name]);
-            switch file_dir
-                case 'dir' 
-                    if strcmp(dir_name, data_dir)
-                        disp('Error: Blocked from overwriting the entire data directory.');
-                        dir_name = prompt_user(filename_prompt, file_dir, parent_dir);  
-                    end
-                    rmdir (dir_name, 's');
-                case 'file'
-                    % Check that the file is open. If fopen returns -1 alert the user to close the file and throw an error
-                    fid = fopen(dir_name, 'w');
-                    if fid < 0
-                        error('Warning. The selected filename is open in another application and therefore cannot be overwritten. Please close and start run the script again.');
-                    end 
-                    fclose(fid);
-                    delete dir_name;
-            end
-        end
-    end
-    if strcmp(file_dir, 'dir')
-        mkdir(dir_name);
     end
 end
 
