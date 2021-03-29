@@ -1,7 +1,7 @@
-function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, num_electrode_cols)
+function calculate_adjacent_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, num_electrode_cols)
     
-    electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
-    electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
+    electrode_pairs = ["1_1:1_2", "1_3:1_4", "2_1:2_2", "2_3:2_4", "3_1:3_2", "3_3:3_4", "4_1:4_2", "4_3:4_4"];
+    electrodes = ["1_1", "1_2", "1_3", "1_4", "2_1", "2_2", "2_3", "2_4", "3_1", "3_2", "3_3", "3_4", "4_1", "4_2", "4_3", "4_4"];
     %electrode_data = BipolarData.empty(length(electrodes), 0);
     bipolar_data = BipolarData.empty(length(electrode_pairs), 0);
 
@@ -112,6 +112,8 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
                         
                         bipolar_data(bipolar_count).time = time2;
                         
+                        
+                        
                         electrode_pairs = electrode_pairs(~contains(electrode_pairs, pair1));
                         %break;
                     end
@@ -191,8 +193,6 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
     %3 4
     %5 6
     for bp = 1:bipolar_count
-        disp('plot')
-        disp(bp)
         %disp(bipolar_data(bp).electrode_id);
         %figure();
         bp_row = ceil(bp/2);
@@ -201,11 +201,12 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
             bp_col = 2;
         end
         
-        bp_pan = uipanel(plots_p, 'Title', bipolar_data(bp).electrode_id, 'Position', [(bp_col-1)*plots_width/2 (bp_row-1)*screen_height/3 plots_width/2 screen_height/3]);
+        bp_pan = uipanel(plots_p, 'Title', bipolar_data(bp).electrode_id, 'Position', [(bp_col-1)*plots_width/2 (bp_row-1)*screen_height/4 plots_width/2 screen_height/4]);
                     
-        bp_ax = uiaxes(bp_pan, 'Position', [0 0 plots_width/2 screen_height/3]);
-        %title(bp_ax, bipolar_data(bp).electrode_id)
+        bp_ax = uiaxes(bp_pan, 'Position', [0 0 plots_width/2 screen_height/4]);
+                    
         plot(bp_ax, bipolar_data(bp).time, bipolar_data(bp).wave_form);
+        %title(bp_ax, bipolar_data(bp).electrode_id)
         %title(strcat(bipolar_data(bp).electrode_id, {' '}, 'Bipolar Electrogram'));
         
     end

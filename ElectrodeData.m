@@ -2,6 +2,7 @@ classdef ElectrodeData
     properties
         min_stdev;
         average_waveform;
+        ave_wave_time;
         time;
         data;
         electrode_id;
@@ -21,7 +22,16 @@ classdef ElectrodeData
         max_depol_point_array;
         min_depol_point_array;
         activation_point_array;
-        Stims
+        depol_slope_array;
+        Stims;
+        ave_max_depol_time;
+        ave_min_depol_time;
+        ave_max_depol_point;
+        ave_min_depol_point;
+        ave_activation_time;
+        ave_t_wave_peak_time;
+        ave_depol_slope
+        
     end
     
     methods (Static)

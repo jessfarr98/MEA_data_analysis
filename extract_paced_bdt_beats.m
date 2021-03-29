@@ -1,4 +1,4 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp)
 
     if strcmpi(beat_to_beat, 'on')
         disp(electrode_id);
@@ -64,18 +64,35 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         hold on;
     end
     %}
+    count = 0;
     prev_stim_time = Stims(1);
+    prev_activation_time = 0;
     for i = 2:length(Stims)
-        stim_time = Stims(i);
+        if i < length(Stims) 
+            stim_time = Stims(i)+0.1;
+        else
+            stim_time = Stims(i);
+        end
         
         beat_time = time(find(time >= prev_stim_time & time <= stim_time));
         beat_data = data(find(time >= prev_stim_time & time <= stim_time));
        
-        beat_period = beat_time(end) - beat_time(1);
+        %beat_period = beat_time(end) - beat_time(1);
        
-        [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, prev_stim_time, electrode_id);
+        %[activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, prev_stim_time, electrode_id);
         
-        
+        [beat_num, cycle_length, activation_time, activation_point, beat_starts, beat_ps, t_wave_peak_ts, t_wave_peaks, max_depol_times, min_depol_times, max_depol_points, min_depol_points, depol_slope] = paced_bdt_beats(wellID, beat_time, beat_data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, beat_time(1), beat_time(end), stable_ave_analysis, beat_time(1), beat_time(end), plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time);
+        %disp('stim analysed')
+        count
+        %{
+        if isempty(beat_num)
+            continue;
+        end
+        %}
+        beat_num = beat_num+count
+        count = count+length(beat_num)-1
+        prev_activation_time = activation_time(end);
+        %{
         if strcmp(beat_to_beat, 'on')
             [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd, electrode_id);
             
@@ -99,32 +116,35 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             plot(activation_time, act_point, 'ro');
             %}
             
-            t_wave_peak_times = [t_wave_peak_times t_wave_peak_time];
-            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
+            t_wave_peak_times = [t_wave_peak_times; t_wave_peak_time];
+            t_wave_peak_array = [t_wave_peak_array; t_wave_peak];
             %hold off;
         end
         
         %pause(10)
         act_point = beat_data(beat_time == activation_time);
+        %}
         
-        activation_point_array = [activation_point_array act_point];
+        activation_point_array = [activation_point_array activation_point];
         activation_time_array = [activation_time_array activation_time];
-        cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
-        beat_num_array = [beat_num_array count];
-        beat_start_times = [beat_start_times beat_time(1)];
-        beat_end_times = [beat_end_times beat_time(end)];
-        beat_periods = [beat_periods beat_period]; 
+        cycle_length_array = [cycle_length_array cycle_length];
+        beat_num_array = [beat_num_array beat_num];
+        beat_start_times = [beat_start_times beat_starts];
+        %beat_end_times = [beat_end_times; beat_ends];
+        beat_periods = [beat_periods beat_ps]; 
         
-        max_depol_time_array = [max_depol_time_array max_depol_time];
-        min_depol_time_array = [min_depol_time_array min_depol_time];
-        max_depol_point_array = [max_depol_point_array max_depol_point];
-        min_depol_point_array = [min_depol_point_array min_depol_point];
-        depol_slope_array = [depol_slope_array slope];
+        max_depol_time_array = [max_depol_time_array max_depol_times];
+        min_depol_time_array = [min_depol_time_array min_depol_times];
+        max_depol_point_array = [max_depol_point_array max_depol_points];
+        min_depol_point_array = [min_depol_point_array min_depol_points];
+        depol_slope_array = [depol_slope_array depol_slope];
+        t_wave_peak_times = [t_wave_peak_times t_wave_peak_ts];
+        t_wave_peak_array = [t_wave_peak_array t_wave_peaks];
 
-        prev_activation_time = activation_time;
-        prev_beat_indx = beat_indx;
+        %prev_activation_time = activation_time;
+        %prev_beat_indx = beat_indx;
        
-        prev_stim_time = stim_time;
+        prev_stim_time = Stims(i);
         count = count + 1;
         t = t + window;
     end

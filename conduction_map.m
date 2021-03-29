@@ -1,4 +1,4 @@
-function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
+function conduction_map(activation_times, num_electrode_rows, num_electrode_cols, spon_paced)
     %% Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     
     conduction_velocities = [];
@@ -23,9 +23,8 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     quiver_Y = [];
     quiver_U = [];
     quiver_V = [];
-    if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
+    if strcmp(spon_paced, 'paced')
         %% Need to do this locally not with origin electrode
-        %{
         for e_r = 1:num_electrode_rows
             for e_c = num_electrode_cols:-1:1
                 % For each electrode find it's adjacent electrodes travelling from bottom right to top left
@@ -154,18 +153,17 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
                 count = count+1;
             end
         end
-        %}
         
+        %{
         % Origin electrode analysis
-        min_act = min(activation_times);
         for e_r = 1:num_electrode_rows
             for e_c = num_electrode_cols:-1:1
                 if e_r == 4 && e_c == 1
                     dx = 0;
-                    dt = activation_times(count)-min_act;
+                    dt = 1;
                 else
                     dx = sqrt(e_r^2 + e_c^2);
-                    dt = activation_times(count)-min_act;
+                    dt = activation_times(count)-activation_times(13);
                 end
                 %num2str(e_r)
                 e_id = strcat(num2str(e_r),{' '},num2str(e_c));
@@ -177,7 +175,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
                 count = count+1;
             end
         end
-        
+        %}
     elseif strcmp(spon_paced, 'spon')
         min_act = min(activation_times);
         min_act_indx = find(activation_times == min_act)
@@ -207,10 +205,10 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
                     disp('count');
                     disp(count);
                     dx = 0;
-                    dt = activation_times(count)-activation_times(min_act_indx);
+                    dt = activation_times(count)-activation_times(13);
                 else
                     dx = sqrt(e_r^2 + e_c^2);
-                    dt = activation_times(count)-activation_times(min_act_indx);
+                    dt = activation_times(count)-activation_times(13);
                 end
                 %num2str(e_r)
                 e_id = strcat(num2str(e_r),{' '},num2str(e_c));
@@ -224,7 +222,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
         end
     end
     
-    %conduction_velocities = dx_array./dt_array;
+    conduction_velocities = dx_array./dt_array;
     
     activation_times = reshape(activation_times, [num_electrode_rows, num_electrode_cols]);
     %{
@@ -238,7 +236,6 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     disp('dx')
     disp(dx_array)
-    %}
     
     disp('dt b4 reshape')
     disp(dt_array)
@@ -247,7 +244,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     disp('dt b4 reshape')
     disp(dt_array)
-    
+    %}
     
     disp('elec ids b4 reshape');
     disp(electrode_ids);
@@ -268,33 +265,9 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     quiver(quiv_ax, quiver_X, quiver_Y, quiver_U, quiver_V)
     hold off;
     %}
-    screen_size = get(groot, 'ScreenSize');
-    screen_width = screen_size(3);
-    screen_height = screen_size(4);
     
-    
-    con_fig = uifigure;
-    con_pan = uipanel(con_fig, 'Position', [0 0 screen_width screen_height]);
-    
-    close_button = uibutton(con_pan,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, well_elec_fig, con_fig));
-         
-    fig_width = screen_width-200;
-    fig_pan = uipanel(con_pan, 'Position', [0 0 fig_width screen_height]);
-    
-    act_pan = uipanel(fig_pan, 'Title','Start Activation Times','Position', [0 0 fig_width/2 screen_height]);
-    %act_ax = uiaxes(fig_pan, 'Position', [0 0 fig_width/2 screen_height]);
-                    
-    %h_fig = figure();
-    heatmap(act_pan, xlabels, ylabels, activation_times);
-    %x_ax = [1 2 3 4];
-    %y_ax = [1 2 3 4];
-    %[X,Y] = meshgrid(x_ax, y_ax);
-    %contour(act_ax, X,Y, activation_times);
-    
-    dt_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[fig_width/2 0 fig_width/2 screen_height]);
-    %dt_ax = uiaxes(dt_pan, 'Position', [0 0 fig_width/2 screen_height]);
-    heatmap(dt_pan, xlabels, ylabels, dt_array);
-    %contour(dt_ax, X,Y, dt_array)
+    h_fig = figure();
+    heatmap(h_fig, xlabels, ylabels, activation_times);
     %hold off;
     
     %{
@@ -310,10 +283,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     
     
-    function closeButtonPushed(close_button, well_elec_fig, con_fig)
-        set(con_fig, 'Visible', 'off');
-        %set(well_elec_fig, 'Visible', 'on');
-    end
+
 
 end
 

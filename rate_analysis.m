@@ -1,4 +1,4 @@
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id)
+function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id)
 
     % propagation maps:
     % sort the first act time per electrode per well and then calc
@@ -27,13 +27,24 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     end
     %}
+    %time
+    if isempty(time)
+        disp(time)
+    end
+    time(end)
+    time(1)
+    post_spike_hold_off
+    if post_spike_hold_off >= time(end)-time(1)
+        post_spike_hold_off = time(end)-time(1)/10;
+    end
+            
     if strcmp(spon_paced, 'spon')
         post_spike_hold_off_time = time(1)+post_spike_hold_off;
         pshot_indx = find(time >= post_spike_hold_off_time);
         pshot_indx_offset = pshot_indx(1);
         depol_complex_time = time(1:pshot_indx_offset);
         depol_complex_data = data(1:pshot_indx_offset);
-    elseif strcmp(spon_paced, 'paced')
+    elseif strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
         start_time_indx = find(time >= time(1)+stim_spike_hold_off);
         
         %start_time_indx(1)
@@ -72,11 +83,11 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     activation_time_indx = find(depol_complex_data_derivative == min(depol_complex_data_derivative));
     
-    max_depol_point = max(depol_complex_data)
-    max_depol_time = depol_complex_time(find(depol_complex_data == max_depol_point))
+    max_depol_point = max(depol_complex_data);
+    max_depol_time = depol_complex_time(find(depol_complex_data == max_depol_point));
     
-    min_depol_point = min(depol_complex_data)
-    min_depol_time = depol_complex_time(find(depol_complex_data == min_depol_point))
+    min_depol_point = min(depol_complex_data);
+    min_depol_time = depol_complex_time(find(depol_complex_data == min_depol_point));
     
     
     if length(min_depol_time) > 1
@@ -94,12 +105,13 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     try
         activation_time = depol_complex_time(activation_time_indx(1));
+        slope = depol_complex_data(activation_time_indx(1));
     catch
         disp('error')
     end
     
     %{
-    if strcmp(electrode_id, 'A02_1_4')
+    if strcmp(electrode_id, 'A03_1_4')
         disp('time length')
         disp(length(depol_complex_time));
 
@@ -107,7 +119,7 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         hold on;
         %plot(time, data);
         plot(depol_complex_time, depol_complex_data);
-        %plot(depol_complex_time, depol_complex_data_derivative);
+        plot(depol_complex_time, depol_complex_data_derivative);
         plot(max_depol_time, max_depol_point, 'ro');
         plot(min_depol_time, min_depol_point, 'ro');
         plot(depol_complex_time(activation_time_indx(1)), depol_complex_data(activation_time_indx(1)), 'ro')
