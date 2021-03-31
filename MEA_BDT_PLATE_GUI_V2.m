@@ -1,4 +1,4 @@
-function MEA_BDT_PLATE_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir)
+function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir)
 %  Create and then hide the UI as it is being constructed.
 
 %% TO DO
@@ -31,10 +31,11 @@ function MEA_BDT_PLATE_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2
    %raw_file = fullfile('Y:', 'Recordings for Jess', 'cardiac paced_paced ME 600us(000).raw');
    disp('Generating Input GUI...');
    disp(stable_ave_analysis);
+   %{
    RawFileData = AxisFile(raw_file);
    
     
-   added_wells = sort(added_wells);
+   
    
    RawData = RawFileData.DataSets.LoadData;
    Stims = [];
@@ -45,7 +46,9 @@ function MEA_BDT_PLATE_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2
            spon_paced = 'paced_no_stims';
        end
    end
-
+   %}
+   
+   added_wells = sort(added_wells);
    shape_data = size(RawData);
     
    num_well_rows = shape_data(1);
@@ -369,7 +372,7 @@ function MEA_BDT_PLATE_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2
    disp(well_t_wave_dur_array);
    disp(well_max_bp_array);
    
-   analyse_MEA_signals_GUI(raw_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
+   analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
 
    function changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time)
 

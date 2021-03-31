@@ -1,5 +1,6 @@
 function MEA_GUI(raw_file)
 %  Create and then hide the UI as it is being constructed.
+    
     close('all');
 
    RawFileData = AxisFile(raw_file);
@@ -12,7 +13,7 @@ function MEA_GUI(raw_file)
    num_well_cols = shape_data(2);
    num_electrode_rows = shape_data(3);
    num_electrode_cols = shape_data(4);
-    
+   
    
    screen_size = get(groot, 'ScreenSize');
    screen_width = screen_size(3);
@@ -76,7 +77,7 @@ function MEA_GUI(raw_file)
    
    
      
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs', 'Position',[410, 470, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs', 'Position',[410, 470, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
    set(run_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[410 410 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -121,7 +122,7 @@ function MEA_GUI(raw_file)
    end
    %}
 
-   function runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown)
+   function runButtonPushed(run_button, RawData,RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown)
       disp('worked')
       disp(b2bdropdown.Value);
       disp(stable_options_dropdown.Value);
@@ -163,13 +164,22 @@ function MEA_GUI(raw_file)
           stable_ave_analysis = 'time_region';
       end
       
+      Stims = [];
+      if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
+           try
+               Stims = sort([RawFileData.StimulationEvents(:).EventTime]);
+           catch
+               spon_paced = 'paced_no_stims';
+           end
+      end
+
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
       if plate_well_options_dropdown.Value == 1
-          MEA_BDT_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
+          MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
       
       else
-          MEA_BDT_PLATE_GUI_V2(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
+          MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
       
       end
           

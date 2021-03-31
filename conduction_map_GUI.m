@@ -281,7 +281,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     fig_width = screen_width-200;
     fig_pan = uipanel(con_pan, 'Position', [0 0 fig_width screen_height]);
     
-    act_pan = uipanel(fig_pan, 'Title','Start Activation Times','Position', [0 0 fig_width/2 screen_height]);
+    act_pan = uipanel(fig_pan, 'Title','Start Activation Times','Position', [0 0 fig_width/2 screen_height-100]);
     %act_ax = uiaxes(fig_pan, 'Position', [0 0 fig_width/2 screen_height]);
                     
     %h_fig = figure();
@@ -291,7 +291,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     %[X,Y] = meshgrid(x_ax, y_ax);
     %contour(act_ax, X,Y, activation_times);
     
-    dt_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[fig_width/2 0 fig_width/2 screen_height]);
+    dt_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[fig_width/2 0 fig_width/2 screen_height-100]);
     %dt_ax = uiaxes(dt_pan, 'Position', [0 0 fig_width/2 screen_height]);
     heatmap(dt_pan, xlabels, ylabels, dt_array);
     %contour(dt_ax, X,Y, dt_array)

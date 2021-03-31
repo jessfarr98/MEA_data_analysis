@@ -44,12 +44,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     %% KEY TASKS    
     
     %% TEST
-    
-    %% plot the FPD per beat
-    
+
     %% T-wave inflection point, max, min stored in results. User inputs displayed in file. Heatmap results. Ave electrode results.
     %% Summarise maximum actival time. Diff between earliest electrode and latest electrode activation time for each beat. What were the electrodes?
-    
+    %% Multiple time-region
     
     %% BEAUTIFY
     
@@ -883,14 +881,14 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 stats_close_button = uibutton(stats_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(stats_close_button,event) closeAllButtonPushed(stats_close_button, stat_plots_fig));
 
                 %% BASED ON THE CYCLE LENGTHS PERFROM ARRHYTHMIA ANALYSIS
-                [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array, electrode_data.cycle_length_array);
+                [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
                 if ~isempty(arrhythmia_indx)
                     disp('detected arrhythmia!')
                     arrhytmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(arrhythmia_indx(1)), '-', num2str(arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
                         
                 end
                 
-                cl_ax = uiaxes(plots_p, 'Position', [0 0 well_p_width well_p_height/3]);
+                cl_ax = uiaxes(plots_p, 'Position', [0 0 well_p_width well_p_height/4]);
                 beat_num_array = electrode_data.beat_num_array(2:end);
                 cycle_length_array = electrode_data.cycle_length_array(2:end);
                 plot(cl_ax, beat_num_array, cycle_length_array, 'bo');
@@ -903,18 +901,32 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 title(cl_ax, strcat('Cycle Length per Beat', {' '}, electrode_data.electrode_id));
  
 
-                bp_ax = uiaxes(plots_p, 'Position', [0 well_p_height/3 well_p_width well_p_height/3]);
+                bp_ax = uiaxes(plots_p, 'Position', [0 well_p_height/4 well_p_width well_p_height/4]);
                 plot(bp_ax, electrode_data.beat_num_array, electrode_data.beat_periods, 'bo');
                 xlabel(bp_ax,'Beat Number');
                 ylabel(bp_ax,'Beat Period (s)');
                 title(bp_ax, strcat('Beat Period per Beat', {' '}, electrode_data.electrode_id));
                 
 
-                clcl_ax = uiaxes(plots_p, 'Position', [0 2*(well_p_height/3) well_p_width well_p_height/3]);
+                clcl_ax = uiaxes(plots_p, 'Position', [0 2*(well_p_height/4) well_p_width well_p_height/4]);
                 plot(clcl_ax, electrode_data.cycle_length_array(2:end-1), electrode_data.cycle_length_array(3:end), 'bo');
                 xlabel(clcl_ax,'Cycle Length Previous Beat (s)');
                 ylabel(clcl_ax,'Cycle Length (s)');
                 title(clcl_ax, strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_data.electrode_id));
+                
+                t_wave_peak_times = electrode_data.t_wave_peak_times;
+                t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
+                t_wave_peak_array = electrode_data.t_wave_peak_array;
+                t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
+                activation_times = electrode_data.activation_times;
+                activation_times = activation_times(~isnan(electrode_data.t_wave_peak_times));
+                fpd_beats = electrode_data.beat_num_array(~isnan(electrode_data.t_wave_peak_times));
+                elec_FPDs = [t_wave_peak_times - activation_times];
+                fpd_ax = uiaxes(plots_p, 'Position', [0 3*(well_p_height/4) well_p_width well_p_height/4]);
+                plot(fpd_ax, fpd_beats, elec_FPDs, 'bo');
+                xlabel(fpd_ax,'Beat Number');
+                ylabel(fpd_ax,'FPD (s)');
+                title(fpd_ax, strcat('FPD per Beat Num', {' '}, electrode_data.electrode_id));
                 
                 
             end
@@ -1773,7 +1785,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         disp('save b2b')
         disp(save_dir)
         disp(well_ID)
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'))
         
         well_FPDs = [];
         well_slopes = [];
@@ -1782,6 +1794,11 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         sheet_count = 1;
         elec_ids = [electrode_data(:).electrode_id];
+        average_electrodes = {};
+        max_act_elec_id = '';
+        max_act_time = nan;
+        min_act_elec_id = '';
+        min_act_time = nan;
         for elec_r = 1:num_electrode_rows
             for elec_c = 1:num_electrode_cols
                 
@@ -1802,6 +1819,27 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 %t_wave_peak_times = 
                 %activation_times = electrode_data(electrode_count).activation_times;
                 %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                start_activation_time = electrode_data(electrode_count).activation_times(2);
+                
+                if isempty(max_act_elec_id)
+                    max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    max_act_time = start_activation_time;
+                else
+                    if start_activation_time > max_act_time
+                        max_act_time = start_activation_time;
+                        max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    end
+                end
+                if isempty(min_act_elec_id)
+                    min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    min_act_time = start_activation_time;
+                else
+                    if start_activation_time < min_act_time
+                        min_act_time = start_activation_time;
+                        min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    end
+                end
+                
                 
                 FPDs = [electrode_data(electrode_count).t_wave_peak_times - electrode_data(electrode_count).activation_times];
 
@@ -1815,6 +1853,32 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 well_slopes = [well_slopes slopes];
                 well_amps = [well_amps amps];
                 well_bps = [well_bps bps];
+                
+                nan_FPDs = FPDs(~isnan(FPDs));
+                nan_slopes = slopes(~isnan(slopes));
+                nan_amps = amps(~isnan(amps));
+                nan_bps = bps(~isnan(bps));
+
+                mean_FPD = mean(nan_FPDs);
+                mean_slope = mean(nan_slopes);
+                mean_amp = mean(nan_amps);
+                mean_bp = mean(nan_bps);
+
+                headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+                mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
+                mean_data = num2cell(mean_data);
+                mean_data = vertcat({''}, mean_data);
+                %celldisp(mean_data);
+
+                elec_stats = horzcat(headings, mean_data);
+                
+                if isempty(average_electrodes)
+                    average_electrodes = elec_stats;
+                    
+                else
+                    
+                    average_electrodes = vertcat(average_electrodes, elec_stats);
+                end
                 
                 beat_num_array = electrode_data(electrode_count).beat_num_array;
                 [br, bc] = size(beat_num_array);
@@ -1891,16 +1955,18 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
                 %electrode_stats = {electrode_stats_header;electrode_stats};
                 
-                electrode_stats = cellstr(electrode_stats)
+                electrode_stats = cellstr(electrode_stats);
                 
                 %celldisp(electrode_stats)
 
-                [er, ec] = size(electrode_stats)
+                [er, ec] = size(electrode_stats);
                 
-                disp(sheet_count)
+                %disp(sheet_count)
                 
                 % all_data must be a cell array
                 xlswrite(output_filename, electrode_stats, sheet_count);
+                
+                
             end
         end
         well_FPDs = well_FPDs(~isnan(well_FPDs));
@@ -1913,26 +1979,31 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         mean_amp = mean(well_amps);
         mean_bp = mean(well_bps);
         
-        headings = {strcat(well_ID, ': Well-wide statistics'); 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
-        mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
-        mean_data = num2cell(mean_data);
-        mean_data = vertcat({''}, mean_data);
-        celldisp(mean_data);
+        headings = {strcat(well_ID, ': Well-wide statistics'); 'max start activation time (s)'; 'max start activation time electrode id';'min start activation time (s)'; 'min start activation time electrode id'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+        mean_data1 = [max_act_time]; 
+        mean_data2 = [mean_FPD; mean_slope; mean_amp; mean_bp];
+        mean_data1 = num2cell(mean_data1);
+        mean_data2 = num2cell(mean_data2);
+        mean_data = vertcat({''}, {max_act_time}, {max_act_elec_id}, {min_act_time}, {min_act_elec_id}, mean_data2);
+        
         
         well_stats = horzcat(headings, mean_data);
+        %max_act_elec_id
+        celldisp(well_stats);
+        well_stats = vertcat(well_stats, average_electrodes);
         %well_stats = cellstr(well_stats)
         
         %celldisp(well_stats)
         
         xlswrite(output_filename, well_stats, 1);
-        
+        disp('done');
     end
 
     function saveAveTimeRegionPushed(save_button, electrode_data, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
         disp('save b2b')
         disp(save_dir)
         disp(well_ID)
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'))
         
         well_FPDs = [];
         well_slopes = [];
@@ -1982,26 +2053,26 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 activation_times = reshape(activation_times, [bc br]);
                 activation_times = num2cell([activation_times]);
                 activation_times = vertcat('Activation Time (s)', activation_times);
-                celldisp(activation_times)
+                %celldisp(activation_times)
                 
                 [br, bc] = size(amps);
                 amps = reshape(amps, [bc br]);
                 amps = num2cell([amps]);
                 amps = vertcat('Depolarisation Spike Amplitude (V)', amps);
-                celldisp(amps)
+                %celldisp(amps)
                 
                 [br, bc] = size(slopes);
                 slopes = reshape(slopes, [bc br]);
                 slopes = num2cell([slopes]);
                 slopes = vertcat('Depolarisation slope', slopes);
-                celldisp(slopes)
+                %celldisp(slopes)
                 
                 t_wave_peak_times = electrode_data(electrode_count).ave_t_wave_peak_time;
                 [br, bc] = size(t_wave_peak_times);
                 t_wave_peak_times = reshape(t_wave_peak_times, [bc br]);
                 t_wave_peak_times = num2cell([t_wave_peak_times]);
                 t_wave_peak_times = vertcat('T-wave peak Time (s)', t_wave_peak_times);
-                celldisp(t_wave_peak_times)
+                %celldisp(t_wave_peak_times)
                 
                 %ave_t_wave_peak = electrode_data(electrode_count).average_waveform(find(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_t_wave_peak_time));
                 
@@ -2014,44 +2085,37 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 t_wave_peak_array = reshape(t_wave_peak_array, [bc br]);
                 t_wave_peak_array = num2cell([t_wave_peak_array]);
                 t_wave_peak_array = vertcat('T-wave peak (V)', t_wave_peak_array);
-                celldisp(t_wave_peak_array)
+                %celldisp(t_wave_peak_array)
                 
                 [br, bc] = size(FPDs);
                 FPDs = reshape(FPDs, [bc br]);
                 FPDs = num2cell([FPDs]);
                 FPDs = vertcat('FPD (s)', FPDs);
-                celldisp(FPDs)
+                %celldisp(FPDs)
                 
                 [br, bc] = size(bps);
                 beat_periods = reshape(bps, [bc br]);
                 beat_periods = num2cell([beat_periods]);
                 beat_periods = vertcat('Beat Period (s)', beat_periods);
-                celldisp(beat_periods)
+                %celldisp(beat_periods)
                 
                 elec_id_column = repmat({''}, bc, br);
                 %celldisp(elec_id_column)
                 elec_id_column = vertcat(electrode_data(electrode_count).electrode_id, elec_id_column);
                 elec_id_column = elec_id_column;
-                disp(elec_id_column)
-                disp(class(elec_id_column))
+                %disp(elec_id_column)
+                %disp(class(elec_id_column))
                 
-                size(elec_id_column)
-                size(activation_times)
-                size(amps)
-                size(slopes)
-                size(t_wave_peak_times)
-                size(t_wave_peak_array)
-                size(FPDs)
-                size(beat_periods)
+                
                 electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods);
                 %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
                 %electrode_stats = {electrode_stats_header;electrode_stats};
                 
-                electrode_stats = cellstr(electrode_stats)
+                electrode_stats = cellstr(electrode_stats);
                 
-                celldisp(electrode_stats)
+                %celldisp(electrode_stats)
 
-                [er, ec] = size(electrode_stats)
+                [er, ec] = size(electrode_stats);
                 
                 
                 % all_data must be a cell array
@@ -2072,7 +2136,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
         mean_data = num2cell(mean_data);
         mean_data = vertcat({''}, mean_data);
-        celldisp(mean_data);
+        %celldisp(mean_data);
         
         well_stats = horzcat(headings, mean_data);
         %well_stats = cellstr(well_stats)
@@ -2085,7 +2149,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
     function saveGEPushed(save_button, well_electrode_data, save_dir, num_electrode_rows, num_electrode_cols, drop_down)
         
-        output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
+        output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'))
         
         well_FPDs = [];
         well_slopes = [];
@@ -2094,7 +2158,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         sheet_count = 1;
         for w = 1:num_wells
-            electrode_data = well_electrode_data(w, :)
+            electrode_data = well_electrode_data(w, :);
             if strcmp(get(drop_down, 'Visible'), 'off')
                 min_stdevs = [electrode_data(:).min_stdev];
                 min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
@@ -2106,9 +2170,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             sheet_count = sheet_count+1;
             %electrode_stats_header = {electrode_data(electrode_count).electrode_id, 'Beat No.', 'Beat Start Time (s)', 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Cycle Length (s)'};
 
-            t_wave_peak_times = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time
+            t_wave_peak_times = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time;
             %t_wave_peak_times = 
-            activation_times = electrode_data(min_electrode_beat_stdev_indx).ave_activation_time
+            activation_times = electrode_data(min_electrode_beat_stdev_indx).ave_activation_time;
             %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
 
             FPDs = [t_wave_peak_times - activation_times];
@@ -2197,7 +2261,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
         mean_data = num2cell(mean_data);
         mean_data = vertcat({''}, mean_data);
-        celldisp(mean_data);
+        %celldisp(mean_data);
         
         well_stats = horzcat(headings, mean_data);
         %well_stats = cellstr(well_stats)
@@ -2213,7 +2277,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         for w = 1:num_wells
             well_ID = added_wells(w);
             electrode_data = well_electrode_data(w, :);
-            output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+            output_filename = fullfile(save_dir, strcat(well_ID, '.xls'))
 
             well_FPDs = [];
             well_slopes = [];
@@ -2222,6 +2286,11 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
             sheet_count = 1;
             elec_ids = [electrode_data(:).electrode_id];
+            average_electrodes = {};
+            max_act_elec_id = '';
+            max_act_time = nan;
+            min_act_elec_id = '';
+            min_act_time = nan;
             for elec_r = 1:num_electrode_rows
                 for elec_c = 1:num_electrode_cols
 
@@ -2243,6 +2312,25 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %activation_times = electrode_data(electrode_count).activation_times;
                     %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
 
+                    start_activation_time = electrode_data(electrode_count).activation_times(2);
+                    if isempty(max_act_elec_id)
+                        max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                        max_act_time = start_activation_time;
+                    else
+                        if start_activation_time > max_act_time
+                            max_act_time = start_activation_time;
+                            max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                        end
+                    end
+                    if isempty(min_act_elec_id)
+                        min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                        min_act_time = start_activation_time;
+                    else
+                        if start_activation_time < min_act_time
+                            min_act_time = start_activation_time;
+                            min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                        end
+                    end
                     FPDs = [electrode_data(electrode_count).t_wave_peak_times - electrode_data(electrode_count).activation_times];
 
                     amps = [electrode_data(electrode_count).max_depol_point_array - electrode_data(electrode_count).min_depol_point_array];
@@ -2255,6 +2343,32 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     well_slopes = [well_slopes slopes];
                     well_amps = [well_amps amps];
                     well_bps = [well_bps bps];
+                    
+                    nan_FPDs = FPDs(~isnan(FPDs));
+                    nan_slopes = slopes(~isnan(slopes));
+                    nan_amps = amps(~isnan(amps));
+                    nan_bps = bps(~isnan(bps));
+
+                    mean_FPD = mean(nan_FPDs);
+                    mean_slope = mean(nan_slopes);
+                    mean_amp = mean(nan_amps);
+                    mean_bp = mean(nan_bps);
+
+                    headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+                    mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
+                    mean_data = num2cell(mean_data);
+                    mean_data = vertcat({''}, mean_data);
+                    %celldisp(mean_data);
+
+                    elec_stats = horzcat(headings, mean_data);
+
+                    if isempty(average_electrodes)
+                        average_electrodes = elec_stats;
+
+                    else
+
+                        average_electrodes = vertcat(average_electrodes, elec_stats);
+                    end
 
                     beat_num_array = electrode_data(electrode_count).beat_num_array;
                     [br, bc] = size(beat_num_array);
@@ -2331,13 +2445,13 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
                     %electrode_stats = {electrode_stats_header;electrode_stats};
 
-                    electrode_stats = cellstr(electrode_stats)
+                    electrode_stats = cellstr(electrode_stats);
 
                     %celldisp(electrode_stats)
 
-                    [er, ec] = size(electrode_stats)
+                    [er, ec] = size(electrode_stats);
 
-                    disp(sheet_count)
+                    %disp(sheet_count)
 
                     % all_data must be a cell array
                     xlswrite(output_filename, electrode_stats, sheet_count);
@@ -2353,16 +2467,18 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             mean_amp = mean(well_amps);
             mean_bp = mean(well_bps);
 
-            headings = {strcat(well_ID, ': Well-wide statistics'); 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
-            mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
-            mean_data = num2cell(mean_data);
-            mean_data = vertcat({''}, mean_data);
-            celldisp(mean_data);
+            headings = {strcat(well_ID, ': Well-wide statistics'); 'max start activation time (s)'; 'max start activation time electrode id'; 'min start activation time (s)'; 'min start activation time electrode id'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+            mean_data1 = [max_act_time]; 
+            mean_data2 = [mean_FPD; mean_slope; mean_amp; mean_bp];
+            mean_data1 = num2cell(mean_data1);
+            mean_data2 = num2cell(mean_data2);
+            mean_data = vertcat({''}, {max_act_time}, {max_act_elec_id}, {min_act_time}, {min_act_elec_id}, mean_data2);
+            
 
             well_stats = horzcat(headings, mean_data);
-            %well_stats = cellstr(well_stats)
-
-            %celldisp(well_stats)
+            %max_act_elec_id
+            %celldisp(well_stats);
+            well_stats = vertcat(well_stats, average_electrodes);
 
             xlswrite(output_filename, well_stats, 1);
 
@@ -2424,26 +2540,26 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     activation_times = reshape(activation_times, [bc br]);
                     activation_times = num2cell([activation_times]);
                     activation_times = vertcat('Activation Time (s)', activation_times);
-                    celldisp(activation_times)
+                    %celldisp(activation_times)
 
                     [br, bc] = size(amps);
                     amps = reshape(amps, [bc br]);
                     amps = num2cell([amps]);
                     amps = vertcat('Depolarisation Spike Amplitude (V)', amps);
-                    celldisp(amps)
+                    %celldisp(amps)
 
                     [br, bc] = size(slopes);
                     slopes = reshape(slopes, [bc br]);
                     slopes = num2cell([slopes]);
                     slopes = vertcat('Depolarisation slope', slopes);
-                    celldisp(slopes)
+                    %celldisp(slopes)
 
                     t_wave_peak_times = electrode_data(electrode_count).ave_t_wave_peak_time;
                     [br, bc] = size(t_wave_peak_times);
                     t_wave_peak_times = reshape(t_wave_peak_times, [bc br]);
                     t_wave_peak_times = num2cell([t_wave_peak_times]);
                     t_wave_peak_times = vertcat('T-wave peak Time (s)', t_wave_peak_times);
-                    celldisp(t_wave_peak_times)
+                    %celldisp(t_wave_peak_times)
 
                     %ave_t_wave_peak = electrode_data(electrode_count).average_waveform(find(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_t_wave_peak_time));
 
@@ -2456,44 +2572,37 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     t_wave_peak_array = reshape(t_wave_peak_array, [bc br]);
                     t_wave_peak_array = num2cell([t_wave_peak_array]);
                     t_wave_peak_array = vertcat('T-wave peak (V)', t_wave_peak_array);
-                    celldisp(t_wave_peak_array)
+                    %celldisp(t_wave_peak_array)
 
                     [br, bc] = size(FPDs);
                     FPDs = reshape(FPDs, [bc br]);
                     FPDs = num2cell([FPDs]);
                     FPDs = vertcat('FPD (s)', FPDs);
-                    celldisp(FPDs)
+                    %celldisp(FPDs)
 
                     [br, bc] = size(bps);
                     beat_periods = reshape(bps, [bc br]);
                     beat_periods = num2cell([beat_periods]);
                     beat_periods = vertcat('Beat Period (s)', beat_periods);
-                    celldisp(beat_periods)
+                    %celldisp(beat_periods)
 
                     elec_id_column = repmat({''}, bc, br);
                     %celldisp(elec_id_column)
                     elec_id_column = vertcat(electrode_data(electrode_count).electrode_id, elec_id_column);
                     elec_id_column = elec_id_column;
-                    disp(elec_id_column)
-                    disp(class(elec_id_column))
+                    %disp(elec_id_column)
+                    %disp(class(elec_id_column))
 
-                    size(elec_id_column)
-                    size(activation_times)
-                    size(amps)
-                    size(slopes)
-                    size(t_wave_peak_times)
-                    size(t_wave_peak_array)
-                    size(FPDs)
-                    size(beat_periods)
+                    
                     electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods);
                     %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
                     %electrode_stats = {electrode_stats_header;electrode_stats};
 
-                    electrode_stats = cellstr(electrode_stats)
+                    electrode_stats = cellstr(electrode_stats);
 
-                    celldisp(electrode_stats)
+                    %celldisp(electrode_stats)
 
-                    [er, ec] = size(electrode_stats)
+                    [er, ec] = size(electrode_stats);
 
 
                     % all_data must be a cell array
@@ -2514,7 +2623,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
             mean_data = num2cell(mean_data);
             mean_data = vertcat({''}, mean_data);
-            celldisp(mean_data);
+            %celldisp(mean_data);
 
             well_stats = horzcat(headings, mean_data);
             %well_stats = cellstr(well_stats)

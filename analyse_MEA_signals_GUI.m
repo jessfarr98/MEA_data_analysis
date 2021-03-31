@@ -1,4 +1,4 @@
-function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
+function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
 
     disp('in analysis')
     disp(spon_paced)
@@ -53,13 +53,14 @@ function analyse_MEA_signals_GUI(input_file, beat_to_beat, analyse_all_b2b, stab
     %plot_prompt = 'What would you like to name the directory that stores the plots of the data?\n';
     %plot_dir = prompt_user(plot_prompt, 'dir', 'data');
     
+    %{
     FileData = AxisFile(input_file);
     AllDataRaw = FileData.DataSets.LoadData;
     Stims = [];
     if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
         Stims = sort([FileData.StimulationEvents(:).EventTime]);
     end
-    
+    %}
 
     %{
     if strcmpi(beat_to_beat, 'off')
