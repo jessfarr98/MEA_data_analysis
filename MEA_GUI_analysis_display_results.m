@@ -82,7 +82,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     button_panel_width = screen_width-200;
     
     button_width = button_panel_width/num_button_cols;
-    button_height = screen_height/num_button_rows;
+    button_height = (screen_height-40)/num_button_rows;
     
     out_fig = uifigure;
     out_fig.Name = 'MEA Results';
@@ -120,7 +120,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     
     end    
     
-    main_pan = uipanel(main_p, 'Position', [0 0 button_panel_width screen_height]);
+    main_pan = uipanel(main_p, 'Title', 'Review Well Results', 'Position', [0 0 button_panel_width screen_height-40]);
     
     %global electrode_data;
     dropdown_array = [];

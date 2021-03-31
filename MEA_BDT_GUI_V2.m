@@ -168,52 +168,54 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                     disp('no data');
                 end
              end
+             xlabel(well_ax, 'Seconds (s)')
+             ylabel(well_ax, 'milivolts (mV)')
           end
-          submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-200 100 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+          submit_in_well_button = uibutton(well_p,'push','Text', 'FontSize', 8,'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
           set(submit_in_well_button, 'Visible', 'off')
           
           if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
-              well_bdt_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'BDT'), 'FontSize', 12, 'Position', [10 60 100 40], 'Editable','off');
-              well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'Position', [10 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
+              well_bdt_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'BDT (mV)'),  'Position', [10 60 100 40], 'Editable','off');
+              well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'Position', [10 10 100 40], 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
           end
           
-          t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'FontSize', 12,'Position', [120 60 100 40], 'Editable','off');
-          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 12,'Position', [120 10 100 40]);
-          t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
+          t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'Position', [120 60 100 40], 'Editable','off');
+          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 10 100 40]);
+          t_wave_up_down_dropdown.ItemsData = [1 2 3];
           
-          t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Estimated T-wave Peak Time Offset', 'FontSize', 12, 'Position', [240 60 100 40], 'Editable','off');
+          t_wave_peak_offset_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Repol. Time Offset (s)', 'Position', [240 60 100 40], 'Editable','off');
           t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
           
-          t_wave_duration_text = uieditfield(well_p, 'Text', 'Value', strcat(wellID, {' '}, 'T-wave duration'), 'FontSize', 12, 'Position', [360 60 100 40], 'Editable','off');
-          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
+          t_wave_duration_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave duration (s)'), 'Position', [360 60 100 40], 'Editable','off');
+          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
           
-          est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
-          est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+          %est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
+          %est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
-          post_spike_text = uieditfield(well_p, 'Text', 'Value', strcat(wellID, {' '}, 'Post spike hold-off (s)'), 'FontSize', 12, 'Position', [600 60 100 40], 'Editable','off');
-          post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [600 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced,  Stims, min_voltage, max_voltage, well_ax));
+          post_spike_text = uieditfield(well_p, 'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Post spike hold-off (s)'), 'Position', [480 60 100 40], 'Editable','off');
+          post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [480 10 100 40], 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced,  Stims, min_voltage, max_voltage, well_ax));
           
           if strcmp(spon_paced, 'spon')
               
-              min_bp_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Min. BP'), 'FontSize', 12, 'Position', [720 60 100 40], 'Editable','off');
-              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              min_bp_text = uieditfield(well_p,'Text','FontSize', 8, 'Value', strcat(wellID, {' '}, 'Min. BP (s)'), 'Position', [600 60 100 40], 'Editable','off');
+              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [600 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
 
-              max_bp_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Max. BP'), 'FontSize', 12, 'Position', [840 60 100 40], 'Editable','off');
-              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [840 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              max_bp_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Max. BP (s)'),  'Position', [720 60 100 40], 'Editable','off');
+              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [720 10 100 40],'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
           elseif strcmp(spon_paced, 'paced bdt')
-              min_bp_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Min. BP'), 'FontSize', 12, 'Position', [720 60 100 40], 'Editable','off');
-              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              min_bp_text = uieditfield(well_p,'Text','FontSize', 8, 'Value', strcat(wellID, {' '}, 'Min. BP (s)'), 'Position', [600 60 100 40], 'Editable','off');
+              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [600 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
 
-              max_bp_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Max. BP'), 'FontSize', 12, 'Position', [840 60 100 40], 'Editable','off');
-              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [840 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              max_bp_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Max. BP (s)'), 'Position', [720 60 100 40], 'Editable','off');
+              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [720 10 100 40], 'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
-              stim_spike_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off'), 'FontSize', 12, 'Position', [960 60 100 40], 'Editable','off');
-              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [960 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
+              stim_spike_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off (s)'),  'Position', [840 60 100 40], 'Editable','off');
+              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [840 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
 
           elseif strcmp(spon_paced, 'paced') 
-              stim_spike_text = uieditfield(well_p,'Text', 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off'), 'FontSize', 12, 'Position', [720 60 100 40], 'Editable','off');
-              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
+              stim_spike_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off (s)'), 'Position', [600 60 100 40], 'Editable','off');
+              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [600 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
 
           end
           
@@ -221,11 +223,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           if strcmp(beat_to_beat, 'on')
  
               if strcmp(analyse_all_b2b, 'time_region')
-                  time_start_text = uieditfield(well_p,'Text', 'Value', 'B2B Time region start time', 'FontSize', 12, 'Position', [1080 60 100 40], 'Editable','off');
-                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [1080 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_start_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'B2B Time region start time (s)', 'Position', [960 60 100 40], 'Editable','off');
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [960 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   
-                  time_end_text = uieditfield(well_p,'Text', 'Value', 'B2B Time region end time', 'FontSize', 12, 'Position', [1200 60 100 40], 'Editable','off');
-                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1200 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_end_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1080 60 100 40], 'Editable','off');
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   set(time_end_ui, 'Value', time(end))
                   time_region_plot_data = linspace(min_voltage, max_voltage);
                   start_data = ones(length(time_region_plot_data), 1);
@@ -238,11 +240,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
               end
           else
               if strcmp(stable_ave_analysis, 'time_region')
-                  time_start_text = uieditfield(well_p,'Text', 'Value', 'Ave. Waveform time region start time', 'FontSize', 12, 'Position', [1080 60 100 40], 'Editable','off');
-                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [1080 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_start_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region start time (s)', 'Position', [960 60 100 40], 'Editable','off');
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [960 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   
-                  time_end_text = uieditfield(well_p,'Text', 'Value', 'Ave. Waveform time region end time', 'FontSize', 12, 'Position', [1200 60 100 40], 'Editable','off');
-                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1200 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_end_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1080 60 100 40], 'Editable','off');
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   set(time_end_ui, 'Value', time(end))
                   time_region_plot_data = linspace(min_voltage, max_voltage);
                   start_data = ones(length(time_region_plot_data), 1);
@@ -255,8 +257,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
               end
               if strcmp(stable_ave_analysis, 'stable')
                   %sliding time window to find the elctrode with the most stable beat period and then compute average waveform using this region
-                  stable_duration_text = uieditfield(well_p,'Text', 'Value', 'Time Window for GE average waveform', 'FontSize', 12, 'Position', [1080 60 100 40], 'Editable','off');
-                  stable_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'GE Window', 'Position', [1080 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stable_duration_ui,event) changeGEWindow(stable_duration_ui, well_ax, spon_paced));
+                  stable_duration_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'Time Window for GE average waveform (s)', 'Position', [960 60 100 40], 'Editable','off');
+                  stable_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'GE Window', 'Position', [960 10 100 40],'ValueChangedFcn',@(stable_duration_ui,event) changeGEWindow(stable_duration_ui, well_ax, spon_paced));
                   
               
               end
@@ -285,7 +287,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           well_t_wave_dur_array = [well_t_wave_dur_array; get(t_wave_duration_ui, 'Value')];
           well_t_wave_shape_array = [well_t_wave_shape_array; get(t_wave_up_down_dropdown, 'Value')];
           well_t_wave_time_array = [well_t_wave_time_array; get(t_wave_peak_offset_ui, 'Value')];
-          well_fpd_array = [well_fpd_array; get(est_fpd_ui, 'Value')];
+          %well_fpd_array = [well_fpd_array; get(est_fpd_ui, 'Value')];
           
           if strcmp(spon_paced, 'spon')
               well_bdt_array = [well_bdt_array; get(well_bdt_ui, 'Value')];
@@ -340,7 +342,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        well_pan_components = get(well_p, 'Children');
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        start_time_ok = 1;
        end_time_ok = 1;
        min_BP_ok = 1;
@@ -368,8 +370,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -488,7 +490,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        stim_spike_hold_off = NaN;
        stim_spike_ok = 1;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
            
@@ -501,8 +503,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -681,7 +683,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        stim_spike_hold_off = NaN;
        stim_spike_ok = 1;
        t_wave_time_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
            
@@ -694,8 +696,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -867,7 +869,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        min_BP_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        t_wave_duration = NaN;
        stim_spike_ok = 1;
        stim_spike_hold_off = NaN;
@@ -896,8 +898,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1049,7 +1051,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        min_BP_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        post_spike_ok = 1;
        post_spike_hold_off = NaN;
        t_wave_duration = NaN;
@@ -1078,8 +1080,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1340,7 +1342,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        post_spike_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        stim_spike_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
@@ -1368,8 +1370,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1449,7 +1451,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        post_spike_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        stim_spike_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
@@ -1486,8 +1488,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1699,7 +1701,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end_time_ok = 1;
            t_wave_time_ok = 0;
            t_wave_dur_ok = 0;
-           fpd_ok = 0;
+           fpd_ok = 1;
            GE_ok = 1;
            max_BP_ok = 1;
            min_BP_ok = 1;
@@ -1730,8 +1732,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                end
 
                if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-                   if get(well_ui_con, 'Value') ~= 0
-                      fpd_ok = 1;
+                   if get(well_ui_con, 'Value') == 0
+                      fpd_ok = 0;
                            %set(submit_in_well_button, 'Visible', 'on')
                    end
                end
@@ -1840,7 +1842,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end_time_ok = 1;
            t_wave_time_ok = 0;
            t_wave_dur_ok = 0;
-           fpd_ok = 0;
+           fpd_ok = 1;
            max_BP_ok = 1;
            min_BP_ok = 1;
            post_spike_ok = 1;
@@ -1870,8 +1872,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                end
 
                if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-                   if get(well_ui_con, 'Value') ~= 0
-                      fpd_ok = 1;
+                   if get(well_ui_con, 'Value') == 0
+                      fpd_ok = 0;
                            %set(submit_in_well_button, 'Visible', 'on')
                    end
                end
@@ -1936,7 +1938,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        bdt_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        GE_ok = 1;
        max_BP_ok = 1;
        min_BP_ok = 1;
@@ -1968,8 +1970,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end

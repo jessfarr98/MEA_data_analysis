@@ -26,7 +26,7 @@ function MEA_GUI(raw_file)
    % Move the window to the center of the screen.
    movegui(start_fig,'center')
    
-   start_pan = uipanel(start_fig, 'Position', [0 0 screen_width screen_height]);
+   start_pan = uipanel(start_fig, 'BackgroundColor','#B02727', 'Position', [0 0 screen_width screen_height]);
    set(start_pan, 'AutoResizeChildren', 'off');
    
    
@@ -35,10 +35,10 @@ function MEA_GUI(raw_file)
    beat_to_beat = '';
    %well_thresholding = '';
    
-   im = uiimage(start_pan,'ImageSource','Logo - Victor Chang Cardiac Research Institute.jpg', 'Position', [0 90 400 200]);
+   im = uiimage(start_pan,'ImageSource','Logo - Victor Chang Cardiac Research Institute.jpg', 'Position', [40 40 750 600]);
    
    
-   select_wells_button = uibutton(start_pan,'push','Text', 'Choose Custom Wells', 'Position',[410, 440, 140, 22], 'ButtonPushedFcn', @(select_wells_button,event) chooseWellsPushed(select_wells_button, num_well_rows, num_well_cols));
+   select_wells_button = uibutton(start_pan,'push','Text', 'Choose Custom Wells', 'Position',[810, 540, 140, 22], 'ButtonPushedFcn', @(select_wells_button,event) chooseWellsPushed(select_wells_button, num_well_rows, num_well_cols));
    
    
    
@@ -47,42 +47,43 @@ function MEA_GUI(raw_file)
    %well_thresh_text = uieditfield(fig,'Text','Position',[410 90 140 22], 'Value','Well Thresholding');
    %well_thresh_dropdown = uidropdown(fig, 'Items', {'on', 'off'},'Position',[410 65 140 22], 'ValueChangedFcn',@(well_thresh_dropdown,event) well_thresh_popup_menu_Callback(well_thresh_dropdown, well_thresholding));
 
-   bipolar_text = uieditfield(start_pan,'Text','Position',[410 350 140 25], 'Value','Calculate Bipolar Electrogram', 'Editable','off');
-   bipolar_dropdown = uidropdown(start_pan, 'Items', {'on', 'off'},'Position',[410 320 140 25]);
+   bipolar_text = uieditfield(start_pan,'Text','Position',[810 450 140 25], 'Value','Calculate Bipolar Electrogram', 'Editable','off');
+   bipolar_dropdown = uidropdown(start_pan, 'Items', {'on', 'off'},'Position',[810 420 140 25]);
    bipolar_dropdown.ItemsData = [1 2];
    
-   b2b_options_text = uieditfield(start_pan,'Text','Position',[410 290 140 25], 'Value','Beat2Beat Options', 'Editable','off');
-   b2b_options_dropdown = uidropdown(start_pan, 'Items', {'all', 'time region'},'Position',[410 260 140 25]);
+   b2b_options_text = uieditfield(start_pan,'Text','Position',[810 390 140 25], 'Value','Beat2Beat Options', 'Editable','off');
+   b2b_options_dropdown = uidropdown(start_pan, 'Items', {'all', 'time region'},'Position',[810 360 140 25]);
    b2b_options_dropdown.ItemsData = [1 2];
    
-   stable_options_text = uieditfield(start_pan,'Text','Position',[410 230 140 25], 'Value','Stable/Average', 'Editable','off');
-   stable_options_dropdown = uidropdown(start_pan, 'Items', {'golden electrode', 'elec. time-region ave'},'Position',[410 200 140 25]);
+   stable_options_text = uieditfield(start_pan,'Text','Position',[810 330 140 25], 'Value','Stable/Average', 'Editable','off');
+   stable_options_dropdown = uidropdown(start_pan, 'Items', {'golden electrode', 'elec. time-region ave'},'Position',[810 300 140 25]);
    stable_options_dropdown.ItemsData = [1 2];
    set(stable_options_text,'Visible','off')
    set(stable_options_dropdown,'Visible','off')
    
    %b2btext  = uidropdown(fig, 'Style','text','String','Beat2Beat Analysis',... 'Position',[325,90,60,15]);
-   b2btext = uieditfield(start_pan,'Text','Position',[410 170 140 25], 'Value','Beat2Beat', 'Editable','off');
-   b2bdropdown = uidropdown(start_pan, 'Items', {'on', 'off'}, 'Position',[410 140 140 25], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown));
+   b2btext = uieditfield(start_pan,'Text','Position',[810 270 140 25], 'Value','Beat2Beat', 'Editable','off');
+   b2bdropdown = uidropdown(start_pan, 'Items', {'on', 'off'}, 'Position',[810 240 140 25], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown));
    b2bdropdown.ItemsData = [1 2];
    
    
-   paced_spon_text = uieditfield(start_pan,'Text','Position',[410 110 140 25], 'Value','Paced/Spontaneous', 'Editable','off');
-   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'spontaneous', 'paced bdt'},'Position',[410 80 140 25]);
+   paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Spontaneous', 'Editable','off');
+   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'spontaneous', 'paced bdt'},'Position',[810 180 140 25]);
    paced_spon_options_dropdown.ItemsData = [1 2 3];
    
-   plate_well_text = uieditfield(start_pan,'Text','Position',[410 50 140 25], 'Value','Plate/Well Thresholding', 'Editable','off');
-   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[410 20 140 25]);
+   plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Plate/Well Thresholding', 'Editable','off');
+   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
    
      
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs', 'Position',[410, 470, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs', 'Position',[810, 570, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
    set(run_button, 'Visible', 'off')
    
-   plots_text = uieditfield(start_pan,'Text','Position',[410 410 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
-   plots_input_ui = uieditfield(start_pan,'Text','Position',[410 380 140 25], 'ValueChangedFcn',@(plots_input_ui,event) changePlotsDir(plots_input_ui, start_fig, run_button));
+   plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
+   plots_input_ui = uieditfield(start_pan,'Text','Position',[810 480 140 25], 'ValueChangedFcn',@(plots_input_ui,event) changePlotsDir(plots_input_ui, start_fig, run_button));
    
+   start_fig.WindowState = 'maximized';
    
    function b2bdropdown_menu_Callback(b2bdropdown,beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown) 
       beat_to_beat = b2bdropdown.Value;

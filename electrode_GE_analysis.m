@@ -46,35 +46,36 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
 
                     well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
                     plot(well_ax, electrode_data.ave_wave_time, electrode_data.average_waveform);
-
+                    xlabel(well_ax, 'Seconds (s)');
+                    ylabel(well_ax, 'Milivolts (mV)');
                     min_voltage = min(electrode_data.data);
                     max_voltage = max(electrode_data.data);
 
 
-                    submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-200 100 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+                    submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
                     set(submit_in_well_button, 'Visible', 'off')
 
 
-                    t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', 'T-wave shape', 'FontSize', 12,'Position', [120 60 100 40], 'Editable','off');
-                    t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 12,'Position', [120 10 100 40]);
-                    t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
+                    t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', 'T-wave shape', 'FontSize', 8,'Position', [120 60 100 40], 'Editable','off');
+                    t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 10 100 40]);
+                    t_wave_up_down_dropdown.ItemsData = [1 2 3];
 
-                    t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Estimated T-wave Peak Time Offset', 'FontSize', 12, 'Position', [240 60 100 40], 'Editable','off');
-                    t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, well_ax, min_voltage, max_voltage));
+                    t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Repol. Time Offset (s)', 'FontSize', 8, 'Position', [240 60 100 40], 'Editable','off');
+                    t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 10 100 40], 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, well_ax, min_voltage, max_voltage));
 
-                    t_wave_duration_text = uieditfield(well_p,'Text', 'Value', 'T-wave duration', 'FontSize', 12, 'Position', [360 60 100 40], 'Editable','off');
-                    t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, well_ax, min_voltage, max_voltage));
+                    t_wave_duration_text = uieditfield(well_p,'Text', 'Value', 'T-wave duration (s)', 'FontSize', 8, 'Position', [360 60 100 40], 'Editable','off');
+                    t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, well_ax, min_voltage, max_voltage));
 
-                    est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
-                    est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced));
+                    %est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
+                    %est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced));
 
-                    post_spike_text = uieditfield(well_p, 'Text', 'Value', 'Post spike hold-off (s)', 'FontSize', 12, 'Position', [600 60 100 40], 'Editable','off');
-                    post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [600 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced,  electrode_data.Stims, min_voltage, max_voltage, well_ax));
+                    post_spike_text = uieditfield(well_p, 'Text', 'Value', 'Post spike hold-off (s)', 'FontSize', 8, 'Position', [480 60 100 40], 'Editable','off');
+                    post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [480 10 100 40], 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced,  electrode_data.Stims, min_voltage, max_voltage, well_ax));
 
 
                     if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt') 
-                        stim_spike_text = uieditfield(well_p,'Text', 'Value', 'Stim. Spike hold-off', 'FontSize', 12, 'Position', [720 60 100 40], 'Editable','off');
-                        stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, min_voltage, max_voltage, well_ax));
+                        stim_spike_text = uieditfield(well_p,'Text', 'Value', 'Stim. Spike hold-off (s)', 'FontSize', 8, 'Position', [600 60 100 40], 'Editable','off');
+                        stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [600 10 100 40], 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data.time(end), spon_paced, electrode_data.Stims, min_voltage, max_voltage, well_ax));
 
                     end
 
@@ -115,7 +116,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
                         stim_spike_ho = NaN;
                     end
                     [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, electrode_data.ave_depol_slope] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id);
-                    [electrode_data.ave_t_wave_peak_time, ~, ~] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), get(est_fpd_ui, 'Value'));
+                    [electrode_data.ave_t_wave_peak_time, ~, ~] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan);
 
 
 
@@ -178,7 +179,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        well_pan_components = get(well_p, 'Children');
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        start_time_ok = 1;
        end_time_ok = 1;
        min_BP_ok = 1;
@@ -206,8 +207,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -326,7 +327,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        stim_spike_hold_off = NaN;
        stim_spike_ok = 1;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
            
@@ -339,8 +340,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -419,9 +420,9 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            if t_wave_dur_ok == 1
                
                t_wave_start_window = get(t_wave_time_offset_ui, 'Value') - (t_wave_dur/2);
-               t_wave_end_window = (t_wave_dur/2) + get(t_wave_time_offset_ui, 'Value');
-               if t_wave_start_window <  post_spike_hold_off
-                   t_wave_start_window =  post_spike_hold_off;
+               t_wave_end_window =  (t_wave_dur/2) + get(t_wave_time_offset_ui, 'Value');
+               if t_wave_start_window < post_spike_hold_off
+                   t_wave_start_window = post_spike_hold_off;
                end
                
                axes_children = get(well_ax, 'Children');
@@ -519,7 +520,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        stim_spike_hold_off = NaN;
        stim_spike_ok = 1;
        t_wave_time_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
            
@@ -532,8 +533,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -705,7 +706,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        min_BP_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        t_wave_duration = NaN;
        stim_spike_ok = 1;
        stim_spike_hold_off = NaN;
@@ -734,8 +735,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -887,7 +888,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        min_BP_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        post_spike_ok = 1;
        post_spike_hold_off = NaN;
        t_wave_duration = NaN;
@@ -916,8 +917,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -969,7 +970,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
        end 
-       disp(spon_paced)
+       %disp(spon_paced)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
            % replot
            stim_hold_offs = get(stim_spike_ui, 'Value');
@@ -1000,7 +1001,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
                end
            end
            
-           disp(stim_hold_off_points)
+           %disp(stim_hold_off_points)
 
            %% boxes are smaller magnitudes than max_voltage-min_voltage
 
@@ -1178,7 +1179,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        post_spike_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        stim_spike_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
@@ -1206,8 +1207,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1287,7 +1288,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        post_spike_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        stim_spike_ok = 1;
        for i = 1:length(well_pan_components)
            well_ui_con = well_pan_components(i);
@@ -1324,8 +1325,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
            
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
@@ -1537,7 +1538,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end_time_ok = 1;
            t_wave_time_ok = 0;
            t_wave_dur_ok = 0;
-           fpd_ok = 0;
+           fpd_ok = 1;
            GE_ok = 1;
            max_BP_ok = 1;
            min_BP_ok = 1;
@@ -1568,8 +1569,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
                end
 
                if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-                   if get(well_ui_con, 'Value') ~= 0
-                      fpd_ok = 1;
+                   if get(well_ui_con, 'Value') == 0
+                      fpd_ok = 0;
                            %set(submit_in_well_button, 'Visible', 'on')
                    end
                end
@@ -1678,7 +1679,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end_time_ok = 1;
            t_wave_time_ok = 0;
            t_wave_dur_ok = 0;
-           fpd_ok = 0;
+           fpd_ok = 1;
            max_BP_ok = 1;
            min_BP_ok = 1;
            post_spike_ok = 1;
@@ -1708,8 +1709,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
                end
 
                if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-                   if get(well_ui_con, 'Value') ~= 0
-                      fpd_ok = 1;
+                   if get(well_ui_con, 'Value') == 0
+                      fpd_ok = 0;
                            %set(submit_in_well_button, 'Visible', 'on')
                    end
                end
@@ -1774,7 +1775,7 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
        bdt_ok = 1;
        t_wave_time_ok = 0;
        t_wave_dur_ok = 0;
-       fpd_ok = 0;
+       fpd_ok = 1;
        GE_ok = 1;
        max_BP_ok = 1;
        min_BP_ok = 1;
@@ -1806,8 +1807,8 @@ function [well_electrode_data, re_count] = electrode_GE_analysis(well_electrode_
            end
 
            if strcmp(string(get(well_ui_con, 'Tag')), 'FPD')
-               if get(well_ui_con, 'Value') ~= 0
-                  fpd_ok = 1;
+               if get(well_ui_con, 'Value') == 0
+                  fpd_ok = 0;
                        %set(submit_in_well_button, 'Visible', 'on')
                end
            end
