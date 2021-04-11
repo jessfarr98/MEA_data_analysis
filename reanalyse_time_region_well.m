@@ -978,6 +978,10 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
                    end
                    if size(ch_y_data) == 1
                        continue
+                   else
+                       if ch_y_data(1) == ch_y_data(:)    
+                          continue 
+                       end
                    end
                    x_point = stim_hold_offs(i) + ch_x_data(1);
                    x_indx = find(ch_x_data >= x_point);
@@ -1002,6 +1006,11 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
 
                if size(child_y_data) == 1
                %if ismember(t_wave_start_window, child_x_data(1, 1))
+                   
+                   if ch_y_data(1) == ch_y_data(:)    
+                      continue 
+                   end
+
                    found_stim_point = 1;
                    break;
                end

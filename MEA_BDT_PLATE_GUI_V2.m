@@ -181,6 +181,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    
    
    submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+   
    set(submit_in_well_button, 'Visible', 'off')
 
    if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
@@ -1199,6 +1200,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                    end
                    if size(ch_y_data) == 1
                        continue
+                   else
+                       if ch_y_data(1) == ch_y_data(:)    
+                          continue 
+                       end
                    end
                    x_point = stim_hold_offs(i) + ch_x_data(1);
                    x_indx = find(ch_x_data >= x_point);
@@ -1223,6 +1228,11 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
                if size(child_y_data) == 1
                %if ismember(t_wave_start_window, child_x_data(1, 1))
+                   
+                   if ch_y_data(1) == ch_y_data(:)    
+                      continue 
+                   end
+
                    found_stim_point = 1;
                    break;
                end

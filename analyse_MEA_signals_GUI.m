@@ -417,7 +417,8 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                 
                 t_wave_duration = well_t_wave_durations(well_count);
                 est_peak_time = well_t_wave_time_array(well_count);
-                est_fpd = well_fpd_array(well_count);
+                %est_fpd = well_fpd_array(well_count);
+                est_fpd = nan;
                 
                 time_region1 = 'N/A';
                 time_region2 = 'N/A';

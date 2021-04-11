@@ -22,7 +22,7 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
             end
-            electrode_id = electrode_data(electrode_count).electrode_id
+            electrode_id = electrode_data(electrode_count).electrode_id;
 
              re_count = electrode_count;
              disp(electrode_id) 
@@ -46,6 +46,9 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
     xlabel(well_ax, 'Seconds (s)')
     ylabel(well_ax, 'Milivolts (mV)')
     
+    min_voltage = min_voltage*1000;
+    max_voltage = max_voltage*1000;
+    
     submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
     set(submit_in_well_button, 'Visible', 'off')
     if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
@@ -62,7 +65,7 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
 
     t_wave_duration_text = uieditfield(well_p,'Text', 'Value', 'T-wave duration (s)', 'FontSize', 8, 'Position', [360 60 100 40], 'Editable','off');
     t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, well_ax, min_voltage, max_voltage));
-
+       
     %est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
     %est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40],  'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced));
 
@@ -442,6 +445,7 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
        disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
        %% Pace analysis uses stim spike holdoff too
+           disp('plot')
            if t_wave_dur_ok == 1
                
                t_wave_start_window = Stims - (t_wave_dur/2) + get(t_wave_time_offset_ui, 'Value');
@@ -504,7 +508,8 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
                else
                    hold(well_ax, 'on')
                    
-                   for i = 1:length(t_wave_start_window)                       
+                   for i = 1:length(t_wave_start_window)  
+                       disp(i)
                        x_start_data = ones(length(y_data), 1);
                        x_end_data = ones(length(y_data), 1);
                        x_start_data(:,1) = t_wave_start_window(i);
@@ -522,6 +527,7 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
    end
 
    function changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced, Stims, well_ax, min_voltage, max_voltage)
+       
        disp('change T-wave duration')
        %disp('function entered')
        %disp(length(well_bdt_ui_array))
@@ -697,7 +703,8 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
                else
                    hold(well_ax, 'on')
                    
-                   for i = 1:length(t_wave_start_window)                       
+                   for i = 1:length(t_wave_start_window)   
+                       disp(i)
                        x_start_data = ones(length(y_data), 1);
                        x_end_data = ones(length(y_data), 1);
                        x_start_data(:,1) = t_wave_start_window(i);
@@ -1014,6 +1021,10 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
                    end
                    if size(ch_y_data) == 1
                        continue
+                   else
+                       if ch_y_data(1) == ch_y_data(:)    
+                          continue 
+                       end
                    end
                    x_point = stim_hold_offs(i) + ch_x_data(1);
                    x_indx = find(ch_x_data >= x_point);
@@ -1038,6 +1049,11 @@ function [electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_elec
 
                if size(child_y_data) == 1
                %if ismember(t_wave_start_window, child_x_data(1, 1))
+                   
+                   if ch_y_data(1) == ch_y_data(:)    
+                      continue 
+                   end
+
                    found_stim_point = 1;
                    break;
                end

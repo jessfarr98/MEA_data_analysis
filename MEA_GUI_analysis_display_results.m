@@ -47,9 +47,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
     %% T-wave inflection point, max, min stored in results. User inputs displayed in file. Heatmap results. Ave electrode results.
     %% Summarise maximum actival time. Diff between earliest electrode and latest electrode activation time for each beat. What were the electrodes?
-    %% Multiple time-region
+    %% Multiple time-regions
     
-    %% BEAUTIFY
     
        
     shape_data = size(AllDataRaw);
@@ -91,9 +90,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     
     if strcmp(beat_to_beat, 'on')
 
-        close_all_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
+        close_all_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 150 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
         
-        save_all_button =  uibutton(main_p,'push','Text', 'Save All', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllB2BButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols));
+        save_all_button =  uibutton(main_p,'push','Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllB2BButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols));
         
         %display_final_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(display_final_button,event) displayFinalB2BButtonPushed(display_final_button, out_fig));
         
@@ -102,8 +101,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
     else
         if strcmp(stable_ave_analysis, 'time_region')
-            close_all_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
-            save_all_button = uibutton(main_p,'push','Text', 'Save All', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllTimeRegionButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols));
+            close_all_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 150 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
+            save_all_button = uibutton(main_p,'push','Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllTimeRegionButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols));
         
             % Display Finalised Results
             % Shows all ave electrodes analysed and also statistics 
@@ -884,7 +883,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
                 if ~isempty(arrhythmia_indx)
                     disp('detected arrhythmia!')
-                    arrhytmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(arrhythmia_indx(1)), '-', num2str(arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
+                    arrhythmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(arrhythmia_indx(1)), '-', num2str(arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
                         
                 end
                 
@@ -998,6 +997,13 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
                 %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
                 plot(adv_ax, electrode_data.activation_times, electrode_data.activation_point_array, 'ko');
+                if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
+                    legend(adv_ax, 'signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'stimulus point', 'activation point')
+                
+                else
+                    legend(adv_ax, 'signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'activation point')
+                
+                end
                 hold(adv_ax,'off')
                 
             end
@@ -1063,7 +1069,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                     plot(elec_res_ax, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, 'ro');
                     plot(elec_res_ax, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, 'bo');
-                    plot(elec_res_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'go');
+                    plot(elec_res_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'ko');
 
                     peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
                     peak_indx = peak_indx(1);
@@ -1130,7 +1136,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                 plot(adv_ax, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, 'ro');
                 plot(adv_ax, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, 'bo');
-                plot(adv_ax, electrode_data.ave_activation_time, electrode_data.average_waveform(electrode_data.ave_wave_time == electrode_data.ave_activation_time), 'go');
+                plot(adv_ax, electrode_data.ave_activation_time, electrode_data.average_waveform(electrode_data.ave_wave_time == electrode_data.ave_activation_time), 'ko');
 
                 elec_peak_indx = find(electrode_data.ave_wave_time >= electrode_data.ave_t_wave_peak_time);
                 elec_peak_indx = elec_peak_indx(1);
@@ -1138,6 +1144,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 plot(adv_ax, electrode_data.ave_t_wave_peak_time, elec_t_wave_peak, 'co');
 
                 
+                legend(adv_ax, 'signal', 'max depol.', 'min depol.', 'activation point', 'T-wave peak')
                 
                 %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
                 %plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');

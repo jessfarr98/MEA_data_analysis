@@ -30,8 +30,8 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                 xlabel(well_ax, 'Seconds (s)');
                 ylabel(well_ax, 'Milivolts (mV)');
                 
-                min_voltage = min(electrode_data(electrode_count).data);
-                max_voltage = max(electrode_data(electrode_count).data);
+                min_voltage = 1000*min(electrode_data(electrode_count).data);
+                max_voltage = 1000*max(electrode_data(electrode_count).data);
                 
 
                 submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
@@ -997,6 +997,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                    end
                    if size(ch_y_data) == 1
                        continue
+                   else
+                       if ch_y_data(1) == ch_y_data(:)    
+                          continue 
+                       end
                    end
                    x_point = stim_hold_offs(i) + ch_x_data(1);
                    x_indx = find(ch_x_data >= x_point);
@@ -1021,6 +1025,11 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
 
                if size(child_y_data) == 1
                %if ismember(t_wave_start_window, child_x_data(1, 1))
+                   
+                   if ch_y_data(1) == ch_y_data(:)    
+                      continue 
+                   end
+
                    found_stim_point = 1;
                    break;
                end
