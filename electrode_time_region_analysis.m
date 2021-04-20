@@ -4,18 +4,16 @@ function [electrode_data, re_count] = electrode_time_region_analysis(electrode_d
     screen_height = screen_size(4);
     electrode_count = 0;
     disp(size(electrode_data))
-    found_electrode = 0;
+    %found_electrode = 0;
     for elec_r = num_electrode_rows:-1:1
-        elec_r
         for elec_c = 1:num_electrode_cols
-            elec_c
             electrode_count = electrode_count+1;
             if isempty(electrode_data(electrode_count).time)
                 continue;
             end
             
-            electrode_id = electrode_data(electrode_count).electrode_id
-            if ismember(electrode_id, reanalyse_electrodes)
+            electrode_id = electrode_data(electrode_count).electrode_id;
+            if contains(electrode_id, reanalyse_electrodes)
                 re_count = electrode_count;
                 found_electrode = 1;
                 disp(electrode_id) 
@@ -62,8 +60,8 @@ function [electrode_data, re_count] = electrode_time_region_analysis(electrode_d
                 end
                 
               
-            end
-            if found_electrode == 1
+            %end
+            %if found_electrode == 1
                 while(1)
                     pause(0.01)
                     if strcmp(get(well_fig, 'Visible'), 'off')
@@ -109,7 +107,8 @@ function [electrode_data, re_count] = electrode_time_region_analysis(electrode_d
                 for ui = 1:length(elec_pans)
                     if strcmp(get(elec_pans(ui), 'Title'), electrode_data(electrode_count).electrode_id)
                         disp('found the panel')
-                        
+                        disp(get(elec_pans(ui), 'Title'))
+                        disp(electrode_data(electrode_count).electrode_id)
                         elec_pan_children = get(elec_pans(ui), 'Children');
                         for e_ch = 1:length(elec_pan_children)
                             disp(get(elec_pan_children(e_ch), 'type'))

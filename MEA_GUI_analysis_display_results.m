@@ -624,6 +624,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             end
 
             function reanalyseElectrodeButtonPushed(ra_elec_button, electrode_id)
+                
                 if strcmp(get(ra_elec_button, 'Text'), 'Reanalyse')
                     set(ra_elec_button, 'Text', 'Undo');
                     reanalyse_electrodes = [reanalyse_electrodes; electrode_id];
@@ -2169,6 +2170,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             if strcmp(get(drop_down, 'Visible'), 'off')
                 min_stdevs = [electrode_data(:).min_stdev];
                 min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+            
             else
                 new_ge = get(drop_down, 'Value');
                 new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -2176,8 +2178,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             end
             sheet_count = sheet_count+1;
             %electrode_stats_header = {electrode_data(electrode_count).electrode_id, 'Beat No.', 'Beat Start Time (s)', 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Cycle Length (s)'};
-
-            t_wave_peak_times = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time;
+    
+            disp(min_electrode_beat_stdev_indx)
+            
+            t_wave_peak_times = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time
             %t_wave_peak_times = 
             activation_times = electrode_data(min_electrode_beat_stdev_indx).ave_activation_time;
             %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));

@@ -399,6 +399,7 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                     max_bp = well_max_bp_array(well_count);
                 else 
                     bdt = 'N/A';
+                    disp(stim_spike_array)
                     stim_spike_hold_off = stim_spike_array(well_count);
                 end
                 post_spike_hold_off = post_spike_array(well_count);

@@ -47,8 +47,6 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        end
    end
    %}
-   
-   added_wells = sort(added_wells);
    shape_data = size(RawData);
     
    num_well_rows = shape_data(1);
@@ -56,6 +54,20 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    num_electrode_rows = shape_data(3);
    num_electrode_cols = shape_data(4);
     
+   
+   added_wells = sort(added_wells);
+   %pause(100)
+   well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
+   if strcmp(added_wells, 'all')
+       added_wells = [];
+       for w_r = 1:num_well_rows
+          for w_c = 1:num_well_cols
+             wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+             added_wells = [added_wells; wellID];
+          end
+       end
+   end
+   
    %{
    num_well_rows = 1;
    num_well_cols = 1;
@@ -64,14 +76,12 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    %}
    
    
-  
    screen_size = get(groot, 'ScreenSize');
    screen_width = screen_size(3);
    screen_height = screen_size(4)-100;
    
    count = 0;
-   well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
-   
+    
    bdt_fig = uifigure;
    bdt_fig.Name = 'MEA BDT GUI';
    % left bottom width height
@@ -111,6 +121,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
    well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
    hold(well_ax, 'on');
+   
    for w_r = 1:num_well_rows
        for w_c = 1:num_well_cols
           wellID = strcat(well_dictionary(w_r), '0', string(w_c)); 
@@ -121,9 +132,6 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
           end
           count = count + 1;
                    
-          
-          
-          
           
           %time_offset = 0;
           max_voltage = NaN;
@@ -333,6 +341,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    disp(well_max_bp_array);
    %}
    
+
    post_spike_array = repmat(get(post_spike_ui, 'Value'), length(added_wells));
    well_t_wave_dur_array = repmat(get(t_wave_duration_ui, 'Value'), length(added_wells));
    well_t_wave_shape_array = repmat(get(t_wave_up_down_dropdown, 'Value'), length(added_wells));
@@ -366,6 +375,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
       end
    end
+
    disp(size(well_t_wave_shape_array));
    disp(well_t_wave_shape_array(1, :))
    

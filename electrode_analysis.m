@@ -2,22 +2,23 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
     screen_size = get(groot, 'ScreenSize');
     screen_width = screen_size(3);
     screen_height = screen_size(4);
-    disp('elec reanalyse')
+    %disp('elec reanalyse')
     reanalyse_electrodes
+    %pause(100)
     electrode_count = 0;
-    for elec_r = num_electrode_rows:-1:1
-        found_electrode = 0;
+    found_electrode = 0;
+    for elec_r = num_electrode_rows:-1:1  
         for elec_c = 1:num_electrode_cols
             electrode_count = electrode_count+1;
-            electrode_id = electrode_data(electrode_count).electrode_id
+            electrode_id = electrode_data(electrode_count).electrode_id;
             if isempty(electrode_id)
                 continue
             end
              
-            if ismember(electrode_id, reanalyse_electrodes)
+            if contains(electrode_id, reanalyse_electrodes)
                 re_count = electrode_count;
                 found_electrode = 1;
-                disp(electrode_id) 
+                %disp(electrode_id) 
                 % reanalyse this electrode
                 % create uifigure similar to at input
                 well_fig = uifigure;
@@ -87,8 +88,8 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                 end
 
               
-            end
-            if found_electrode == 1
+            %end
+            %if found_electrode == 1
                 while(1)
                     pause(0.01)
                     if strcmp(get(well_fig, 'Visible'), 'off')
@@ -115,15 +116,18 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                 elseif strcmp(spon_paced, 'paced')
                     [electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_periods, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).max_depol_point_array, electrode_data(electrode_count).min_depol_point_array] = extract_paced_beats('', electrode_data(electrode_count).time, electrode_data(electrode_count).data, NaN, spon_paced, 'on', 'all', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims, get(post_spike_ui, 'Value'), get(stim_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan);     
                 end
-                disp(electrode_data(electrode_count).activation_times(2))
+                %disp(electrode_data(electrode_count).activation_times(2))
                 elec_pans = get(well_pan, 'Children');
                 for ui = 1:length(elec_pans)
                     if strcmp(get(elec_pans(ui), 'Title'), electrode_data(electrode_count).electrode_id)
                         disp('found the panel')
+                        
+                        disp(get(elec_pans(ui), 'Title'))
+                        disp(electrode_data(electrode_count).electrode_id)
                         %elec_ax = get(elec_pans(ui), 'Children');
                         elec_pan_children = get(elec_pans(ui), 'Children');
                         for e_ch = 1:length(elec_pan_children)
-                            disp(get(elec_pan_children(e_ch), 'type'))
+                            %disp(get(elec_pan_children(e_ch), 'type'))
                             if strcmp(get(elec_pan_children(e_ch), 'type'), 'axes')
                                 elec_ax = elec_pan_children(e_ch);
                             end
@@ -140,20 +144,20 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                         plot(elec_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
                         plot(elec_ax, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
                         
-                        disp(electrode_data(electrode_count).beat_start_times)
-                        [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times)
-                        beat_start_volts = electrode_data(electrode_count).data(beat_start_volts)
+                        %disp(electrode_data(electrode_count).beat_start_times)
+                        [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
+                        beat_start_volts = electrode_data(electrode_count).data(beat_start_volts);
                         plot(elec_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
 
                         if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                             %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                             [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                            %disp(in)
-                            %disp(electrode_data(electrode_count).Stims)
+                            %%disp(in)
+                            %%disp(electrode_data(electrode_count).Stims)
                             Stim_points = electrode_data(electrode_count).data(stim_indx);
                             Stim_times = electrode_data(electrode_count).time(stim_indx);
-                            %disp(length(Stim_points))
-                            %disp(length(electrode_data(electrode_count).Stims))
+                            %%disp(length(Stim_points))
+                            %%disp(length(electrode_data(electrode_count).Stims))
                             %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                             plot(elec_ax, Stim_times, Stim_points, 'mo');
@@ -312,10 +316,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
    end
 
     function changeTWaveTime(t_wave_time_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced, Stims, well_ax, min_voltage, max_voltage)
-       disp('change T-wave time')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %disp('change T-wave time')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_time_offset_ui, 'Value') == 0
@@ -417,12 +421,12 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
        end 
        if bdt_ok == 1 && fpd_ok == 1 && t_wave_dur_ok == 1 && stim_spike_ok == 1 && start_time_ok == 1 && post_spike_ok == 1 && end_time_ok == 1 && GE_ok == 1 && min_BP_ok == 1 && max_BP_ok == 1
            %if start_time < end_time
-           disp('set vis')
+           %disp('set vis')
            set(submit_in_well_button, 'Visible', 'on')
            %end
        end
        
-       disp(post_spike_ok)
+       %disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
        %% Pace analysis uses stim spike holdoff too
            if t_wave_dur_ok == 1
@@ -505,10 +509,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
    end
 
    function changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced, Stims, well_ax, min_voltage, max_voltage)
-       disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_duration_ui, 'Value') == 0
@@ -610,12 +614,12 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
        end 
        if bdt_ok == 1 && fpd_ok == 1 && t_wave_time_ok == 1 && stim_spike_ok == 1 && start_time_ok == 1 && post_spike_ok == 1 && end_time_ok == 1 && GE_ok == 1 && min_BP_ok == 1 && max_BP_ok == 1
            %if start_time < end_time
-           disp('set vis')
+           %disp('set vis')
            set(submit_in_well_button, 'Visible', 'on')
            %end
        end
        
-       disp(post_spike_ok)
+       %disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
        %% Pace analysis uses stim spike holdoff too
            if t_wave_time_ok == 1 
@@ -978,7 +982,7 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
            end
            
        end 
-       %disp(spon_paced)
+       %%disp(spon_paced)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
            % replot
            stim_hold_offs = Stims + get(stim_spike_ui, 'Value');
@@ -1013,7 +1017,7 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                end
            end
            
-           %disp(stim_hold_off_points)
+           %%disp(stim_hold_off_points)
 
            %% boxes are smaller magnitudes than max_voltage-min_voltage
 
@@ -1041,7 +1045,7 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
                        child_y_data = axes_children(c).YData;
                        child_x_data = axes_children(c).XData;
 
-                       %disp(child_x_data)
+                       %%disp(child_x_data)
                        if size(child_y_data) == size(t_wave_y_data)
                            continue
                        elseif size(child_y_data) == 1
@@ -1176,10 +1180,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
    end
 
     function changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(min_bp_ui, 'Value') == 0
@@ -1285,10 +1289,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
     end
 
     function changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(max_bp_ui, 'Value') == 0
@@ -1395,10 +1399,10 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
    end
 
     function changeFPD(fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(fpd_ui, 'Value') == 0
@@ -1518,8 +1522,8 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
        for c = 1:length(axes_children)
            child_x_data = axes_children(c).XData;
            child_y_data = axes_children(c).YData;
-           %disp(child_x_data(1))
-           %disp(floor(child_x_data(1)))
+           %%disp(child_x_data(1))
+           %%disp(floor(child_x_data(1)))
            if size(child_y_data) == size(ydata)
                if child_y_data(1) == ydata(1)
                   time_region_plots = [time_region_plots; axes_children(c)];
@@ -1530,14 +1534,14 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
        
        plot1 = time_region_plots(1);
        plot2 = time_region_plots(2);
-       disp(plot1.XData(1));
-       disp(plot2.XData(1));
+       %disp(plot1.XData(1));
+       %disp(plot2.XData(1));
        if plot1.XData(1) < plot2.XData(1)
            prev_start_plot = plot1;
        else
            prev_start_plot = plot2;
        end
-       disp(prev_start_plot.XData(1));
+       %disp(prev_start_plot.XData(1));
        
        %set(prev_start_plot, 'Visible', 'off');
        %hold(well_ax, 'on');
@@ -1875,7 +1879,7 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
 
 
    function clearAllBDTPushed(clear_all_bdt_button, run_button)
-       %disp('clear BDT');
+       %%disp('clear BDT');
        %% Must remove all BDT plots 
        %% Set all BDTs to be zero again
        panel_sub_panels = get(p, 'Children');
@@ -1888,7 +1892,7 @@ function [electrode_data] = electrode_analysis(electrode_data, num_electrode_row
            for j = 1:length(sub_p_ui_controls)
 
                if strcmp(string(get(sub_p_ui_controls(j), 'Tag')), 'BDT')    
-                   %disp('BDT');
+                   %%disp('BDT');
                    bdt_ui_ctrl = sub_p_ui_controls(j);
   
                    set(bdt_ui_ctrl, 'Value', 0);
