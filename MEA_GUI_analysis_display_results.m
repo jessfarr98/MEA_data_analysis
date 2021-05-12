@@ -1972,8 +1972,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 %disp(sheet_count)
                 
                 % all_data must be a cell array
-                xlswrite(output_filename, electrode_stats, sheet_count);
-                
+                %xlswrite(output_filename, electrode_stats, sheet_count);
+                writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
                 
             end
         end
@@ -2003,7 +2003,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         %celldisp(well_stats)
         
-        xlswrite(output_filename, well_stats, 1);
+        %xlswrite(output_filename, well_stats, 1);
+        writecell(well_stats, output_filename, 'Sheet', 1);
         disp('done');
     end
 
@@ -2127,7 +2128,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
                 
                 % all_data must be a cell array
-                xlswrite(output_filename, electrode_stats, sheet_count);
+                %xlswrite(output_filename, electrode_stats, sheet_count);
+                writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
             end
         end
         well_FPDs = well_FPDs(~isnan(well_FPDs));
@@ -2151,7 +2153,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         %celldisp(well_stats)
         
-        xlswrite(output_filename, well_stats, 1);
+        %xlswrite(output_filename, well_stats, 1);
+        writecell(well_stats, output_filename, 'Sheet', 1);
         
     end
 
@@ -2256,7 +2259,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             electrode_stats = cellstr(electrode_stats);
 
             % all_data must be a cell array
-            xlswrite(output_filename, electrode_stats, sheet_count);
+            %xlswrite(output_filename, electrode_stats, sheet_count);
+            writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
         end
         well_FPDs = well_FPDs(~isnan(well_FPDs));
         well_slopes = well_slopes(~isnan(well_slopes));
@@ -2279,7 +2283,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         %celldisp(well_stats)
         
-        xlswrite(output_filename, well_stats, 1);
+        %xlswrite(output_filename, well_stats, 1);
+        writecell(well_stats, output_filename, 'Sheet', 1);
         
     end
 
@@ -2465,7 +2470,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %disp(sheet_count)
 
                     % all_data must be a cell array
-                    xlswrite(output_filename, electrode_stats, sheet_count);
+                    %xlswrite(output_filename, electrode_stats, sheet_count);
+                    writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                
                 end
             end
             well_FPDs = well_FPDs(~isnan(well_FPDs));
@@ -2491,7 +2498,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             %celldisp(well_stats);
             well_stats = vertcat(well_stats, average_electrodes);
 
-            xlswrite(output_filename, well_stats, 1);
+            %xlswrite(output_filename, well_stats, 1);
+            writecell(well_stats, output_filename, 'Sheet', 1);
+                
 
         end
     end
@@ -2617,7 +2626,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
 
                     % all_data must be a cell array
-                    xlswrite(output_filename, electrode_stats, sheet_count);
+                    %xlswrite(output_filename, electrode_stats, sheet_count);
+                    writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
                 end
             end
             well_FPDs = well_FPDs(~isnan(well_FPDs));
@@ -2641,7 +2651,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
             %celldisp(well_stats)
 
-            xlswrite(output_filename, well_stats, 1);
+            %xlswrite(output_filename, well_stats, 1);
+            writecell(well_stats, output_filename, 'Sheet', 1);
         end
     end
 
