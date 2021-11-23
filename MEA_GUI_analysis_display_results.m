@@ -1,32 +1,32 @@
 function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
-    %% GENERAL DESIGN
-    %% Save button in each plot to allow users to save plots to directory of choice (start directory)
-    %% Close buttons for each pop-up window that doesn't require user interaction
+    % GENERAL DESIGN
+    % Save button in each plot to allow users to save plots to directory of choice (start directory)
+    % Close buttons for each pop-up window that doesn't require user interaction
     
-    %% b2b = 'on'
+    % b2b = 'on'
     
-    %% display GUI with button for each well and when pressed displays plots for each electrode /
-    %% heat map button - shows heatmap in new window that can be closed /
-    %% display well and electrode statistics like mean FPD etc. /
-    %% if bipolar on = bipolar button to show plots and results /
+    % display GUI with button for each well and when pressed displays plots for each electrode /
+    % heat map button - shows heatmap in new window that can be closed /
+    % display well and electrode statistics like mean FPD etc. /
+    % if bipolar on = bipolar button to show plots and results /
     
-    %% b2b = 'off'
+    % b2b = 'off'
     
-    %% Golden electrode
-    %% 3 uis for each well - show electrode stable waveforms button, show ave waveforms for each elec button, change GE dropdown /
-    %% no dropdown nominated = dropdown menu for electrode options for new GE /
-    %% Accept GE's button /
-    %% Enter T-wave peak times for all wells and continue button appears along with statistics /
-    %% Display statistics and GE for each well /
-    %% heatmap buttons and bipolar buttons on the well panels in this GUI /
+    % Golden electrode
+    % 3 uis for each well - show electrode stable waveforms button, show ave waveforms for each elec button, change GE dropdown /
+    % no dropdown nominated = dropdown menu for electrode options for new GE /
+    % Accept GE's button /
+    % Enter T-wave peak times for all wells and continue button appears along with statistics /
+    % Display statistics and GE for each well /
+    % heatmap buttons and bipolar buttons on the well panels in this GUI /
     
-    %% Electrode time region ave waveforms 
-    %% buttons for each well /
-    %% well button pressed display all electrodes and t-wave peak time uitexts/
-    %% Continue button and statistics appear when all entered. /
-    %% heatmap and bipolar buttons available when each well clicked and shows electrodes ave waveforms /
+    % Electrode time region ave waveforms 
+    % buttons for each well /
+    % well button pressed display all electrodes and t-wave peak time uitexts/
+    % Continue button and statistics appear when all entered. /
+    % heatmap and bipolar buttons available when each well clicked and shows electrodes ave waveforms /
     
-    %% TO DO
+    % TO DO
     % reformat b2b electrodes so correct
     % have focus based plots for each complex for just one beat and another plot that you're able to zoom out on and analyse all beats.
     % Save data buttons
@@ -41,13 +41,13 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     % plots beat start times
     
     
-    %% KEY TASKS    
+    % KEY TASKS    
     
-    %% TEST
+    % TEST
 
-    %% T-wave inflection point, max, min stored in results. User inputs displayed in file. Heatmap results. Ave electrode results.
-    %% Summarise maximum actival time. Diff between earliest electrode and latest electrode activation time for each beat. What were the electrodes?
-    %% Multiple time-regions
+    % T-wave inflection point, max, min stored in results. User inputs displayed in file. Heatmap results. Ave electrode results.
+    % Summarise maximum actival time. Diff between earliest electrode and latest electrode activation time for each beat. What were the electrodes?
+    % Multiple time-regions
     
     
        
@@ -302,7 +302,11 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if strcmp(beat_to_beat, 'on')
                     %plot all the electrodes analysed data and 
                     % left bottom width height
-                    disp(electrode_data(electrode_count).electrode_id)
+                    %disp(electrode_data(electrode_count).electrode_id)
+                    if isempty(electrode_data(electrode_count))
+                        continue
+                        
+                    end
                     elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
                     elec_ax = uiaxes(elec_pan, 'Position', [0 20 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-50]);
@@ -310,7 +314,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 0 100 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count));
         
                     hold(elec_ax,'on')
-                    plot(elec_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);
+                    plot(elec_ax, electrode_data(electrode_count).time(1:20:end), electrode_data(electrode_count).data(1:20:end));
                     
                     t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
                     t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
@@ -343,7 +347,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 else
                     if strcmp(stable_ave_analysis, 'time_region') 
                         
-                        %% Need T-wave input panels
+                        % Need T-wave input panels
                         elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
                         reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 20 100 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count));
@@ -804,7 +808,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
                     t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
                     hold(elec_res_ax,'on')
-                    plot(elec_res_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);
+                    plot(elec_res_ax, electrode_data(electrode_count).time(1:20:end), electrode_data(electrode_count).data(1:20:end));
                     plot(elec_res_ax, t_wave_peak_times, t_wave_peak_array, 'co');
                     plot(elec_res_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
                     plot(elec_res_ax, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
@@ -880,7 +884,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 stats_close_button = uibutton(stats_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(stats_close_button,event) closeAllButtonPushed(stats_close_button, stat_plots_fig));
 
-                %% BASED ON THE CYCLE LENGTHS PERFROM ARRHYTHMIA ANALYSIS
+                % BASED ON THE CYCLE LENGTHS PERFROM ARRHYTHMIA ANALYSIS
                 [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
                 if ~isempty(arrhythmia_indx)
                     disp('detected arrhythmia!')
@@ -972,7 +976,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 adv_ax = uiaxes(adv_elec_p, 'Position', [0 50 well_p_width well_p_height-50]);
                 hold(adv_ax,'on')
-                plot(adv_ax, electrode_data.time, electrode_data.data);
+                plot(adv_ax, electrode_data.time(1:20:end), electrode_data.data(1:20:end));
                 plot(adv_ax, t_wave_peak_times, t_wave_peak_array, 'co');
                 plot(adv_ax, electrode_data.max_depol_time_array, electrode_data.max_depol_point_array, 'ro');
                 plot(adv_ax, electrode_data.min_depol_time_array, electrode_data.min_depol_point_array, 'bo');
@@ -994,7 +998,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                     plot(adv_ax, elec_Stim_times, elec_Stim_points, 'mo');
                 end
-                %% Need slope value
+                % Need slope value
                 
                 %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
                 plot(adv_ax, electrode_data.activation_times, electrode_data.activation_point_array, 'ko');

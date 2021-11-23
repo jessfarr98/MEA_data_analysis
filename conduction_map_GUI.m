@@ -1,5 +1,5 @@
 function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
-    %% Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
+    % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     
     conduction_velocities = [];
     
@@ -11,12 +11,12 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     electrode_ids = [];
     disp(activation_times);
     
-    %% 4_1 is the stim electrode
-    %% for spontaneous the origin electrode is the one with earliest activation time.
-    %% negative values possible QC
-    %% Plot activation times.
+    % 4_1 is the stim electrode
+    % for spontaneous the origin electrode is the one with earliest activation time.
+    % negative values possible QC
+    % Plot activation times.
     
-    %% WRONG - NEED TO TAKE FIRST ACTIVATION TIME FROM FIRST BEAT FOR EACH ELECTRODE AND THEN CALL THIS FUNCTION
+    % WRONG - NEED TO TAKE FIRST ACTIVATION TIME FROM FIRST BEAT FOR EACH ELECTRODE AND THEN CALL THIS FUNCTION
     
     % 4_1 is the pacing electrode
     quiver_X = [];
@@ -24,7 +24,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     quiver_U = [];
     quiver_V = [];
     if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
-        %% Need to do this locally not with origin electrode
+        % Need to do this locally not with origin electrode
         %{
         for e_r = 1:num_electrode_rows
             for e_c = num_electrode_cols:-1:1
@@ -259,15 +259,29 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     xlabels = {'1', '2', '3', '4'};
     ylabels = {'4', '3', '2', '1'};
+    
+    
+    
+    % custom colour map code but try defaults
+    %{
+    % construct a custom color map
+    cmapG = [linspace(0,1,32)'; linspace(1,1,32)'];
+    cmapB = [linspace(0,1,32)'; linspace(1,0,32)'];
+    cmapR = [linspace(1,1,32)'; linspace(1,0,32)'];
+    axR1.Colormap = [cmapR, cmapG, cmapB];
+    axR1.CLim = [-1 1];
+    }%
+    
     %heatmap(xlabels, ylabels, conduction_velocities);
     
     %quiv_ax = figure();
-    %{
+   
     tiledlayout(1,1)
     quiv_ax = nexttile;
     quiver(quiv_ax, quiver_X, quiver_Y, quiver_U, quiver_V)
     hold off;
     %}
+    
     screen_size = get(groot, 'ScreenSize');
     screen_width = screen_size(3);
     screen_height = screen_size(4);

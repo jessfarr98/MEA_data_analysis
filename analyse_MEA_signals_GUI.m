@@ -1,4 +1,6 @@
 function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdts, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
+    close all hidden;
+    close all;
 
     disp('in analysis')
     disp(spon_paced)
@@ -7,7 +9,7 @@ function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b
 % analyse_MEA_signals(fullfile('data', '20200526_70-1915_empty(001).raw'), 'off', 'spon', 'on', 1)
 
 
-%% TO DO 21/01/2021
+% TO DO 21/01/2021
 % cardiac standard paced and cardiac paced paced - analyse both and test if
 % visual offsets of slopes show signals were affected by stimulus
 % subtraction.
@@ -19,7 +21,7 @@ function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b
 % various types of correction. 
 
 
-%% TO DO:
+% TO DO:
 % stable region yes/no
 % yes = Enter the time range or percentage
 % no = user selected region: start time - end time and do beat averaging or b2b
@@ -29,7 +31,7 @@ function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b
 
 % check plate thresholding functionality mirrors well thresholding
 
-%% TO DO 06/11/2020
+% TO DO 06/11/2020
 % Compute the average waveforms not using the max dv/dt include all beat but store actiavtion times still as time 0 still for conduction maps
 
 % electrode option for average wave analysis since t-waves may be off in golden electrode
@@ -42,7 +44,7 @@ function analyse_MEA_signals_GUI(AllDataRaw,Stims, beat_to_beat, analyse_all_b2b
 % FPD calc
 
 % Use better dataset for presentation
-%% Question: for well thresholding also prompt for each well the b2b/ave_waveform_duration?
+% Question: for well thresholding also prompt for each well the b2b/ave_waveform_duration?
 
 
 % subplots of ave waveforms and overlaid ones
@@ -154,7 +156,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                 end
             end
             if waveform == 1
-                %% EXTRACT ARRAY VALUES HERE AND FEED INTO ANALYSIS PIPELINE. MOVE DIR PROMPT TO START OF CODE
+                % EXTRACT ARRAY VALUES HERE AND FEED INTO ANALYSIS PIPELINE. MOVE DIR PROMPT TO START OF CODE
                 %{
                 if isnan(plot_ave_dir)
                     plot_ave_dir_prompt = 'Please enter the name of the directory that will store the plots of the waveforms used to calculate the average waveforms for each electrode:\n';
@@ -678,7 +680,7 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
     %print(fullfile(plot_ave_dir, wellID, electrode_id, 'stable_ave_waveform_beat_periods'), '-dbitmap', '-r0');
     
     
-    %% Compute the average beat by overlaying activation times
+    % Compute the average beat by overlaying activation times
     %disp('activation times');
     
     average_waveform = [];
@@ -1079,8 +1081,8 @@ function calculate_bipolar_electrograms(AllDataRaw, w_r, w_c, num_electrode_rows
 end
 
 function dir_name = prompt_user(filename_prompt, file_dir, data_dir) 
-%% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
-%% file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
+% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
+% file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
 
     dir_name = input(filename_prompt, 's');
     

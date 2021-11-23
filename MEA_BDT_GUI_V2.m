@@ -1,7 +1,7 @@
 function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir)
 %  Create and then hide the UI as it is being constructed.
 
-%% TO DO
+% TO DO
 % Output GUI displaying results for everything with save plots function.  
 % t-wave fitting - just pick manually for the ave. picking for S2 beats. Manual analysis more feasible - choose golden electrode and manually analyse. 
 % extract data once and feed through scripts to increase speed
@@ -48,6 +48,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    end
    %}
    
+   close all hidden;
+   close all;
+
+   
    added_wells = sort(added_wells);
    shape_data = size(RawData);
     
@@ -62,7 +66,6 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    num_electrode_rows = 4;
    num_electrode_cols = 4;
    %}
-   
    
   
    screen_size = get(groot, 'ScreenSize');
@@ -580,7 +583,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
-       %% Pace analysis uses stim spike holdoff too
+       % Pace analysis uses stim spike holdoff too
            if t_wave_dur_ok == 1
                
                t_wave_start_window = Stims - (t_wave_dur/2) + get(t_wave_time_offset_ui, 'Value');
@@ -591,7 +594,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                
                axes_children = get(well_ax, 'Children');
        
-               %% boxes are smaller magnitudes than max_voltage-min_voltage
+               % boxes are smaller magnitudes than max_voltage-min_voltage
                
                % Find all x values equal to t-wave start windows
                found_plot_box = 0;
@@ -773,7 +776,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
-       %% Pace analysis uses stim spike holdoff too
+       % Pace analysis uses stim spike holdoff too
            if t_wave_time_ok == 1 
                
                t_wave_start_window = Stims+ t_wave_offset - (get(t_wave_duration_ui, 'Value')/2);
@@ -784,7 +787,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                
                axes_children = get(well_ax, 'Children');
        
-               %% boxes are smaller magnitudes than max_voltage-min_voltage
+               % boxes are smaller magnitudes than max_voltage-min_voltage
                
                % Find all x values equal to t-wave start windows
                found_plot_box = 0;
@@ -962,7 +965,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                
                axes_children = get(well_ax, 'Children');
        
-               %% boxes are smaller magnitudes than max_voltage-min_voltage
+               % boxes are smaller magnitudes than max_voltage-min_voltage
                
                % Find all x values equal to t-wave start windows
                found_plot_box = 0;
@@ -1171,7 +1174,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
            
            %disp(stim_hold_off_points)
 
-           %% boxes are smaller magnitudes than max_voltage-min_voltage
+           % boxes are smaller magnitudes than max_voltage-min_voltage
 
            % Find all x values equal to t-wave start windows
            found_stim_point = 0;
@@ -1254,7 +1257,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                
                axes_children = get(well_ax, 'Children');
        
-               %% boxes are smaller magnitudes than max_voltage-min_voltage
+               % boxes are smaller magnitudes than max_voltage-min_voltage
                
                % Find all x values equal to t-wave start windows
                found_plot_box = 0;
@@ -2029,8 +2032,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
 
    function clearAllBDTPushed(clear_all_bdt_button, run_button)
        %disp('clear BDT');
-       %% Must remove all BDT plots 
-       %% Set all BDTs to be zero again
+       % Must remove all BDT plots 
+       % Set all BDTs to be zero again
        panel_sub_panels = get(p, 'Children');
       
        for i = 1:length(panel_sub_panels)
@@ -2076,9 +2079,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
 
    function runButtonPushed(run_button)
       disp('run')
-      %% Go through each subplots inputs and run analysis per parameters
+      % Go through each subplots inputs and run analysis per parameters
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      %% Now create GUI with plots and BDT thresholds
+      % Now create GUI with plots and BDT thresholds
    end
 
    function clearAllTWavesPushed(clear_all_t_wave_durations_button)
@@ -2239,7 +2242,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
       set(bdt_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
       
-      %% Now create GUI with plots and BDT thresholds
+      % Now create GUI with plots and BDT thresholds
    end
    %}
    

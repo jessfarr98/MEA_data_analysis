@@ -1,7 +1,8 @@
 function MEA_GUI(raw_file)
 %  Create and then hide the UI as it is being constructed.
     
-    close('all');
+   close all hidden;
+   close all;
 
    RawFileData = AxisFile(raw_file);
     
@@ -27,8 +28,7 @@ function MEA_GUI(raw_file)
    movegui(start_fig,'center')
    
    start_pan = uipanel(start_fig, 'BackgroundColor','#B02727', 'Position', [0 0 screen_width screen_height]);
-   set(start_pan, 'AutoResizeChildren', 'off');
-   
+   set(start_pan, 'AutoResizeChildren', 'off');   
    
    %p = uipanel(fig,'Position',[20 20 196 135]);
    
@@ -37,10 +37,9 @@ function MEA_GUI(raw_file)
    
    im = uiimage(start_pan,'ImageSource','Logo - Victor Chang Cardiac Research Institute.jpg', 'Position', [40 40 750 600]);
    
+   select_wells_button = uibutton(start_pan,'push','Text', 'Choose Custom Wells', 'Position',[810, 570, 140, 22], 'ButtonPushedFcn', @(select_wells_button,event) chooseWellsPushed(select_wells_button, num_well_rows, num_well_cols));
    
-   select_wells_button = uibutton(start_pan,'push','Text', 'Choose Custom Wells', 'Position',[810, 540, 140, 22], 'ButtonPushedFcn', @(select_wells_button,event) chooseWellsPushed(select_wells_button, num_well_rows, num_well_cols));
-   
-   
+   preview_data_button = uibutton(start_pan,'push','Text', 'Preview Data', 'Position',[810, 540, 140, 22], 'ButtonPushedFcn', @(preview_data_button,event) previewDataPushed(preview_data_button, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, RawData));
    
    added_wells = 'all';
    %well_thresh_text  = (p, 'Style','text','String','Well Specific Thresholding',... 'Position',[325,90,60,15]);
@@ -66,7 +65,6 @@ function MEA_GUI(raw_file)
    b2bdropdown = uidropdown(start_pan, 'Items', {'on', 'off'}, 'Position',[810 240 140 25], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown));
    b2bdropdown.ItemsData = [1 2];
    
-   
    paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Spontaneous', 'Editable','off');
    paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'spontaneous', 'paced bdt'},'Position',[810 180 140 25]);
    paced_spon_options_dropdown.ItemsData = [1 2 3];
@@ -75,13 +73,14 @@ function MEA_GUI(raw_file)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
-   
-     
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs', 'Position',[810, 570, 140, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
    set(run_button, 'Visible', 'off')
    
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown));
+   set(run_fast_button, 'Visible', 'off')
+   
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
-   plots_input_ui = uieditfield(start_pan,'Text','Position',[810 480 140 25], 'ValueChangedFcn',@(plots_input_ui,event) changePlotsDir(plots_input_ui, start_fig, run_button));
+   plots_input_ui = uieditfield(start_pan,'Text','Position',[810 480 140 25], 'ValueChangedFcn',@(plots_input_ui,event) changePlotsDir(plots_input_ui, start_fig, run_button, run_fast_button));
    
    start_fig.WindowState = 'maximized';
    
@@ -186,6 +185,72 @@ function MEA_GUI(raw_file)
           
    end
 
+   function runFastButtonPushed(run_fast_button, RawData,RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown)
+      disp('worked')
+      disp(b2bdropdown.Value);
+      disp(stable_options_dropdown.Value);
+      disp(b2b_options_dropdown.Value);
+      disp(paced_spon_options_dropdown.Value);
+      
+      disp(added_wells);
+      
+      if b2bdropdown.Value == 1
+          beat_to_beat = 'on';
+      else
+          beat_to_beat = 'off';
+      end
+      
+      if bipolarDropdown.Value == 1
+          bipolar = 'on';
+      else
+          bipolar = 'off';
+      end
+      
+      if paced_spon_options_dropdown.Value == 1
+          spon_paced = 'paced';
+         
+      elseif paced_spon_options_dropdown.Value == 2
+          spon_paced = 'spon';
+      else
+          spon_paced = 'paced bdt';
+      end
+      
+      if b2b_options_dropdown.Value == 1
+          analyse_all_b2b = 'all';
+      else
+          analyse_all_b2b = 'time_region';
+      end
+      
+      if stable_options_dropdown.Value == 1
+          stable_ave_analysis = 'stable';
+      else
+          stable_ave_analysis = 'time_region';
+      end
+      
+      Stims = [];
+      if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
+           try
+               Stims = sort([RawFileData.StimulationEvents(:).EventTime]);
+           catch
+               spon_paced = 'paced_no_stims';
+           end
+      end
+
+      set(start_fig, 'Visible', 'off')
+      %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
+      
+      
+      if plate_well_options_dropdown.Value == 1
+          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
+      
+      else
+          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, fullfile('data', get(plots_input_ui, 'Value')))
+      
+      end
+      
+      
+   end
+
    function chooseWellsPushed(select_wells_buttons, num_well_rows, num_well_cols)
        %disp('TBI');
        
@@ -193,9 +258,9 @@ function MEA_GUI(raw_file)
        %disp(added_wells);
    end
 
-   function dir_name = prompt_user(plots_input_ui, file_dir, data_dir, start_fig, run_button) 
-    %% filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
-    %% file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
+   function dir_name = prompt_user(plots_input_ui, file_dir, data_dir, start_fig, run_button, run_fast_button) 
+    % filename_prompt is the prompt that asks the user what they would like to name the specific file/dir
+    % file_dir is entered as either 'file' or 'dir' and indicates that the user is being prompted for either a file name or dir name
         
         dir_name = get(plots_input_ui, 'Value');
         %dir_name = input(filename_prompt, 's');
@@ -203,6 +268,7 @@ function MEA_GUI(raw_file)
         if strcmp(dir_name, '')
             disp('NO')
             set(run_button, 'Visible', 'off');
+            set(run_fast_button, 'Visible', 'off');
             return;
         end
         
@@ -212,6 +278,7 @@ function MEA_GUI(raw_file)
             disp('NO');
             set(plots_input_ui, 'Value', '');
             set(run_button, 'Visible', 'off');
+            set(run_fast_button, 'Visible', 'off');
             return;
         end
             
@@ -240,7 +307,7 @@ function MEA_GUI(raw_file)
                     check_fig = uifigure;
                     check_pan = uipanel(check_fig, 'Position', [0 0 screen_width screen_height]);
                     check_text = uieditfield(check_pan,'Text','Position',[80 300 500 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
-                    yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button));
+                    yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button));
                     no_button = uibutton(check_pan,'push','Text', 'No', 'Position',[150 250 50 22], 'ButtonPushedFcn', @(no_button,event) noButtonPushed(no_button, start_fig, check_fig, plots_input_ui));
                     
                     while(1)
@@ -306,12 +373,13 @@ function MEA_GUI(raw_file)
             end
         end
         
-       function yesButtonPushed(yes_button, start_fig, check_fig, run_button)
+       function yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button)
            check = 'yes';
            
            set(check_fig, 'Visible', 'off');
            set(start_fig, 'Visible', 'on');
-           set(run_button, 'Visible', 'on')
+           set(run_button, 'Visible', 'on');
+           set(run_fast_button, 'Visible', 'on')
        end
        
        
@@ -325,9 +393,13 @@ function MEA_GUI(raw_file)
    end
 
    
-   
-   function changePlotsDir(plots_input_ui, start_fig, run_button)
-        prompt_user(plots_input_ui, 'dir', 'data', start_fig, run_button);
+   function changePlotsDir(plots_input_ui, start_fig, run_button, run_fast_button)
+        prompt_user(plots_input_ui, 'dir', 'data', start_fig, run_button, run_fast_button);
+   end
+
+   function previewDataPushed(preview_data_button, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, RawData)
+       MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, RawData);
+
    end
    
 end
