@@ -54,7 +54,8 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
            for w_c = 1:num_well_cols
               wellID = strcat(well_dictionary(w_r), '0', string(w_c));
               if ~contains(added_wells, 'all')
-                  if ismember(wellID, added_wells)
+                  if contains(added_wells, wellID)
+                      
                       for e_r = num_electrode_rows:-1:1
                          for e_c = 1:num_electrode_cols
                             RawWellData = RawData{w_r, w_c, e_c, e_r};

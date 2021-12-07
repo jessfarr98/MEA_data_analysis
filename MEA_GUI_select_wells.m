@@ -23,6 +23,7 @@ function [added_wells] = MEA_GUI_select_wells(num_well_rows, num_well_cols)
     
     added_wells = [];
     end_selection = 0;
+    wells_fig.WindowState = 'maximized';
     for w_r = 1:num_well_rows
         for w_c = 1:num_well_cols
           
@@ -34,7 +35,8 @@ function [added_wells] = MEA_GUI_select_wells(num_well_rows, num_well_cols)
             
         end
     end
-    disp(added_wells);
+    
+    
     
     while(1)
         pause(0.001);
@@ -43,6 +45,7 @@ function [added_wells] = MEA_GUI_select_wells(num_well_rows, num_well_cols)
             if isempty(added_wells)
                 added_wells = 'all';
             end
+            close(wells_fig);
             return
         end
     end

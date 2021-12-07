@@ -31,7 +31,7 @@ classdef StimulationLeds < Tag
                         this.LedGroups = struct([]);
                         fArray = 1;
                         fPos = int64(ftell(aFileID));
-                        while (fTagEnd - fPos) > StimulationLeds.MinArraySize 
+                        while (fTagEnd - fPos) >= StimulationLeds.MinArraySize 
                             fId = fread(aFileID, 1, 'uint32=>uint32');
                             this.LedGroups(fArray).ID = fId;
                             

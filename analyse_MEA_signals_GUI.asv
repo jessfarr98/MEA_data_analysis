@@ -130,7 +130,8 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     for w_r = 1:num_well_rows
         for w_c = 1:num_well_cols
             
-            wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+            wellID = strcat(well_dictionary(w_r), '0', string(w_c))
+            
             if ~contains(added_wells, 'all')
                 if ~contains(added_wells, wellID)
                     continue;

@@ -1,7 +1,7 @@
 function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp)
 
     if strcmpi(beat_to_beat, 'on')
-        disp(electrode_id);
+        %disp(electrode_id);
         if strcmp(analyse_all_b2b, 'time_region')
             time_region_indx = find(time >= b2b_time_region1 & time <= b2b_time_region2);
             time = time(time_region_indx);
@@ -55,7 +55,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     %for t = 0:window:total_duration
     fail_beat_detection = 0;
     
-    disp(Stims);
+    %%disp(Stims);
     %pause(20);
     
     %{
@@ -82,23 +82,23 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         %[activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, prev_stim_time, electrode_id);
         
         [beat_num, cycle_length, activation_time, activation_point, beat_starts, beat_ps, t_wave_peak_ts, t_wave_peaks, max_depol_times, min_depol_times, max_depol_points, min_depol_points, depol_slope] = paced_bdt_beats(wellID, beat_time, beat_data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, beat_time(1), beat_time(end), stable_ave_analysis, beat_time(1), beat_time(end), plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time);
-        %disp('stim analysed')
-        count
+        %%disp('stim analysed')
+        %count
         %{
         if isempty(beat_num)
             continue;
         end
         %}
-        beat_num = beat_num+count
-        count = count+length(beat_num)-1
+        beat_num = beat_num+count;
+        count = count+length(beat_num)-1;
         prev_activation_time = activation_time(end);
         %{
         if strcmp(beat_to_beat, 'on')
             [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd, electrode_id);
             
-            disp('t_wave')
-            disp(count);
-            disp(t_wave_peak_time)
+            %disp('t_wave')
+            %disp(count);
+            %disp(t_wave_peak_time)
             %if count == 0
                 %figure();
             %end
@@ -148,14 +148,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         count = count + 1;
         t = t + window;
     end
-    disp(strcat('Total Duration = ', {' '}, string(total_duration)))
-    disp(count);
+    %%disp(strcat('Total Duration = ', {' '}, string(total_duration)))
+    %%disp(count);
     %hold off;
     
     %{
     if strcmpi(beat_to_beat, 'on')
         for i = 2:length(activation_time_array)
-            disp(strcat('Beat no. ', num2str(i)))
+            %disp(strcat('Beat no. ', num2str(i)))
             if i == 2
                 %figure();
                 %plot(time, data);
@@ -165,8 +165,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                 figure();
             end
             beat_start = beat_start_times(i);
-            %disp(length(beat_start));
-            %disp(beat_start)
+            %%disp(length(beat_start));
+            %%disp(beat_start)
             %if i == length(activation_time_array)
             %    beat_end = time(end);
             %else
@@ -188,7 +188,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             %[t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time_data, beat_data, beat_to_beat, activation_time_array(i), i, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
             
             %figure();
-            %disp(FPD)
+            %%disp(FPD)
             %subplot(ceil(length(beat_start_times)/4), 4, i-1);
             plot(time_data, beat_data);
             hold on;
@@ -202,8 +202,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             plot(activation_time, act_point, 'ro');
             title(strcat('t-wave peak marked for electrode ', electrode_id));
             
-            disp(strcat('FPD = ', num2str(FPD(1))));
-            disp(strcat('Depol amplitude = ', num2str(amplitude)))
+            %disp(strcat('FPD = ', num2str(FPD(1))));
+            %disp(strcat('Depol amplitude = ', num2str(amplitude)))
             
             %hold off;
             %pause(15);

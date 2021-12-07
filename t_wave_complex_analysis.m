@@ -86,17 +86,18 @@ function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, da
         end
                 
     elseif strcmp(peak_analysis, 'inflection') 
-        %% 4_4 3_1 1_1 1_2 2_2 2_1 4_1 2_3 1_3 = 56% failed 
-        %% 2_1 1_3 2_4 4_4 4_2 4_3 1_4 3_2 1_1
+        % 4_4 3_1 1_1 1_2 2_2 2_1 4_1 2_3 1_3 = 56% failed 
+        % 2_1 1_3 2_4 4_4 4_2 4_3 1_4 3_2 1_1
 
-        %% TRY MININUM POINT INSTEAD..
+        % TRY MININUM POINT INSTEAD..
         %disp('inflec')
         
         try
             t_wave_indx = find(time >= lower & time <= upper);
             t_wave_time = time(t_wave_indx);
             t_wave_data = data(t_wave_indx);
-
+            
+            
             t_wave_data = t_wave_data*1000;
             t_wave_orig = t_wave_data;
             %t_wave_data = sgolayfilt(t_wave_data,3,11);

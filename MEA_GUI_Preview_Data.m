@@ -32,6 +32,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
         end
     end
     
+    preview_wells_fig.WindowState = 'maximized';
     while(1)
         pause(0.001);
         if end_well_view == 1

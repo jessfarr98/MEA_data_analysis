@@ -26,11 +26,11 @@ classdef TagType < uint16
         StimulationEvent(uint16(5)),
 
         %StimulationChannelGroup: Tag that lists the channels that were loaded for stimulation for a StimulationEvent
-        %                         Many StimulationEvent tags may reference the same StimulationChannelGroup</remarks>
+        %                         Many StimulationEvent tags may reference the same StimulationChannelGroup
         StimulationChannelGroup (uint16(6)),
 
         %StimulationWaveform: Tag that lists the stimulation that was applied for stimulation for a StimulationEvent
-        %                     Many StimulationEvent tags may reference the same StimulationWaveform</remarks>
+        %                     Many StimulationEvent tags may reference the same StimulationWaveform
         StimulationWaveform (uint16(7)),
         
         %CalibrationTag: Tag that is used for axis's internal calibration 
@@ -39,8 +39,17 @@ classdef TagType < uint16
         CalibrationTag(uint16(8)),
         
         %StimulationLedGroup: Tag that lists the LEDs that were loaded for stimulation for a StimulationEvent
-        %                     Many StimulationEvent tags may reference the same StimulationLedGroup</remarks>
+        %                     Many StimulationEvent tags may reference the same StimulationLedGroup
         StimulationLedGroup (uint16(9)),
+        
+        %DoseEvent: (Unsupported in in this library)
+        DoseEvent (uint16(10)),
+        
+        %StringDictonaryKeyPair: (Unsupported in in this library)
+        StringDictonaryKeyPair (uint16(11)),
+        
+        %LeapInductionEvent: Tag marking a LEAP induction event for a plate/recording
+        LeapInductionEvent (uint16(12)),
 
     end
     

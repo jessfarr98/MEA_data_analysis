@@ -65,6 +65,7 @@ function MEA_BDT_GUI(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable
    main_pan.Scrollable = 'on';
    
    run_button = uibutton(main_pan,'push','Text', 'Run MEA Analysis', 'Position',[screen_width-190 10 80 40], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button));
+   
    clear_all_bdt_button = uibutton(main_pan,'push','Text', 'Clear All BDTs', 'Position',[screen_width-190, 60, 80, 40], 'ButtonPushedFcn', @(clear_all_bdt_button,event) clearAllBDTPushed(clear_all_bdt_button, run_button));
    clear_all_t_wave_durations_button = uibutton(main_pan,'push','Text', 'Clear All T-Wave Durations', 'Position',[screen_width-190, 110, 80, 40], 'ButtonPushedFcn', @(clear_all_t_wave_durations_button, event) clearAllTWavesPushed(clear_all_t_wave_durations_button));
    set(run_button, 'Visible', 'off');
@@ -93,6 +94,7 @@ function MEA_BDT_GUI(raw_file, beat_to_beat, spon_paced, analyse_all_b2b, stable
           % left bottom width height
           disp(screen_height/num_well_rows);
           sub_p = uipanel(p, 'Title', wellID, 'FontSize', 10,'Position', [((w_c-1)*((screen_width-200)/num_well_cols)) ((w_r-1)*(screen_height/num_well_rows)) (screen_width-200)/num_well_cols screen_height/num_well_rows]);
+          
           disp(strcat('X coord', string(((w_c-1)*((screen_width-200)/num_well_cols)))));
           disp(strcat('Y coord', string(((w_r-1)*(screen_height/num_well_rows)))));
           sub_p.Scrollable = 'off';

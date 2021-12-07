@@ -70,33 +70,18 @@ function MEA_GUI(path_to_input, raw_file)
    b2bdropdown = uidropdown(start_pan, 'Items', {'on', 'off'}, 'Position',[810 240 140 25], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown));
    b2bdropdown.ItemsData = [1 2];
    
-   paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Paced with Ectopic Beats', 'Editable','off');
-   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'paced bdt'},'Position',[810 180 140 25]);
-   paced_spon_options_dropdown.ItemsData = [1 2];
-   
-   set(paced_spon_text, 'Visible', 'off');
-   set(paced_spon_options_dropdown, 'Visible', 'off');
-   
-   try
-       Stims = sort([RawFileData.StimulationEvents(:).EventTime]);
-   catch
-       Stims = [];
-   end
-
-   if ~isempty(Stims)
-       set(paced_spon_text, 'Visible', 'on');
-       set(paced_spon_options_dropdown, 'Visible', 'on');
-       
-   end
+   paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Spontaneous', 'Editable','off');
+   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'spontaneous', 'paced bdt'},'Position',[810 180 140 25]);
+   paced_spon_options_dropdown.ItemsData = [1 2 3];
    
    plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Plate/Well Thresholding', 'Editable','off');
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, path_to_input));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, path_to_input));
    set(run_button, 'Visible', 'off')
    
-   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, path_to_input));
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, path_to_input));
    set(run_fast_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -142,7 +127,7 @@ function MEA_GUI(path_to_input, raw_file)
    end
    %}
 
-   function runButtonPushed(run_button, RawData,RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, path_to_input)
+   function runButtonPushed(run_button, RawData,RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, path_to_input)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -163,15 +148,13 @@ function MEA_GUI(path_to_input, raw_file)
           bipolar = 'off';
       end
       
-      if strcmp(get(paced_spon_options_dropdown, 'Visible'), 'on')
-          if paced_spon_options_dropdown.Value == 1
-              spon_paced = 'paced';
-
-          elseif paced_spon_options_dropdown.Value == 2
-              spon_paced = 'paced bdt';
-          end
-      else
+      if paced_spon_options_dropdown.Value == 1
+          spon_paced = 'paced';
+         
+      elseif paced_spon_options_dropdown.Value == 2
           spon_paced = 'spon';
+      else
+          spon_paced = 'paced bdt';
       end
       
       if b2b_options_dropdown.Value == 1
@@ -207,7 +190,7 @@ function MEA_GUI(path_to_input, raw_file)
           
    end
 
-   function runFastButtonPushed(run_fast_button, RawData,RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, path_to_input)
+   function runFastButtonPushed(run_fast_button, RawData,RawFileData, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, path_to_input)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -228,7 +211,6 @@ function MEA_GUI(path_to_input, raw_file)
           bipolar = 'off';
       end
       
-      %{
       if paced_spon_options_dropdown.Value == 1
           spon_paced = 'paced';
          
@@ -236,17 +218,6 @@ function MEA_GUI(path_to_input, raw_file)
           spon_paced = 'spon';
       else
           spon_paced = 'paced bdt';
-      end
-      %}
-      if strcmp(get(paced_spon_options_dropdown, 'Visible'), 'on')
-          if paced_spon_options_dropdown.Value == 1
-              spon_paced = 'paced';
-
-          elseif paced_spon_options_dropdown.Value == 2
-              spon_paced = 'paced bdt';
-          end
-      else
-          spon_paced = 'spon';
       end
       
       if b2b_options_dropdown.Value == 1
@@ -261,7 +232,6 @@ function MEA_GUI(path_to_input, raw_file)
           stable_ave_analysis = 'time_region';
       end
       
-      %{
       Stims = [];
       if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
            try
@@ -270,7 +240,6 @@ function MEA_GUI(path_to_input, raw_file)
                spon_paced = 'paced_no_stims';
            end
       end
-      %}
 
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
@@ -308,7 +277,7 @@ function MEA_GUI(path_to_input, raw_file)
             return;
         end
         
-        spaces = regexp(dir_name, '^\s*$', 'match')
+        spaces = regexp(dir_name, '^\s*$', 'match');
         
         if ~isempty(spaces)
             disp('NO');
@@ -317,10 +286,6 @@ function MEA_GUI(path_to_input, raw_file)
             set(run_fast_button, 'Visible', 'off');
             return;
         end
-        
-        spaces_end = regexp(dir_name, '.+\s*$', 'match')
-        
-        
             
             
         

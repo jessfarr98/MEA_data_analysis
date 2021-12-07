@@ -4,7 +4,7 @@ classdef Note < Entry
     %   Investigator:   Text data taken from 'Investigator' field of the Axis
     %                   GUI
     %
-    %   ExperimentID:   Text data taken from 'Experiment ID' field of the Axis
+    %   ExperimentID:   Text data taken from 'Recording Name' field of the Axis
     %                   GUI
     %
     %   Description:    Text data taken from 'Description' field of the Axis
@@ -20,17 +20,17 @@ classdef Note < Entry
     
     properties (Constant = true, GetAccess = private)
         %Constants for offsets and sizes in binary notes entries.
-        ExperimentIDOffset = 50;
+        RecordingNameOffset = 50;
         DescriptionOffset = 100;
         RevisionOffset = 600;
         InvestigatorLength = 50;
-        ExperimentIDLength = 50;
+        RecordingNameLength = 50;
         DescriptionLength = 500;
     end
     
     properties (GetAccess = public, SetAccess = private)
         Investigator
-        ExperimentID
+        RecordingName
         Description
         Revision
         RevisionDate
@@ -48,10 +48,10 @@ classdef Note < Entry
             % strip '\r' characters so that lines aren't double-spaced
             this.Investigator(this.Investigator==13)=[];
             
-            fseek(aFileID, this.Start + Note.ExperimentIDOffset, 'bof');
-            this.ExperimentID = deblank(fread(aFileID, Note.ExperimentIDLength, '*char').');
+            fseek(aFileID, this.Start + Note.RecordingNameOffset, 'bof');
+            this.RecordingName = deblank(fread(aFileID, Note.RecordingNameLength, '*char').');
             % strip '\r' characters so that lines aren't double-spaced
-            this.ExperimentID(this.ExperimentID==13)=[];
+            this.RecordingName(this.RecordingName==13)=[];
             
             fseek(aFileID, this.Start + Note.DescriptionOffset, 'bof');
             this.Description = deblank(fread(aFileID, Note.DescriptionLength, '*char').');

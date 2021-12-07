@@ -280,7 +280,7 @@ classdef BlockVectorSet < handle
                 fNotes = fSourceFile.Notes(idx);
                 aData.notes = [];
                 aData.notes.investigator = fNotes.Investigator;
-                aData.notes.experimentId = fNotes.ExperimentID;
+                aData.notes.experimentId = fNotes.RecordingName;
                 aData.notes.notes = fNotes.Description;
             end
             
@@ -401,8 +401,15 @@ classdef BlockVectorSet < handle
             if strcmp(aTargetElectrodes, 'all')
                 % User has requested all electrodes - figure out what those
                 % are from the channel array
-                fTargetElectrodes = BlockVectorSet.all_wells_electrodes([aChannelArray.Channels.ElectrodeColumn], ...
-                    [aChannelArray.Channels.ElectrodeRow]);
+                switch aChannelArray.PlateType
+                    case {PlateTypes.NinetySixWell, PlateTypes.NinetySixWellCircuit, ...
+                          PlateTypes.NinetySixWellTransparent, PlateTypes.NinetySixWellLumos}
+                        fTargetElectrodes = BlockVectorSet.all_8electrodes();
+                    otherwise
+                        fTargetElectrodes = BlockVectorSet.all_wells_electrodes([aChannelArray.Channels.ElectrodeColumn], ...
+                            [aChannelArray.Channels.ElectrodeRow]);
+                end
+                
             elseif strcmp(aTargetElectrodes, 'none')
                 % User has requested no electrodes
                 fTargetElectrodes = [];
@@ -456,18 +463,35 @@ classdef BlockVectorSet < handle
         
         % Subfunction to expand an 'all' well or electrode list
         function fOutput = all_wells_electrodes(aColumns, aRows)
-            
-            fOutput  = [];
             aColumns = unique(aColumns); % sort ascending and dedup
             aRows    = unique(aRows);
             
-            for fiRow = 1:length(aRows)
-                for fiCol = 1:length(aColumns)
-                    fOutput = [ fOutput ; aColumns(fiCol) aRows(fiRow) ];
+            fNumRows = length(aRows);
+            fNumCols = length(aColumns);
+            fOutput  = zeros(fNumRows * fNumCols, 2);
+            for fiRow = 1:fNumRows
+                for fiCol = 1:fNumCols
+                    
+                    fIndex = ((fiRow-1) * fNumCols) + (fiCol-1) + 1;
+                    fOutput(fIndex, 1) = aColumns(fiCol);
+                    fOutput(fIndex, 2) = aRows(fiRow);
+                    
                 end
             end
-            
         end
+        
+        % Subfunction to expand an 'all' for 8 well electrodes
+        function fOutput = all_8electrodes()
+            fOutput = uint8([...
+                [1, 1];...
+                [2, 1];...
+                [3, 1];...
+                [1, 2];...
+                [2, 2];...
+                [1, 3];...
+                [2, 3];...
+                [3, 3]]);...
+        end        
         
         % Subfunction to help with channel array search
         function aMatch = match_well_electrode(aChannelStruct, aWellElectrode)

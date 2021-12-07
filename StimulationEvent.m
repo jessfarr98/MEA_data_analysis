@@ -83,12 +83,17 @@ classdef StimulationEvent < EventTag
                 fChannels = this.ChannelsTag.LedGroups;
                 this.EventData = fEventDatas(find(arrayfun(@(a)(a.ID) == this.EventData, fEventDatas),1));
                 
-                this.Leds = arrayfun(...
-                    @(aChanId)(fChannels(find(arrayfun(@(a)(a.ID) == aChanId, fChannels),1))),...
-                    this.EventData.ChannelArrayIdList);
-                this.Leds = arrayfun(@(a)(a.Mappings), this.Leds, 'UniformOutput', false);
+                if isempty(this.EventData)
+                     this.Leds = this.ChannelsTag.LedGroups;  
+                     this.EventData = StimulationEventData( 0, 0, 0, uint16(zeros(0,1)), '');
+                else
+                    this.Leds = arrayfun(...
+                        @(aChanId)(fChannels(find(arrayfun(@(a)(a.ID) == aChanId, fChannels),1))),...
+                        this.EventData.ChannelArrayIdList);
+                    this.Leds = arrayfun(@(a)(a.Mappings), this.Leds, 'UniformOutput', false);
+                end                    
                 
-                if length(this.Leds) == 1
+                if length(this.Leds) == 1 && iscell(this.Leds)
                     this.Leds = this.Leds{1};
                 end                
             end

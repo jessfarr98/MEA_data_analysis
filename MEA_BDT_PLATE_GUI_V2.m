@@ -30,7 +30,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    % Generate the data to plot.   
    %raw_file = fullfile('Y:', 'Recordings for Jess', 'cardiac paced_paced ME 600us(000).raw');
    disp('Generating Input GUI...');
-   disp(stable_ave_analysis);
+   %disp(stable_ave_analysis);
    close all hidden;
    close all;
 
@@ -144,8 +144,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
                 if (strcmp(class(RawWellData),'Waveform'))
                     %if ~empty(WellRawData)
-                    %disp(num_well_rows*num_well_cols)
-                    %disp(count)
+                    %%disp(num_well_rows*num_well_cols)
+                    %%disp(count)
                     electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
                     [time, data] = RawWellData.GetTimeVoltageVector;
                     
@@ -174,8 +174,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                     %time_offset = time_offset+0.015;
                     
                 else
-                    disp(wellID)
-                    disp('no data');
+                    %disp(wellID)
+                    %disp('no data');
                 end
              end
           end
@@ -240,7 +240,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
    end
 
-   disp(beat_to_beat);
+   %disp(beat_to_beat);
    if strcmp(beat_to_beat, 'on')
 
       if strcmp(analyse_all_b2b, 'time_region')
@@ -297,6 +297,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
         break; 
      end
    end
+   
 
    %{
    well_figure_array = [well_figure_array; well_fig];
@@ -333,15 +334,15 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
       end
    end
-   disp(size(well_t_wave_shape_array));
-   disp(well_t_wave_shape_array(1, :))
+   %disp(size(well_t_wave_shape_array));
+   %disp(well_t_wave_shape_array(1, :))
    
    if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
       well_bdt_array = well_bdt_array./1000;
    end
      
-   disp(well_min_bp_array);
-   disp(well_max_bp_array);
+   %disp(well_min_bp_array);
+   %disp(well_max_bp_array);
    %}
    
 
@@ -379,16 +380,17 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
       end
    end
 
-   disp(size(well_t_wave_shape_array));
-   disp(well_t_wave_shape_array(1, :))
+   %disp(size(well_t_wave_shape_array));
+   %disp(well_t_wave_shape_array(1, :))
    
    if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
       well_bdt_array = well_bdt_array./1000;
    end
      
-   disp(post_spike_array)
-   disp(well_t_wave_dur_array);
-   disp(well_max_bp_array);
+   %disp(post_spike_array)
+   %disp(well_t_wave_dur_array);
+   %disp(well_max_bp_array);
+   close(well_fig)
    
    analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
 
@@ -528,10 +530,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
     function changeTWaveTime(t_wave_time_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced, Stims, well_ax, min_voltage, max_voltage)
-       disp('change T-wave time')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %disp('change T-wave time')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_time_offset_ui, 'Value') == 0
@@ -633,12 +635,12 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        end 
        if bdt_ok == 1 && fpd_ok == 1 && t_wave_dur_ok == 1 && stim_spike_ok == 1 && start_time_ok == 1 && post_spike_ok == 1 && end_time_ok == 1 && GE_ok == 1 && min_BP_ok == 1 && max_BP_ok == 1
            %if start_time < end_time
-           disp('set vis')
+           %disp('set vis')
            set(submit_in_well_button, 'Visible', 'on')
            %end
        end
        
-       disp(post_spike_ok)
+       %disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
        % Pace analysis uses stim spike holdoff too
            if t_wave_dur_ok == 1
@@ -721,10 +723,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
    function changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced, Stims, well_ax, min_voltage, max_voltage)
-       disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_duration_ui, 'Value') == 0
@@ -826,12 +828,12 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        end 
        if bdt_ok == 1 && fpd_ok == 1 && t_wave_time_ok == 1 && stim_spike_ok == 1 && start_time_ok == 1 && post_spike_ok == 1 && end_time_ok == 1 && GE_ok == 1 && min_BP_ok == 1 && max_BP_ok == 1
            %if start_time < end_time
-           disp('set vis')
+           %disp('set vis')
            set(submit_in_well_button, 'Visible', 'on')
            %end
        end
        
-       disp(post_spike_ok)
+       %disp(post_spike_ok)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
        % Pace analysis uses stim spike holdoff too
            if t_wave_time_ok == 1 
@@ -1194,7 +1196,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
            end
            
        end 
-       %disp(spon_paced)
+       %%disp(spon_paced)
        if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
            % replot
            stim_hold_offs = Stims + get(stim_spike_ui, 'Value');
@@ -1229,7 +1231,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                end
            end
            
-           %disp(stim_hold_off_points)
+           %%disp(stim_hold_off_points)
 
            % boxes are smaller magnitudes than max_voltage-min_voltage
 
@@ -1257,7 +1259,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                        child_y_data = axes_children(c).YData;
                        child_x_data = axes_children(c).XData;
 
-                       %disp(child_x_data)
+                       %%disp(child_x_data)
                        if size(child_y_data) == size(t_wave_y_data)
                            continue
                        elseif size(child_y_data) == 1
@@ -1392,10 +1394,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
     function changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(min_bp_ui, 'Value') == 0
@@ -1501,10 +1503,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
     end
 
     function changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(max_bp_ui, 'Value') == 0
@@ -1611,10 +1613,10 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
     function changeFPD(fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time, spon_paced)
-       %disp('change T-wave duration')
-       %disp('function entered')
-       %disp(length(well_bdt_ui_array))
-       %disp(get(p, 'Children'))
+       %%disp('change T-wave duration')
+       %%disp('function entered')
+       %%disp(length(well_bdt_ui_array))
+       %%disp(get(p, 'Children'))
        
        % BDT CANNOT be equal to 0. 
        if get(fpd_ui, 'Value') == 0
@@ -1734,8 +1736,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        for c = 1:length(axes_children)
            child_x_data = axes_children(c).XData;
            child_y_data = axes_children(c).YData;
-           %disp(child_x_data(1))
-           %disp(floor(child_x_data(1)))
+           %%disp(child_x_data(1))
+           %%disp(floor(child_x_data(1)))
            if size(child_y_data) == size(ydata)
                if child_y_data(1) == ydata(1)
                   time_region_plots = [time_region_plots; axes_children(c)];
@@ -1746,14 +1748,14 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        
        plot1 = time_region_plots(1);
        plot2 = time_region_plots(2);
-       disp(plot1.XData(1));
-       disp(plot2.XData(1));
+       %disp(plot1.XData(1));
+       %disp(plot2.XData(1));
        if plot1.XData(1) < plot2.XData(1)
            prev_start_plot = plot1;
        else
            prev_start_plot = plot2;
        end
-       disp(prev_start_plot.XData(1));
+       %disp(prev_start_plot.XData(1));
        
        %set(prev_start_plot, 'Visible', 'off');
        %hold(well_ax, 'on');
@@ -2091,7 +2093,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
 
    function clearAllBDTPushed(clear_all_bdt_button, run_button)
-       %disp('clear BDT');
+       %%disp('clear BDT');
        % Must remove all BDT plots 
        % Set all BDTs to be zero again
        panel_sub_panels = get(p, 'Children');
@@ -2104,7 +2106,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
            for j = 1:length(sub_p_ui_controls)
 
                if strcmp(string(get(sub_p_ui_controls(j), 'Tag')), 'BDT')    
-                   %disp('BDT');
+                   %%disp('BDT');
                    bdt_ui_ctrl = sub_p_ui_controls(j);
   
                    set(bdt_ui_ctrl, 'Value', 0);
@@ -2138,14 +2140,14 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
    function runButtonPushed(run_button)
-      disp('run')
+      %disp('run')
       % Go through each subplots inputs and run analysis per parameters
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
       % Now create GUI with plots and BDT thresholds
    end
 
    function clearAllTWavesPushed(clear_all_t_wave_durations_button)
-       %disp('clear t-waves pushed')
+       %%disp('clear t-waves pushed')
 
        panel_sub_panels = get(p, 'Children');
       
@@ -2157,7 +2159,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
            for j = 1:length(sub_p_ui_controls)
 
                if strcmp(string(get(sub_p_ui_controls(j), 'Tag')), 'T-Wave')    
-                   %disp('BDT');
+                   %%disp('BDT');
                    bdt_ui_ctrl = sub_p_ui_controls(j);
   
                    set(bdt_ui_ctrl, 'Value', 0);
@@ -2182,12 +2184,12 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
           sub_ax = uiaxes(sub_p, 'Position', [10 60 160 130]);
           hold(sub_ax,'on');
           %sub_ax = subplot(num_well_rows, num_well_cols, count, 'Parent', sub_p, 'Position', [10 50 160 120]);
-          %disp(wellID)
-          %disp(sub_p);
+          %%disp(wellID)
+          %%disp(sub_p);
           %well_bdt = well_dt_ui.Value;
           %well_bdt_array = [well_bdt_array; well_bdt];
           %subplot(num_well_rows, num_well_cols, count)
-          %disp(wellID);
+          %%disp(wellID);
           %fig = figure();
           time_offset = 0;
           for e_r = 1:num_electrode_rows
@@ -2195,8 +2197,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
                 if (strcmp(class(RawWellData),'Waveform'))
                     %if ~empty(WellRawData)
-                    %disp(num_well_rows*num_well_cols)
-                    %disp(count)
+                    %%disp(num_well_rows*num_well_cols)
+                    %%disp(count)
                     electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
                     [time, data] = RawWellData.GetTimeVoltageVector;
                     time = time + time_offset;
@@ -2209,8 +2211,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                     time_offset = time_offset+0.015;
                     hold on;
                 else
-                    disp(wellID)
-                    disp('no data');
+                    %disp(wellID)
+                    %disp('no data');
                 end
              end
           end
@@ -2261,7 +2263,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    function b2bdropdown_menu_Callback(b2bdropdown,beat_to_beat, bdt_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown) 
       beat_to_beat = b2bdropdown.Value;
       if beat_to_beat == 1
-          disp('b2b on')
+          %disp('b2b on')
           beat_to_beat = 'on';
           set(b2b_options_text,'Visible','on')
           set(b2b_options_dropdown,'Visible','on')
@@ -2275,7 +2277,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
           bdt_fig.b2b_options_dropdown = uidropdown(bdt_fig, 'Items', {'all', 'time region'},'Position',[410 65 140 22], 'ValueChangedFcn',@(b2bdropdown,event) b2bdropdown_menu_Callback(b2bdropdown, beat_to_beat));
           %}
       else
-          disp('b2b off')
+          %disp('b2b off')
           set(b2b_options_text,'Visible','off')
           set(b2b_options_dropdown,'Visible','off')
           
@@ -2294,11 +2296,11 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    %}
 
    function runButtonPushed(run_button, raw_file, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, bdt_fig)
-      disp('worked')
-      disp(b2bdropdown.Value);
-      disp(stable_options_dropdown.Value);
-      disp(b2b_options_dropdown.Value);
-      disp(paced_spon_options_dropdown.Value);
+      %disp('worked')
+      %disp(b2bdropdown.Value);
+      %disp(stable_options_dropdown.Value);
+      %disp(b2b_options_dropdown.Value);
+      %disp(paced_spon_options_dropdown.Value);
       set(bdt_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
       

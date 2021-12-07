@@ -1,7 +1,7 @@
 function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd)
 
     if strcmpi(beat_to_beat, 'on')
-        disp(electrode_id);
+        %%disp(electrode_id);
         if strcmp(analyse_all_b2b, 'time_region')
             time_region_indx = find(time >= b2b_time_region1 & time <= b2b_time_region2);
             time = time(time_region_indx);
@@ -50,10 +50,10 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     %for t = 0:window:total_duration
     fail_beat_detection = 0;
     
-    disp(Stims);
+    %%%disp(Stims);
     %pause(20);
     while(1)
-       %disp(t+window)
+       %%%disp(t+window)
        %Use the beat detection threshold to determine the regions that need
        %to be analysed
        
@@ -88,7 +88,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            %Update the beat detection threshold
            bdt = bdt*0.8;
            if isalmost(bdt, 0, 1E-10)
-               disp('end of recording')
+               %%disp('end of recording')
                break
            end
            
@@ -103,14 +103,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            continue;
        end
        
-       %% Between 10 and 12 seconds 2 beats are being picked up as one
+       % Between 10 and 12 seconds 2 beats are being picked up as one
        
        beat_time = time(prev_beat_indx:beat_indx);
        beat_data = data(prev_beat_indx:beat_indx);
        
-       %% Trim and then scale and set back to time zero for each beat
-       %% Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 
-       %% Try training and test sets too. Separate the whole datasets so use 80% of the beat signals as the 20%
+       % Trim and then scale and set back to time zero for each beat
+       % Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 
+       % Try training and test sets too. Separate the whole datasets so use 80% of the beat signals as the 20%
        
        try
           beat_period = beat_time(end) - beat_time(1);
@@ -119,14 +119,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
           continue;
        end
        
-       disp(strcat('Beat period = ', num2str(beat_period)));
-       disp(strcat('Beat start time = ', num2str(beat_time(1))));
-       disp(strcat('Beat end time = ', num2str(beat_time(end))));
+       %%%disp(strcat('Beat period = ', num2str(beat_period)));
+       %%%disp(strcat('Beat start time = ', num2str(beat_time(1))));
+       %%%disp(strcat('Beat end time = ', num2str(beat_time(end))));
        
        if beat_period > max_beat_period
        %Check there is only one beat period.
-          disp('bdt has been reduced due to beat period being too long')
-          disp(bdt)
+          %%disp('bdt has been reduced due to beat period being too long')
+          %%disp(bdt)
           
           %if prev_beat_indx ~= 1
           beat_indx = prev_beat_indx;
@@ -136,7 +136,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                break;
           end
           if isalmost(bdt, 0, 1E-5)
-             disp('end of recording')
+             %%disp('end of recording')
              break
           end
           %else
@@ -153,18 +153,18 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            if fail_beat_detection >= 10
                break;
            end
-           disp('bdt has been increased due to beat period being too short')
+           %%disp('bdt has been increased due to beat period being too short')
            
-           disp(bdt)
-           disp(fail_beat_detection)
+           %%disp(bdt)
+           %%disp(fail_beat_detection)
 
            if prev_beat_indx ~= 1
                beat_indx = prev_beat_indx;
                bdt = bdt*5;
                
-               disp(beat_time(end))
-               disp(window)
-               disp(total_duration)
+               %%%disp(beat_time(end))
+               %%%disp(window)
+               %%%disp(total_duration)
                if beat_time(end)+window > total_duration
                    break;
                end
@@ -249,14 +249,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        count = count + 1;
        t = t + window;
     end
-    disp(strcat('Total Duration = ', {' '}, string(total_duration)))
-    disp(count);
+    %%%disp(strcat('Total Duration = ', {' '}, string(total_duration)))
+    %%%disp(count);
     
 
     %{
     if strcmpi(beat_to_beat, 'on')
         for i = 2:length(activation_time_array)
-            disp(strcat('Beat no. ', num2str(i)))
+            %%disp(strcat('Beat no. ', num2str(i)))
             if i == 2
                 %figure();
                 %plot(time, data);
@@ -266,8 +266,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                 figure();
             end
             beat_start = beat_start_times(i);
-            %disp(length(beat_start));
-            %disp(beat_start)
+            %%%disp(length(beat_start));
+            %%%disp(beat_start)
             %if i == length(activation_time_array)
             %    beat_end = time(end);
             %else
@@ -289,7 +289,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             %[t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time_data, beat_data, beat_to_beat, activation_time_array(i), i, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off);
             
             %figure();
-            %disp(FPD)
+            %%%disp(FPD)
             %subplot(ceil(length(beat_start_times)/4), 4, i-1);
             plot(time_data, beat_data);
             hold on;
@@ -297,7 +297,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             %t_wave_peak_time = time_data(peak_indx(1));
             plot(t_wave_peak_time, t_wave_peak, 'ro');
             %max_depol = beat_data(time_data == max_depol_time);
-            %disp(min_depol_time)
+            %%%disp(min_depol_time)
             %min_depol = beat_data(time_data == min_depol_time);
             act_point = beat_data(time_data == activation_time);
             plot(max_depol_time, max_depol, 'go');
@@ -305,8 +305,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             plot(activation_time, act_point, 'ro');
             title(strcat('t-wave peak marked for electrode ', electrode_id));
             
-            disp(strcat('FPD = ', num2str(FPD(1))));
-            disp(strcat('Depol amplitude = ', num2str(amplitude)))
+            %%disp(strcat('FPD = ', num2str(FPD(1))));
+            %%disp(strcat('Depol amplitude = ', num2str(amplitude)))
             
             %hold off;
             %pause(15);

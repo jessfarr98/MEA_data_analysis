@@ -30,7 +30,23 @@ classdef ElectrodeData
         ave_min_depol_point;
         ave_activation_time;
         ave_t_wave_peak_time;
-        ave_depol_slope
+        ave_depol_slope;
+        %inputs
+        bdt;
+        min_bp;
+        max_bp;
+        post_spike_hold_off;
+        t_wave_offset;
+        t_wave_duration;
+        t_wave_shape;
+        stim_spike_hold_off;
+        time_region_start;
+        time_region_end;
+        stable_beats_duration;
+        rejected
+        
+        
+        
         
     end
     

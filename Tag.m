@@ -57,6 +57,12 @@ classdef Tag < handle
                       new = Tag(this.TagGuid);  
                    case TagType.StimulationLedGroup
                       new = StimulationLeds(aFileId, fHead);
+                   case TagType.DoseEvent
+                      new = Tag(this.TagGuid); %Quietly ignored, No Additonal Parsing supported
+                   case TagType.StringDictonaryKeyPair
+                      new = Tag(this.TagGuid); %Quietly ignored, No Additonal Parsing supported
+                   case TagType.LeapInductionEvent
+                      new = LeapInductionEvent(aFileId, fHead);
                    otherwise
                       new = Tag(this.TagGuid);
                       if(this.Type ~= TagType.Deleted)

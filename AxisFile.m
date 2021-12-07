@@ -79,7 +79,7 @@ classdef AxisFile < handle
     
     properties (Constant = true, GetAccess = public)
         % Version of AxIS this script is released with
-        AXIS_VERSION='2.4.2.14';
+        AXIS_VERSION='2.5.2.2';
     end
     
     properties (SetAccess = private, GetAccess = private)
@@ -103,6 +103,7 @@ classdef AxisFile < handle
         Annotations;
         PlateMap;
         StimulationEvents;
+        LeapInduction;
     end
     
     methods
@@ -341,6 +342,7 @@ classdef AxisFile < handle
             this.Annotations = Annotation.empty(0);
             this.PlateMap = WellInformation.empty(0);
             this.StimulationEvents = StimulationEvent.empty(0);
+            this.LeapInduction = LeapInductionEvent.empty(0);
             
             for fKey = fTagMap.keys;
                 ffKey = fKey{1};
@@ -351,6 +353,8 @@ classdef AxisFile < handle
                     this.PlateMap(end+1) = fTag;                    
                 elseif isa(fTag, 'StimulationEvent')
                     this.StimulationEvents(end+1) = fTag;
+                elseif isa(fTag, 'LeapInductionEvent')
+                    this.LeapInduction(end+1) = fTag;
                 end
                 fTagMap(ffKey) = fTag;
             end
@@ -363,6 +367,7 @@ classdef AxisFile < handle
             this.Annotations = this.Annotations';
             this.PlateMap = this.PlateMap';
             this.StimulationEvents = this.StimulationEvents';
+            this.LeapInduction = this.LeapInduction'; %There Should only be one, but just to keep the pattern
                         
         end
         
