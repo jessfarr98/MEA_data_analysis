@@ -176,7 +176,6 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
             time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1080 150 100 40], 'Editable','off');
             time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1080 100 100 40]);
 
-            disp(min_end_time)
             set(time_end_ui, 'Value', min_end_time);
 
         end

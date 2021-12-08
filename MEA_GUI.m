@@ -318,7 +318,7 @@ function MEA_GUI(path_to_input, raw_file)
             return;
         end
         
-        spaces_end = regexp(dir_name, '.+\s*$', 'match')
+        spaces_end = regexp(dir_name, '.+\s+$', 'match')
         
         
             
