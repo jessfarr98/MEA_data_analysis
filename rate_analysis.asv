@@ -109,26 +109,20 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         filtration_rate = 20;
     end
     
-    [dr, dc] = size(depol_complex_data);
-    [tr, tc] = size(depol_complex_time);
+    [r, c] = size(depol_complex_data);
     
     if indx_min_depol_point < indx_max_depol_point
-        if dc == 1
+        if r == 1
             filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
-            
-        else
-
-            
-            filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
-            
-        end
-        
-        if tc == 1
             depol_complex_time_filtered = vertcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_time(indx_max_depol_point:filtration_rate:end));
         
         else
+            disp(size())
+            disp()
+            filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
             depol_complex_time_filtered = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_time(indx_max_depol_point:filtration_rate:end));
         
+            
         end
         
         
@@ -138,20 +132,12 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         
         depol_complex_data_derivative = gradient(filtered_data);
     else
-        if dc == 1
+        if r == 1
             filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_data(indx_min_depol_point:filtration_rate:end));
-            
-        else
-
-            filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_data(indx_min_depol_point:filtration_rate:end));
-            
-        end
-        
-        if tc == 1
             depol_complex_time_filtered = vertcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_time(indx_min_depol_point:filtration_rate:end));
         
         else
-            
+            filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_data(indx_min_depol_point:filtration_rate:end));
             depol_complex_time_filtered = horzcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_time(indx_min_depol_point:filtration_rate:end));
         
         end

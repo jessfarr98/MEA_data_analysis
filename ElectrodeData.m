@@ -43,6 +43,7 @@ classdef ElectrodeData
         time_region_start;
         time_region_end;
         stable_beats_duration;
+        filter_intensity;
         rejected
         
         

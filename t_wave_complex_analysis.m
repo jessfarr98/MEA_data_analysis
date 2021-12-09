@@ -1,4 +1,4 @@
-function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, data, beat_to_beat, activation_time, beat_no, spon_paced, peak_analysis, t_wave_peak, t_wave_search_duration, post_spike_holdoff, est_peak_time, est_fpd, electrode_id)
+function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, data, beat_to_beat, activation_time, beat_no, spon_paced, peak_analysis, t_wave_peak, t_wave_search_duration, post_spike_holdoff, est_peak_time, est_fpd, electrode_id, filter_intensity)
     
     
     %{
@@ -132,9 +132,6 @@ function [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(time, da
             %}
 
 
-            %{
-
-            %}
 
             %t_wave_peak_time = t_wave_time(find(t_wave_dv_dv == 0))
             %t_wave_peak_time = t_wave_peak_time;

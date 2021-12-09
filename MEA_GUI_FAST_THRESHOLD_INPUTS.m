@@ -132,57 +132,61 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
     post_spike_text = uieditfield(input_thresh_pan, 'Text', 'FontSize', 8,'Value', 'Post spike hold-off (s)', 'Position', [480 150 100 40], 'Editable','off');
     post_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Post-spike', 'Position', [480 100 100 40],  'Value', 0.1);
     
+    filter_intensity_text = uieditfield(input_thresh_pan, 'Text', 'FontSize', 8, 'Value', 'Filtering Intensity', 'Position', [600 150 100 40], 'Editable','off');
+    filter_intensity_dropdown = uidropdown(input_thresh_pan, 'Items', {'none', 'low', 'medium', 'strong'}, 'FontSize', 8,'Position', [600 100 100 40]);
+    filter_intensity_dropdown.ItemsData = [1 2 3 4];
+    
     if strcmp(spon_paced, 'spon')
 
-        min_bp_text = uieditfield(input_thresh_pan,'Text','FontSize', 8, 'Value', 'Min. BP (s)', 'Position', [600 150 100 40], 'Editable','off');
-        min_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Min BP', 'Position', [600 100 100 40]);
+        min_bp_text = uieditfield(input_thresh_pan,'Text','FontSize', 8, 'Value', 'Min. BP (s)', 'Position', [720 150 100 40], 'Editable','off');
+        min_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Min BP', 'Position', [720 100 100 40]);
       
-        max_bp_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Max. BP (s)',  'Position', [720 150 100 40], 'Editable','off');
-        max_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Max BP', 'Position', [720 100 100 40]);
+        max_bp_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Max. BP (s)',  'Position', [840 150 100 40], 'Editable','off');
+        max_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Max BP', 'Position', [840 100 100 40]);
       
     elseif strcmp(spon_paced, 'paced bdt')
-        min_bp_text = uieditfield(input_thresh_pan,'Text','FontSize', 8, 'Value', 'Min. BP (s)', 'Position', [600 150 100 40], 'Editable','off');
-        min_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Min BP', 'Position', [600 100 100 40]);
+        min_bp_text = uieditfield(input_thresh_pan,'Text','FontSize', 8, 'Value', 'Min. BP (s)', 'Position', [720 150 100 40], 'Editable','off');
+        min_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Min BP', 'Position', [720 100 100 40]);
       
-        max_bp_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Max. BP (s)', 'Position', [720 150 100 40], 'Editable','off');
-        max_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Max BP', 'Position', [720 100 100 40]);
+        max_bp_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Max. BP (s)', 'Position', [840 150 100 40], 'Editable','off');
+        max_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Max BP', 'Position', [840 100 100 40]);
       
-        stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)',  'Position', [840 150 100 40], 'Editable','off');
-        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [840 100 100 40]);
+        stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)',  'Position', [960 150 100 40], 'Editable','off');
+        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [960 100 100 40]);
       
     elseif strcmp(spon_paced, 'paced') 
-        stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)', 'Position', [600 150 100 40], 'Editable','off');
-        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [600 100 100 40],  'Value', 0.002);
+        stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)', 'Position', [720 150 100 40], 'Editable','off');
+        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [720 100 100 40],  'Value', 0.002);
       
     end
 
     if strcmp(beat_to_beat, 'on')
 
         if strcmp(analyse_all_b2b, 'time_region')
-            time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'B2B Time region start time (s)', 'Position', [960 150 100 40], 'Editable','off');
-            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [960 100 100 40]);
+            time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'B2B Time region start time (s)', 'Position', [1080 150 100 40], 'Editable','off');
+            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [1080 100 100 40]);
             
-            time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1080 150 100 40], 'Editable','off');
-            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1080 100 100 40]);
+            time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1200 150 100 40], 'Editable','off');
+            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1200 100 100 40]);
             
             set(time_end_ui, 'Value', min_end_time)
 
         end
     else
         if strcmp(stable_ave_analysis, 'time_region')
-            time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region start time (s)', 'Position', [960 150 100 40], 'Editable','off');
-            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [960 100 100 40]);
+            time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region start time (s)', 'Position', [1080 150 100 40], 'Editable','off');
+            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [1080 100 100 40]);
             
-            time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1080 150 100 40], 'Editable','off');
-            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1080 100 100 40]);
+            time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1200 150 100 40], 'Editable','off');
+            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1200 100 100 40]);
 
             set(time_end_ui, 'Value', min_end_time);
 
         end
         if strcmp(stable_ave_analysis, 'stable')
             %sliding time window to find the elctrode with the most stable beat period and then compute average waveform using this region
-            stable_duration_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Time Window for GE average waveform (s)', 'Position', [960 150 100 40], 'Editable','off');
-            stable_duration_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'GE Window', 'Position', [960 100 100 40]);
+            stable_duration_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Time Window for GE average waveform (s)', 'Position', [1080 150 100 40], 'Editable','off');
+            stable_duration_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'GE Window', 'Position', [1080 100 100 40]);
 
         end
     end
@@ -221,6 +225,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         well_t_wave_dur_array = repmat(get(t_wave_duration_ui, 'Value'), length(added_wells));
         well_t_wave_shape_array = repmat(get(t_wave_up_down_dropdown, 'Value'), length(added_wells));
         well_t_wave_time_array = repmat(get(t_wave_peak_offset_ui, 'Value'), length(added_wells));
+        filter_intensity_array = repmat(get(filter_intensity_dropdown, 'Value'), length(added_wells));
         %well_fpd_array = repmat(get(est_fpd_ui, 'Value'), length(added_wells));
 
         if strcmp(spon_paced, 'spon')
@@ -258,7 +263,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         end
         disp(stim_spike_array)
         
-        analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, save_dir)
+        analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, save_dir)
 
         
         

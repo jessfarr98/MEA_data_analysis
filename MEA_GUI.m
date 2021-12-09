@@ -308,7 +308,7 @@ function MEA_GUI(path_to_input, raw_file)
             return;
         end
         
-        spaces = regexp(dir_name, '^\s*$', 'match')
+        spaces = regexp(dir_name, '^\s*$', 'match');
         
         if ~isempty(spaces)
             disp('NO');
@@ -318,11 +318,15 @@ function MEA_GUI(path_to_input, raw_file)
             return;
         end
         
-        spaces_end = regexp(dir_name, '.+\s+$', 'match')
+        [spaces_end, toks] = regexp(dir_name, '(.+)\s+$', 'match', 'tokens');
         
+        %{
+        if ~isempty(spaces_end)
+            disp(toks{:});
         
-            
-            
+            return;
+        end
+        %}
         
         % Embed the new files and directory in data directory so analyses are grouped
         dir_name = fullfile(data_dir, dir_name);

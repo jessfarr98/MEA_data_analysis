@@ -1,4 +1,4 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array] = paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time, filter_intensity)
 
     
     total_duration = time(end);
@@ -38,10 +38,15 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     
     %pause(20);
     orig_bdt = bdt;
+    iterations = 0;
     while(1)
        %disp(t+window)
        %Use the beat detection threshold to determine the regions that need
        %to be analysed
+       iterations = iterations+1;
+       if iterations == 1000
+           break;
+       end
                  
        if (time(prev_beat_indx)+window) > total_duration
            break;
@@ -91,14 +96,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            end
        end
        
-       %% Between 10 and 12 seconds 2 beats are being picked up as one
+       % Between 10 and 12 seconds 2 beats are being picked up as one
 
        beat_time = time(prev_beat_indx:beat_indx);
        beat_data = data(prev_beat_indx:beat_indx);
        
-       %% Trim and then scale and set back to time zero for each beat
-       %% Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 
-       %% Try training and test sets too. Separate the whole datasets so use 80% of the beat signals as the 20%
+       % Trim and then scale and set back to time zero for each beat
+       % Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 
+       % Try training and test sets too. Separate the whole datasets so use 80% of the beat signals as the 20%
        
        try
           beat_period = beat_time(end) - beat_time(1);
@@ -179,19 +184,19 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        
        if strcmp(spon_paced, 'paced bdt')
            if count == 0
-               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id);
+               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity);
            
            else
-               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id);
+               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id, filter_intensity);
            
                
            end
        else
-           [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time);
+           [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity);
        
        end
        if strcmp(beat_to_beat, 'on')
-           [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd);
+           [t_wave_peak_time, t_wave_peak, FPD] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd, electrode_id, filter_intensity);
 
            %if count == 0
                %figure();

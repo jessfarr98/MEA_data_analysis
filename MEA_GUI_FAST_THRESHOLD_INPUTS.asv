@@ -54,8 +54,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
            for w_c = 1:num_well_cols
               wellID = strcat(well_dictionary(w_r), '0', string(w_c));
               if ~contains(added_wells, 'all')
-                  if contains(added_wells, wellID)
-                      
+                  if ismember(wellID, added_wells)
                       for e_r = num_electrode_rows:-1:1
                          for e_c = 1:num_electrode_cols
                             RawWellData = RawData{w_r, w_c, e_c, e_r};
@@ -133,6 +132,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
     post_spike_text = uieditfield(input_thresh_pan, 'Text', 'FontSize', 8,'Value', 'Post spike hold-off (s)', 'Position', [480 150 100 40], 'Editable','off');
     post_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Post-spike', 'Position', [480 100 100 40],  'Value', 0.1);
     
+    filter_intensity_text = uieditfield(input_thresh_pan, 'Text', 'FontSize', 8, 'Value', 'Filtering Intensity', 'Position', [600 150 100 40], 'Editable','off');
+    filter_intensity_dropdown = uidropdown(input_thresh_pan, 'Items', {'none', 'low', 'medium', 'strong'}, 'FontSize', 8,'Position', [120 100 100 40]);
+    filter_intensity_dropdown.ItemsData = [1 2 3 4];
+    
     if strcmp(spon_paced, 'spon')
 
         min_bp_text = uieditfield(input_thresh_pan,'Text','FontSize', 8, 'Value', 'Min. BP (s)', 'Position', [600 150 100 40], 'Editable','off');
@@ -177,7 +180,6 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
             time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1080 150 100 40], 'Editable','off');
             time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1080 100 100 40]);
 
-            disp(min_end_time)
             set(time_end_ui, 'Value', min_end_time);
 
         end
@@ -223,6 +225,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         well_t_wave_dur_array = repmat(get(t_wave_duration_ui, 'Value'), length(added_wells));
         well_t_wave_shape_array = repmat(get(t_wave_up_down_dropdown, 'Value'), length(added_wells));
         well_t_wave_time_array = repmat(get(t_wave_peak_offset_ui, 'Value'), length(added_wells));
+        filter_intensity = repmat(get(filter_intensity_dropdown, 'Value'), length(added_wells));
         %well_fpd_array = repmat(get(est_fpd_ui, 'Value'), length(added_wells));
 
         if strcmp(spon_paced, 'spon')

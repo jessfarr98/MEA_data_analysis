@@ -141,9 +141,14 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    if strcmp(stable_ave_analysis, 'stable')
                         electrode_options = [];
                         %for e_r = 1:num_electrode_rows
+                        el_count = 0;
                         for e_r = num_electrode_rows:-1:1
                            for e_c = 1:num_electrode_cols
                                %electrode_id = strcat(wellID, '_', num2str(e_r),'_',num2str(e_c));
+                               el_count = el_count+1;
+                               if (well_electrode_data(button_count, el_count).electrode_id == "")
+                                   continue
+                               end
                                electrode_id = strcat(wellID, '_', num2str(e_c),'_',num2str(e_r));
                                electrode_options = [electrode_options; electrode_id];
                            end
@@ -192,12 +197,16 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                if strcmp(stable_ave_analysis, 'stable')
                     electrode_options = [];
                     %for e_r = 1:num_electrode_rows
+                    el_count = 0;
                     for e_r = num_electrode_rows:-1:1
                        for e_c = 1:num_electrode_cols
                            %%disp('elec')
                            %%disp(e_r)
                            %%disp(e_c)
-                           
+                           el_count = el_count+1;
+                           if (well_electrode_data(b, el_count).electrode_id == "")
+                               continue
+                           end
                            %Computer way of labelling - row, column
                            %electrode_id = strcat(wellID, '_', num2str(e_r),'_',num2str(e_c));
                            electrode_id = strcat(wellID, '_', num2str(e_c),'_',num2str(e_r));
@@ -317,6 +326,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty (elec_indx);
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 electrode_data(electrode_count).rejected = 0;
@@ -963,7 +975,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(well_count, :), re_count] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
+                [well_electrode_data(well_count, :)] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
                 %%disp(electrode_data(re_count).activation_times(2))
                 electrode_data = well_electrode_data(well_count, :);
             end
@@ -979,12 +991,17 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             for e = 1:num_electrode_rows*num_electrode_cols
                 %%disp(e);
                 elec_data = electrode_data(1,e);
-                %if isempty(elec_data.activation_times)
+                
                 if elec_data.rejected == 1
                     act_time = nan;
                 else
-                    act_times = elec_data.activation_times;
-                    act_time = act_times(2);
+                    if isempty(elec_data.activation_times)
+                        disp('emptyyyyyyy')
+                        act_time = nan;
+                    else
+                        act_times = elec_data.activation_times;
+                        act_time = act_times(2);
+                    end
                 end
                 
                 start_activation_times = [start_activation_times; act_time];
@@ -1655,7 +1672,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             min_electrode_beat_stdev_indx = find(min_stdevs == 1);
         else
             min_stdevs = [electrode_data(:).min_stdev];
-            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+            non_zero_stddevs = find(min_stdevs ~=0);
+            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
         GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " +electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]); 
         GE_ax = uiaxes(GE_pan, 'Position', [0 0 300 300]);
@@ -1720,7 +1738,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             min_electrode_beat_stdev_indx = find(min_stdevs == 1);
         else
             min_stdevs = [electrode_data(:).min_stdev];
-            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+            non_zero_stddevs = find(min_stdevs ~=0);
+            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
         GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " + electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]);
         
@@ -1839,9 +1858,13 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    drop_down = dropdown_array(ge_count);
                    
                    electrode_data = well_electrode_data(ge_count,:);
+                   
+                   non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
+                   
                    if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electrode_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                    else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -1890,9 +1913,14 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 drop_down = dropdown_array(ge);
                 electrode_data = well_electrode_data(ge,:);
 
+                %disp([electrode_data(:).electrode_id])
+                non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
+                %electrode_data = electrode_data(non_empty_elec_data);
+                
                 if strcmp(get(drop_down, 'Visible'), 'off')
                     min_stdevs = [electrode_data(:).min_stdev];
-                    min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                    non_zero_stddevs = find(min_stdevs ~=0);
+                    min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                 else
                     new_ge = get(drop_down, 'Value');
                     new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -1998,7 +2026,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        electro_data = well_electrode_data(re_ge_count,:);
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electro_data(:).min_stdev];
-                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                            non_zero_stddevs = find(min_stdevs ~=0);
+                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                        else
                             new_ge = get(drop_down, 'Value');
                             new_ge_indx = contains([electro_data(:).electrode_id], new_ge);
@@ -2034,7 +2063,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     electro_data = well_electrode_data(re_ge,:);
                     if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electro_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                     else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electro_data(:).electrode_id], new_ge);
@@ -2074,7 +2104,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(:,:), re_count] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
+                [well_electrode_data(:,:)] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
                 %%disp(electrode_data(re_count).activation_times(2))
             end
 
@@ -2114,7 +2144,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        electrode_data = well_electrode_data(ge_res_count,:);
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electrode_data(:).min_stdev];
-                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                            non_zero_stddevs = find(min_stdevs ~=0);
+                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                        else
                             new_ge = get(drop_down, 'Value');
                             new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -2170,7 +2201,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                     if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electrode_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                     else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -2246,6 +2278,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty(elec_indx)
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 if isempty(electrode_data(electrode_count).beat_start_times)
@@ -2506,6 +2541,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty(elec_indx)
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 if isempty(electrode_data(electrode_count).beat_start_times)
@@ -2748,7 +2786,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             drop_down = dropdown_array(w);
             if strcmp(get(drop_down, 'Visible'), 'off')
                 min_stdevs = [electrode_data(:).min_stdev];
-                min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                non_zero_stddevs = find(min_stdevs ~=0);
+                min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
             
             else
                 new_ge = get(drop_down, 'Value');

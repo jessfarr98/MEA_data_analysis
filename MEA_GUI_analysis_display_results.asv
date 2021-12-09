@@ -141,14 +141,19 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    if strcmp(stable_ave_analysis, 'stable')
                         electrode_options = [];
                         %for e_r = 1:num_electrode_rows
+                        el_count = 0;
                         for e_r = num_electrode_rows:-1:1
                            for e_c = 1:num_electrode_cols
                                %electrode_id = strcat(wellID, '_', num2str(e_r),'_',num2str(e_c));
+                               el_count = el_count+1;
+                               if (well_electrode_data(button_count, el_count).electrode_id == "")
+                                   continue
+                               end
                                electrode_id = strcat(wellID, '_', num2str(e_c),'_',num2str(e_r));
                                electrode_options = [electrode_options; electrode_id];
                            end
                         end
-                        %celldisp(electrode_options)
+                        %cell%disp(electrode_options)
                         
                         
                         change_GE_text = uieditfield(button_panel,'Text','Position',[2*(button_width/3) (button_height)/2 button_width/6 (button_height)/2], 'Value',"Change" + " " + wellID + " " + "Golden Electrode", 'Editable','off');
@@ -192,12 +197,16 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                if strcmp(stable_ave_analysis, 'stable')
                     electrode_options = [];
                     %for e_r = 1:num_electrode_rows
+                    el_count = 0;
                     for e_r = num_electrode_rows:-1:1
                        for e_c = 1:num_electrode_cols
-                           %disp('elec')
-                           %disp(e_r)
-                           %disp(e_c)
-                           
+                           %%disp('elec')
+                           %%disp(e_r)
+                           %%disp(e_c)
+                           el_count = el_count+1;
+                           if (well_electrode_data(b, el_count).electrode_id == "")
+                               continue
+                           end
                            %Computer way of labelling - row, column
                            %electrode_id = strcat(wellID, '_', num2str(e_r),'_',num2str(e_c));
                            electrode_id = strcat(wellID, '_', num2str(e_c),'_',num2str(e_r));
@@ -206,7 +215,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                            electrode_options = [electrode_options; electrode_id];
                        end
                     end
-                    %disp(electrode_options)
+                    %%disp(electrode_options)
                     
                     
                     change_GE_text = uieditfield(button_panel,'Text','Position',[2*(button_width/3) (button_height)/2 button_width/6 (button_height)/2], 'Value',strcat('Change', {' '}, wellID, {' '},'Golden Electrode'), 'Editable','off');
@@ -248,19 +257,19 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         well_ID = get(well_button, 'Text');
         
         %{
-        disp(class(wellID))
-        disp(wellID)
+        %disp(class(wellID))
+        %disp(wellID)
         if ismember('_', wellID)
             name_parts = split(wellID, '_');
             wellID = name_parts{1};
         end
         %}
-        %disp(well_ID)
-        %disp(contains(added_wells, well_ID))
+        %%disp(well_ID)
+        %%disp(contains(added_wells, well_ID))
         %well_electrode_data(well_count, :).rejected = 0;
         electrode_data = well_electrode_data(well_count, :);
         %electrode_data = electrod_e_data;
-        %disp(size(electrode_data))
+        %%disp(size(electrode_data))
         
         well_elec_fig = uifigure;
         well_elec_fig.Name = strcat(well_ID, '_', 'Electrode Results');
@@ -317,6 +326,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty (elec_indx);
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 electrode_data(electrode_count).rejected = 0;
@@ -325,7 +337,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if strcmp(beat_to_beat, 'on')
                     %plot all the electrodes analysed data and 
                     % left bottom width height
-                    %disp(electrode_data(electrode_count).electrode_id)
+                    %%disp(electrode_data(electrode_count).electrode_id)
                     if isempty(electrode_data(electrode_count))
                         continue
                         
@@ -362,12 +374,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                         %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                         [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                        %disp(in)
-                        %disp(electrode_data(electrode_count).Stims)
+                        %%disp(in)
+                        %%disp(electrode_data(electrode_count).Stims)
                         Stim_points = electrode_data(electrode_count).data(stim_indx);
                         Stim_times = electrode_data(electrode_count).time(stim_indx);
-                        %disp(length(Stim_points))
-                        %disp(length(electrode_data(electrode_count).Stims))
+                        %%disp(length(Stim_points))
+                        %%disp(length(electrode_data(electrode_count).Stims))
                         %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                         plot(elec_ax, Stim_times, Stim_points, 'mo');
@@ -434,12 +446,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                         if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                             %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                             [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                            %disp(in)
-                            %disp(electrode_data(electrode_count).Stims)
+                            %%disp(in)
+                            %%disp(electrode_data(electrode_count).Stims)
                             Stim_points = electrode_data(electrode_count).data(stim_indx);
                             Stim_times = electrode_data(electrode_count).time(stim_indx);
-                            %disp(length(Stim_points))
-                            %disp(length(electrode_data(electrode_count).Stims))
+                            %%disp(length(Stim_points))
+                            %%disp(length(electrode_data(electrode_count).Stims))
                             %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                             plot(elec_ax, Stim_times, Stim_points, 'mo');
@@ -554,7 +566,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             if ismember([well_electrode_data(well_count, :).ave_t_wave_peak_time], 0)
                 set(display_final_button, 'Visible', 'on')
                 [le, len_well_elec] = size(well_electrode_data)
-                %disp();
+                %%disp();
                 for i = 1:len_well_elec
                     well_electrode_data(well_count, i).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
                     electrode_data(i).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
@@ -568,7 +580,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     elec_child = get(well_child(wc), 'Children');                 
     
                     for ch = 1:length(elec_child)
-                        %disp(get(elec_child(ch), 'Type'))
+                        %%disp(get(elec_child(ch), 'Type'))
                         if ~strcmp(get(elec_child(ch), 'Type'), 'axes')
                             continue;
                         end
@@ -750,39 +762,43 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             elec_mean_slope = mean(elec_slopes);
             elec_mean_bp = mean(elec_bps);
             
-            
-            elec_post_spike_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Post-spike = ', num2str(electrode_data(electrode_count).post_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 850 200 50], 'Editable','off');
-            elec_t_wave_offset_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave offset = ', num2str(electrode_data(electrode_count).t_wave_offset)), 'FontSize', 10, 'Position', [screen_width-220 750 200 50], 'Editable','off');
-            elec_t_wave_duration_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave duration = ', num2str(electrode_data(electrode_count).t_wave_duration)), 'FontSize', 10, 'Position', [screen_width-220 650 200 50], 'Editable','off');
-            elec_t_wave_shape_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave shape = ', electrode_data(electrode_count).t_wave_shape), 'FontSize', 10, 'Position', [screen_width-220 550 200 50], 'Editable','off');
-
+           
 
             if strcmp(spon_paced, 'spon')
-                elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 950 200 50], 'Editable','off');
-                elec_min_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('min BP = ', num2str(electrode_data(electrode_count).min_bp)), 'FontSize', 10, 'Position', [screen_width-220 1050 200 50], 'Editable','off');
-                elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 1150 200 50], 'Editable','off');
+                text_box_height = screen_height/13;
+                
+                elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*11 200 text_box_height], 'Editable','off');
+                elec_min_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('min BP = ', num2str(electrode_data(electrode_count).min_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*10 200 text_box_height], 'Editable','off');
+                elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*9 200 text_box_height], 'Editable','off');
          
             elseif strcmp(spon_paced, 'paced_bdt')
-                elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 950 200 50], 'Editable','off');
-                elec_min_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('min BP = ', num2str(electrode_data(electrode_count).min_bp)), 'FontSize', 10, 'Position', [screen_width-220 1050 200 50], 'Editable','off');
-                elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 1150 200 50], 'Editable','off');
-                elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 1250 200 50], 'Editable','off');
+                text_box_height = screen_height/14;
+                
+                elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*12 200 text_box_height], 'Editable','off');
+                elec_min_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('min BP = ', num2str(electrode_data(electrode_count).min_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*11 200 text_box_height], 'Editable','off');
+                elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*10 200 text_box_height], 'Editable','off');
+                elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*9 200 text_box_height], 'Editable','off');
                 
             elseif strcmp(spon_paced, 'paced')
-                elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 950 200 50], 'Editable','off');
+                text_box_height = screen_height/11;
+                
+                elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*9 200 text_box_height], 'Editable','off');
                 
             end
             
+            elec_post_spike_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Post-spike = ', num2str(electrode_data(electrode_count).post_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*8 200 text_box_height], 'Editable','off');
+            elec_t_wave_offset_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave offset = ', num2str(electrode_data(electrode_count).t_wave_offset)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*7 200 text_box_height], 'Editable','off');
+            elec_t_wave_duration_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave duration = ', num2str(electrode_data(electrode_count).t_wave_duration)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*6 200 text_box_height], 'Editable','off');
+            elec_t_wave_shape_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave shape = ', electrode_data(electrode_count).t_wave_shape), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*5 200 text_box_height], 'Editable','off');
             
+            
+            elec_fpd_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean FPD = ', num2str(elec_mean_FPD)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*4 200 text_box_height], 'Editable','off');
+            elec_amp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Depol. Ampl. = ', num2str(elec_mean_amp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*3 200 text_box_height], 'Editable','off');
+            elec_slope_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Depol. Slope = ', num2str(elec_mean_slope)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*2 200 text_box_height], 'Editable','off');
+            elec_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Beat Period =', num2str(elec_mean_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height 200 text_box_height], 'Editable','off');
 
-            elec_fpd_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean FPD = ', num2str(elec_mean_FPD)), 'FontSize', 10, 'Position', [screen_width-220 450 200 50], 'Editable','off');
-            elec_amp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Depol. Ampl. = ', num2str(elec_mean_amp)), 'FontSize', 10, 'Position', [screen_width-220 350 200 50], 'Editable','off');
-            elec_slope_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Depol. Slope = ', num2str(elec_mean_slope)), 'FontSize', 10, 'Position', [screen_width-220 250 200 50], 'Editable','off');
-            elec_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Mean Beat Period =', num2str(elec_mean_bp)), 'FontSize', 10, 'Position', [screen_width-220 150 200 50], 'Editable','off');
 
-
-
-            expand_close_button = uibutton(expand_elec_panel,'push','Text', 'Close', 'FontSize', 10,'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(expand_close_button,event) closeExpandButtonPushed(expand_close_button, expand_elec_fig));
+            expand_close_button = uibutton(expand_elec_panel,'push','Text', 'Close', 'FontSize', 10,'Position', [screen_width-220 0 120 text_box_height], 'ButtonPushedFcn', @(expand_close_button,event) closeExpandButtonPushed(expand_close_button, expand_elec_fig));
 
             exp_ax = uiaxes(expand_elec_p, 'Position', [0 50 well_p_width well_p_height-50]);
             hold(exp_ax,'on')
@@ -798,12 +814,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                 %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                 [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                %disp(in)
-                %disp(electrode_data(electrode_count).Stims)
+                %%disp(in)
+                %%disp(electrode_data(electrode_count).Stims)
                 elec_Stim_times = electrode_data(electrode_count).time(stim_indx);
                 elec_Stim_points = electrode_data(electrode_count).data(stim_indx);
-                %disp(length(Stim_points))
-                %disp(length(electrode_data(electrode_count).Stims))
+                %%disp(length(Stim_points))
+                %%disp(length(electrode_data(electrode_count).Stims))
                 %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                 plot(exp_ax, elec_Stim_times, elec_Stim_points, 'mo');
@@ -901,7 +917,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    return; 
                 end
                 [well_electrode_data(well_count, :)] = electrode_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
-                %disp(electrode_data(re_count).activation_times(2))
+                %%disp(electrode_data(re_count).activation_times(2))
                 electrode_data = well_electrode_data(well_count, :);
             end
 
@@ -959,8 +975,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(well_count, :), re_count] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
-                %disp(electrode_data(re_count).activation_times(2))
+                [well_electrode_data(well_count, :)] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
+                %%disp(electrode_data(re_count).activation_times(2))
                 electrode_data = well_electrode_data(well_count, :);
             end
 
@@ -971,16 +987,21 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
             %set(well_elec_fig, 'Visible', 'off')
             start_activation_times = [];
-            %disp(size(electrode_data))
+            %%disp(size(electrode_data))
             for e = 1:num_electrode_rows*num_electrode_cols
-                %disp(e);
+                %%disp(e);
                 elec_data = electrode_data(1,e);
-                %if isempty(elec_data.activation_times)
+                
                 if elec_data.rejected == 1
                     act_time = nan;
                 else
-                    act_times = elec_data.activation_times;
-                    act_time = act_times(2);
+                    if isempty(elec_data.activation_times)
+                        disp('emptyyyyyyy')
+                        act_time = nan;
+                    else
+                        act_times = elec_data.activation_times;
+                        act_time = act_times(2);
+                    end
                 end
                 
                 start_activation_times = [start_activation_times; act_time];
@@ -1093,12 +1114,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                         %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                         [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                        %disp(in)
-                        %disp(electrode_data(electrode_count).Stims)
+                        %%disp(in)
+                        %%disp(electrode_data(electrode_count).Stims)
                         Stim_points = electrode_data(electrode_count).data(stim_indx);
                         Stim_times = electrode_data(electrode_count).time(stim_indx);
-                        %disp(length(Stim_points))
-                        %disp(length(electrode_data(electrode_count).Stims))
+                        %%disp(length(Stim_points))
+                        %%disp(length(electrode_data(electrode_count).Stims))
                         %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                         plot(elec_res_ax, Stim_times, Stim_points, 'mo');
@@ -1211,12 +1232,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                         if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                             %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                             [in, stim_indx, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).Stims);
-                            %disp(in)
-                            %disp(electrode_data(electrode_count).Stims)
+                            %%disp(in)
+                            %%disp(electrode_data(electrode_count).Stims)
                             Stim_points = electrode_data(electrode_count).data(stim_indx);
                             Stim_times = electrode_data(electrode_count).time(stim_indx);
-                            %disp(length(Stim_points))
-                            %disp(length(electrode_data(electrode_count).Stims))
+                            %%disp(length(Stim_points))
+                            %%disp(length(electrode_data(electrode_count).Stims))
                             %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                             plot(elec_res_ax, Stim_times, Stim_points, 'mo');
@@ -1255,12 +1276,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
               
                 plots_p = uipanel(stats_pan, 'Position', [0 0 well_p_width well_p_height]);
 
-                stats_close_button = uibutton(stats_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(stats_close_button,event) closeAllButtonPushed(stats_close_button, stat_plots_fig));
+                stats_close_button = uibutton(stats_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(stats_close_button,event) closeSingleFig(stats_close_button, stat_plots_fig));
 
                 % BASED ON THE CYCLE LENGTHS PERFROM ARRHYTHMIA ANALYSIS
                 [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
                 if ~isempty(arrhythmia_indx)
-                    disp('detected arrhythmia!')
+                    %disp('detected arrhythmia!')
                     arrhythmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(arrhythmia_indx(1)), '-', num2str(arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
                         
                 end
@@ -1308,7 +1329,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
             end
             function advancedStatsButtonPushed(adv_stats_elec_button, electrode_data)
-                %disp(electrode_data.electrode_id)
+                %%disp(electrode_data.electrode_id)
                 
                 adv_elec_fig = uifigure;
                 adv_elec_fig.WindowState = 'maximized';
@@ -1346,7 +1367,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
                 
                 
-                adv_close_button = uibutton(adv_elec_panel,'push','Text', 'Close', 'FontSize', 10,'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(adv_close_button,event) closeAllButtonPushed(adv_close_button, adv_elec_fig));
+                adv_close_button = uibutton(adv_elec_panel,'push','Text', 'Close', 'FontSize', 10,'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(adv_close_button,event) closeSingleFig(adv_close_button, adv_elec_fig));
 
                 adv_ax = uiaxes(adv_elec_p, 'Position', [0 50 well_p_width well_p_height-50]);
                 hold(adv_ax,'on')
@@ -1362,12 +1383,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
                     %stim_indx = find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims)
                     [in, stim_indx, ~] = intersect(electrode_data.time, electrode_data.Stims);
-                    %disp(in)
-                    %disp(electrode_data(electrode_count).Stims)
+                    %%disp(in)
+                    %%disp(electrode_data(electrode_count).Stims)
                     elec_Stim_times = electrode_data.time(stim_indx);
                     elec_Stim_points = electrode_data.data(stim_indx);
-                    %disp(length(Stim_points))
-                    %disp(length(electrode_data(electrode_count).Stims))
+                    %%disp(length(Stim_points))
+                    %%disp(length(electrode_data(electrode_count).Stims))
                     %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
                     plot(adv_ax, elec_Stim_times, elec_Stim_points, 'mo');
@@ -1447,7 +1468,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %electrode_count = electrode_count+1;
                     %plot all the electrodes analysed data and 
                     % left bottom width height
-                    disp(electrode_data(electrode_count).electrode_id)
+                    %disp(electrode_data(electrode_count).electrode_id)
                     elec_res_pan = uipanel(well_res_p, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
 
                     elec_res_ax = uiaxes(elec_res_pan, 'Position', [0 20 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-40]);
@@ -1495,7 +1516,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        
             
             function advancedStatsButtonPushed(adv_stats_elec_button, electrode_data)
-                %disp(electrode_data.electrode_id)
+                %%disp(electrode_data.electrode_id)
                 
                 adv_elec_fig = uifigure;
                 adv_elec_fig.WindowState = 'maximized';
@@ -1517,7 +1538,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_bp_text = uieditfield(adv_elec_panel,'Text', 'Value', "Beat Period = " + " " + num2str(elec_bp), 'FontSize', 10, 'Position', [screen_width-220 100 200 50], 'Editable','off');
 
                 
-                adv_close_button = uibutton(adv_elec_panel,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(adv_close_button,event) closeAllButtonPushed(adv_close_button, adv_elec_fig));
+                adv_close_button = uibutton(adv_elec_panel,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(adv_close_button,event) closeSingleFig(adv_close_button, adv_elec_fig));
 
                 adv_ax = uiaxes(adv_elec_p, 'Position', [0 50 well_p_width well_p_height-50]);
                 hold(adv_ax,'on')
@@ -1553,6 +1574,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         set(out_fig, 'Visible', 'on');
         %pause(0.01);
         %close all hidden;
+    end
+
+    function closeSingleFig(close_button, fig)
+        close(fig)
     end
 
     function rejectWellButtonPushed(rejec_well_button, well_elec_fig, out_fig, well_button, well_count)
@@ -1647,7 +1672,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             min_electrode_beat_stdev_indx = find(min_stdevs == 1);
         else
             min_stdevs = [electrode_data(:).min_stdev];
-            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+            non_zero_stddevs = find(min_stdevs ~=0);
+            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
         GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " +electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]); 
         GE_ax = uiaxes(GE_pan, 'Position', [0 0 300 300]);
@@ -1693,7 +1719,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         well_ID = get(average_button, 'Text');
         well_ID = regexp(well_ID, ' ', 'split');
         well_ID = well_ID{1};
-        %disp(well_ID)
+        %%disp(well_ID)
         
         well_elec_fig = uifigure;
         well_elec_fig.WindowState = 'maximized';
@@ -1712,7 +1738,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             min_electrode_beat_stdev_indx = find(min_stdevs == 1);
         else
             min_stdevs = [electrode_data(:).min_stdev];
-            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+            non_zero_stddevs = find(min_stdevs ~=0);
+            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
         GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " + electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]);
         
@@ -1776,8 +1803,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         well_ID = get(change_GE_button, 'Text');
         well_ID = regexp(well_ID, ' ', 'split');
         well_ID = well_ID{2};
-        %disp(well_ID)
-        %disp(contains(added_wells, well_ID))
+        %%disp(well_ID)
+        %%disp(contains(added_wells, well_ID))
         
         set(change_GE_button, 'Visible', 'off');
         set(change_GE_text, 'Visible', 'on');
@@ -1831,9 +1858,13 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    drop_down = dropdown_array(ge_count);
                    
                    electrode_data = well_electrode_data(ge_count,:);
+                   
+                   non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
+                   
                    if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electrode_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                    else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -1882,9 +1913,14 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 drop_down = dropdown_array(ge);
                 electrode_data = well_electrode_data(ge,:);
 
+                %disp([electrode_data(:).electrode_id])
+                non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
+                %electrode_data = electrode_data(non_empty_elec_data);
+                
                 if strcmp(get(drop_down, 'Visible'), 'off')
                     min_stdevs = [electrode_data(:).min_stdev];
-                    min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                    non_zero_stddevs = find(min_stdevs ~=0);
+                    min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                 else
                     new_ge = get(drop_down, 'Value');
                     new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -1958,7 +1994,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         end 
         
         function reanalyseGEButtonPushed(reanalyse_button, ge_results_fig, num_electrode_rows, num_electrode_cols, ge_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
-            disp('$$$$$$$$$$$$$$$$$$$$REANALYSE$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            %disp('$$$$$$$$$$$$$$$$$$$$REANALYSE$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
             set(ge_results_fig, 'Visible', 'off')
 
             reanalyse_fig = uifigure;
@@ -1990,7 +2026,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        electro_data = well_electrode_data(re_ge_count,:);
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electro_data(:).min_stdev];
-                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                            non_zero_stddevs = find(min_stdevs ~=0);
+                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                        else
                             new_ge = get(drop_down, 'Value');
                             new_ge_indx = contains([electro_data(:).electrode_id], new_ge);
@@ -2026,7 +2063,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     electro_data = well_electrode_data(re_ge,:);
                     if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electro_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                     else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electro_data(:).electrode_id], new_ge);
@@ -2035,8 +2073,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                     ge_pan_children = get(ge_pan, 'Children');
                     for gp = 1:length(ge_pan_children)
-                        %disp('title');
-                        %disp(get(ge_pan_children(gp), 'Title'))
+                        %%disp('title');
+                        %%disp(get(ge_pan_children(gp), 'Title'))
                         if strcmp(get(ge_pan_children(gp), 'Title'), electro_data(min_electrode_beat_stdev_indx).electrode_id)
                             reanalyse_panels = [reanalyse_panels; ge_pan_children(gp)];
                         end
@@ -2066,8 +2104,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(:,:), re_count] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
-                %disp(electrode_data(re_count).activation_times(2))
+                [well_electrode_data(:,:)] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
+                %%disp(electrode_data(re_count).activation_times(2))
             end
 
         end
@@ -2106,7 +2144,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        electrode_data = well_electrode_data(ge_res_count,:);
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electrode_data(:).min_stdev];
-                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                            non_zero_stddevs = find(min_stdevs ~=0);
+                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                        else
                             new_ge = get(drop_down, 'Value');
                             new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
@@ -2157,18 +2196,21 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 for res_ge = 1:num_wells
                     drop_down = dropdown_array(res_ge);
                     electrode_data = well_electrode_data(res_ge,:);
-                    ge_res_panel = uipanel(ge_res_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((res_ge-1)*button_w) 0 button_w button_h]);
-                    GE_res_ax = uiaxes(ge_res_panel,  'Position', [0 20 button_w button_h-20]);
+                    
 
 
                     if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electrode_data(:).min_stdev];
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
+                        non_zero_stddevs = find(min_stdevs ~=0);
+                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
                     else
                         new_ge = get(drop_down, 'Value');
                         new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
                         min_electrode_beat_stdev_indx = find(new_ge_indx == 1);
                     end
+                    ge_res_panel = uipanel(ge_res_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((res_ge-1)*button_w) 0 button_w button_h]);
+                    GE_res_ax = uiaxes(ge_res_panel,  'Position', [0 20 button_w button_h-20]);
+                    
                     hold(GE_res_ax,'on')
                     plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
                     %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
@@ -2211,9 +2253,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     end
 
     function saveB2BButtonPushed(save_button, electrode_data, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
-        %disp('save b2b')
-        %disp(save_dir)
-        %disp(well_ID)
+        %%disp('save b2b')
+        %%disp(save_dir)
+        %%disp(well_ID)
         output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
         
         well_FPDs = [];
@@ -2236,6 +2278,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty(elec_indx)
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 if isempty(electrode_data(electrode_count).beat_start_times)
@@ -2343,7 +2388,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 end 
                 
-                %celldisp(mean_data);
+                %cell%disp(mean_data);
 
                 elec_stats = horzcat(headings, mean_data);
                 
@@ -2422,7 +2467,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 act_sub_min = vertcat('Activation Time - minimum Activation Time (s)', act_sub_min);
                 
                 elec_id_column = repmat({''}, bc, br);
-                %celldisp(elec_id_column)
+                %cell%disp(elec_id_column)
                 elec_id_column = vertcat(electrode_data(electrode_count).electrode_id, elec_id_column);
                 
                 
@@ -2432,11 +2477,11 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
                 electrode_stats = cellstr(electrode_stats);
                 
-                %celldisp(electrode_stats)
+                %cell%disp(electrode_stats)
 
                 [ec, er] = size(electrode_stats);
                 
-                %disp(sheet_count)
+                %%disp(sheet_count)
                 
                 % all_data must be a cell array
                 %xlswrite(output_filename, electrode_stats, sheet_count);
@@ -2464,11 +2509,11 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         well_stats = horzcat(headings, mean_data);
         %max_act_elec_id
-        %celldisp(well_stats);
+        %cell%disp(well_stats);
         well_stats = vertcat(well_stats, average_electrodes);
         %well_stats = cellstr(well_stats)
         
-        %celldisp(well_stats)
+        %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
         writecell(well_stats, output_filename, 'Sheet', 1);
@@ -2476,9 +2521,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
     end
 
     function saveAveTimeRegionPushed(save_button, electrode_data, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
-        %disp('save b2b')
-        %disp(save_dir)
-        %disp(well_ID)
+        %%disp('save b2b')
+        %%disp(save_dir)
+        %%disp(well_ID)
         output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
         
         well_FPDs = [];
@@ -2496,6 +2541,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
                 elec_indx = contains(elec_ids, elec_id);
                 elec_indx = find(elec_indx == 1);
+                if isempty(elec_indx)
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 if isempty(electrode_data(electrode_count).beat_start_times)
@@ -2535,26 +2583,26 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 activation_times = reshape(activation_times, [bc br]);
                 activation_times = num2cell([activation_times]);
                 activation_times = vertcat('Activation Time (s)', activation_times);
-                %celldisp(activation_times)
+                %cell%disp(activation_times)
                 
                 [br, bc] = size(amps);
                 amps = reshape(amps, [bc br]);
                 amps = num2cell([amps]);
                 amps = vertcat('Depolarisation Spike Amplitude (V)', amps);
-                %celldisp(amps)
+                %cell%disp(amps)
                 
                 [br, bc] = size(slopes);
                 slopes = reshape(slopes, [bc br]);
                 slopes = num2cell([slopes]);
                 slopes = vertcat('Depolarisation slope', slopes);
-                %celldisp(slopes)
+                %cell%disp(slopes)
                 
                 t_wave_peak_times = electrode_data(electrode_count).ave_t_wave_peak_time;
                 [br, bc] = size(t_wave_peak_times);
                 t_wave_peak_times = reshape(t_wave_peak_times, [bc br]);
                 t_wave_peak_times = num2cell([t_wave_peak_times]);
                 t_wave_peak_times = vertcat('T-wave peak Time (s)', t_wave_peak_times);
-                %celldisp(t_wave_peak_times)
+                %cell%disp(t_wave_peak_times)
                 
                 %ave_t_wave_peak = electrode_data(electrode_count).average_waveform(find(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_t_wave_peak_time));
                 
@@ -2567,26 +2615,26 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 t_wave_peak_array = reshape(t_wave_peak_array, [bc br]);
                 t_wave_peak_array = num2cell([t_wave_peak_array]);
                 t_wave_peak_array = vertcat('T-wave peak (V)', t_wave_peak_array);
-                %celldisp(t_wave_peak_array)
+                %cell%disp(t_wave_peak_array)
                 
                 [br, bc] = size(FPDs);
                 FPDs = reshape(FPDs, [bc br]);
                 FPDs = num2cell([FPDs]);
                 FPDs = vertcat('FPD (s)', FPDs);
-                %celldisp(FPDs)
+                %cell%disp(FPDs)
                 
                 [br, bc] = size(bps);
                 beat_periods = reshape(bps, [bc br]);
                 beat_periods = num2cell([beat_periods]);
                 beat_periods = vertcat('Beat Period (s)', beat_periods);
-                %celldisp(beat_periods)
+                %cell%disp(beat_periods)
                 
                 elec_id_column = repmat({''}, bc, br);
-                %celldisp(elec_id_column)
+                %cell%disp(elec_id_column)
                 elec_id_column = vertcat(electrode_data(electrode_count).electrode_id, elec_id_column);
                 elec_id_column = elec_id_column;
-                %disp(elec_id_column)
-                %disp(class(elec_id_column))
+                %%disp(elec_id_column)
+                %%disp(class(elec_id_column))
                 
                 if strcmp(spon_paced, 'spon')
                         
@@ -2687,7 +2735,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 
                 electrode_stats = cellstr(electrode_stats);
                 
-                %celldisp(electrode_stats)
+                %cell%disp(electrode_stats)
 
                 [ec, er] = size(electrode_stats);
                 
@@ -2711,19 +2759,19 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
         mean_data = num2cell(mean_data);
         mean_data = vertcat({''}, mean_data);
-        %celldisp(mean_data);
+        %cell%disp(mean_data);
         
         well_stats = horzcat(headings, mean_data);
         %well_stats = cellstr(well_stats)
         
-        %celldisp(well_stats)
+        %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
         writecell(well_stats, output_filename, 'Sheet', 1);
         
     end
 
-    function saveGEPushed(save_button, well_electrode_data, save_dir, num_electrode_rows, num_electrode_cols, drop_down)
+    function saveGEPushed(save_button, well_electrode_data, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array)
         
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
         
@@ -2735,6 +2783,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         sheet_count = 1;
         for w = 1:num_wells
             electrode_data = well_electrode_data(w, :);
+            drop_down = dropdown_array(w);
             if strcmp(get(drop_down, 'Visible'), 'off')
                 min_stdevs = [electrode_data(:).min_stdev];
                 min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs) & min_stdevs ~= 0, 1);
@@ -2747,7 +2796,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             sheet_count = sheet_count+1;
             %electrode_stats_header = {electrode_data(electrode_count).electrode_id, 'Beat No.', 'Beat Start Time (s)', 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Cycle Length (s)'};
     
-            disp(min_electrode_beat_stdev_indx)
+            %disp(min_electrode_beat_stdev_indx)
             
             t_wave_peak_times = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time;
             %t_wave_peak_times = 
@@ -2812,7 +2861,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             beat_periods = vertcat('Beat Period (s)', beat_periods);
             
             elec_id_column = repmat({''}, bc, br);
-            %celldisp(elec_id_column)
+            %cell%disp(elec_id_column)
             elec_id_column = vertcat(electrode_data(min_electrode_beat_stdev_indx).electrode_id, elec_id_column);
             
             if strcmp(spon_paced, 'spon')
@@ -2923,12 +2972,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
         mean_data = num2cell(mean_data);
         mean_data = vertcat({''}, mean_data);
-        %celldisp(mean_data);
+        %cell%disp(mean_data);
         
         well_stats = horzcat(headings, mean_data);
         %well_stats = cellstr(well_stats)
         
-        %celldisp(well_stats)
+        %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
         writecell(well_stats, output_filename, 'Sheet', 1);
