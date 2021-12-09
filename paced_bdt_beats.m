@@ -69,7 +69,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            d_ata = data(wind_indx);
 
            try 
-               post_spike_hold_off_time = t_ime(1)+post_spike_hold_off;
+               post_spike_hold_off_time = t_ime(1)+min_beat_period;
                pshot_indx = find(t_ime >= post_spike_hold_off_time);
                pshot_indx_offset = pshot_indx(1);
 
@@ -123,7 +123,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
           
           %if prev_beat_indx ~= 1
           beat_indx = prev_beat_indx;
-          bdt = bdt/2;
+          bdt = bdt*0.8;
           %window = window*1.5;
           if beat_time(end)+window > total_duration
                break;
@@ -153,7 +153,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
            if prev_beat_indx ~= 1
                beat_indx = prev_beat_indx;
-               bdt = bdt*5;
+               bdt = bdt*1.5;
                
                disp(beat_time(end))
                disp(window)
