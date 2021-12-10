@@ -2345,45 +2345,52 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 if strcmp(analyse_all_b2b, 'all')
                     if strcmp(spon_paced, 'spon')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
-                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        disp(electrode_data(electrode_count).filter_intensity)
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape}, {electrode_data(electrode_count).filter_intensity});
+                        %mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     elseif strcmp(spon_paced, 'paced')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
                         mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     elseif strcmp(spon_paced, 'paced bdt')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
                         mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     end
                 else
                     if strcmp(spon_paced, 'spon')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
                         mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     elseif strcmp(spon_paced, 'paced')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
                         mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     elseif strcmp(spon_paced, 'paced bdt')
-                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'};
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detction Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
                         mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
                         mean_data = num2cell(mean_data);
                         mean_data = vertcat({''}, mean_data);
                         mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
                     end
 
                 end 
@@ -2665,7 +2672,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                     t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(electrode_count).t_wave_shape});
                     
-                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                    filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
+                    
+                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
                 
                 elseif strcmp(spon_paced, 'paced')
                     time_start_array = num2cell([electrode_data(electrode_count).time_region_start]);
@@ -2689,7 +2698,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                     t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(electrode_count).t_wave_shape});
                     
-                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                    filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
+                    
+                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
                 
                     
                 elseif strcmp(spon_paced, 'paced bdt')
@@ -2723,7 +2734,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                     t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(electrode_count).t_wave_shape});
                     
-                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                    filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
+                    
+                    electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
                 
                 end
                 
@@ -2891,7 +2904,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                 t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(min_electrode_beat_stdev_indx).t_wave_shape});
 
-                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
+                
+                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
 
             elseif strcmp(spon_paced, 'paced')
                 stable_duration_array = num2cell([electrode_data(min_electrode_beat_stdev_indx).stable_beats_duration]);
@@ -2911,8 +2926,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                 t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(min_electrode_beat_stdev_indx).t_wave_shape});
+                
+                filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
 
-                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
 
 
             elseif strcmp(spon_paced, 'paced bdt')
@@ -2942,8 +2959,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
                 t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(min_electrode_beat_stdev_indx).t_wave_shape});
+                
+                filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
 
-                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array);
+                electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array);
 
             end
           

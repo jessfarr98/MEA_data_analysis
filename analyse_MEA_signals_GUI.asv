@@ -404,6 +404,7 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
             WellRawData = AllDataRaw{w_r, w_c, e_c, e_r};
             if strcmp(class(WellRawData),'Waveform')
             electrode_id = strcat(wellID, {'_'}, string(e_c), {'_'}, string(e_r));
+            disp(strcat('Calculating', {' '}, electrode_id, {' '}));
             %if ~empty(WellRawData)
                 %if strcmpi(beat_to_beat, 'off')
                     %electrode_count = electrode_count+1;
@@ -581,7 +582,7 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
     size_bna = size(beat_num_array);
     size_bna = size_bna(2);
     if window > size_bna
-        input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f. The meidan BP is %0.5f. Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
+        input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
         
         while(1)
             
@@ -591,9 +592,9 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
                 break;
             else
                 if window <= 1
-                    input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f. The meidan BP is %0.5f. Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
+                    input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
                 else
-                    input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f. The meidan BP is %0.5f. Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
+                    input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
                     
                 end
             end
@@ -602,7 +603,7 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
     
     
     if window <= 1
-        input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f. The meidan BP is %0.5f. Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
+        input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
         while(1)
             average_waveform_duration = input(input_string);
             window = round(average_waveform_duration/median(beat_periods));
@@ -610,9 +611,9 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
                 break;
             else
                 if window <= 1
-                    input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f. Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
+                    input_string = sprintf('Error: the window size used to extract the average waveform is less than or equal to 1. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a longer duration (secs):', average_waveform_duration, median(beat_periods));
                 else
-                    input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f. Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
+                    input_string = sprintf('Error: the window size used to extract the average waveform is larger than the number of beats that were extracted. The previous duration was %0.5f (s). The meidan BP is %0.5f (s). Please enter a shorter duration (secs):', average_waveform_duration, median(beat_periods));
                     
                 end
             end

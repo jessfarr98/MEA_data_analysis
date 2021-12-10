@@ -140,9 +140,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                     %%disp(count)
                     electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
                     [time, data] = RawWellData.GetTimeVoltageVector;
+                    
                     if strcmp(spon_paced, 'spon')
                         time = time + time_offset;
                     end
+                    
                     data = data*1000;
                     %plot(time, data);
                     if isnan(max_voltage)
@@ -165,7 +167,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                     %title(sub_ax, wellID);
                     %pause(10)
                     %plot(time, data);
-                    time_offset = time_offset+0.015;
+                    time_offset = time_offset+0.0015;
                     
                 else
                     %disp(wellID)
