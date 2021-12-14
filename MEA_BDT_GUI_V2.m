@@ -1,4 +1,4 @@
-function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir)
+function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, raw_file)
 %  Create and then hide the UI as it is being constructed.
 
 % TO DO
@@ -75,10 +75,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    count = 0;
    well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
    
+   %{
    bdt_fig = uifigure;
    bdt_fig.Name = 'MEA BDT GUI';
    % left bottom width height
-   main_pan = uipanel(bdt_fig, 'Position', [0 0 screen_width screen_height]);
+   main_pan = uipanel(bdt_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
    main_pan.Scrollable = 'on';
    
    run_button = uibutton(main_pan,'push','Text', 'Run MEA Analysis', 'Position',[screen_width-190 10 80 40], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button));
@@ -92,7 +93,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    p = uipanel(main_pan, 'Position', [0 0 screen_width-200 screen_height]);
    p.Scrollable = 'on';   
    set(bdt_fig, 'Visible', 'off')
-
+   %}
+   
+   
    well_bdt_array = [];
    well_t_wave_dur_array = [];
    well_t_wave_time_array = [];
@@ -121,10 +124,13 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                    
           
           well_fig = uifigure;
-          well_fig.Name = strcat(wellID, {''}, 'BDT GUI');
-          well_p = uipanel(well_fig, 'Position', [0 0 screen_width screen_height]);
+          movegui(well_fig,'center');
+          well_fig.WindowState = 'maximized';
           
-          well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
+          well_fig.Name = strcat(wellID, {''}, 'BDT GUI');
+          well_p = uipanel(well_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
+          
+          well_ax = uiaxes(well_p, 'BackgroundColor','#d43d3d', 'Position', [10 100 screen_width-300 screen_height-200]);
           hold(well_ax, 'on');
           
           
@@ -177,7 +183,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
              xlabel(well_ax, 'Seconds (s)')
              ylabel(well_ax, 'milivolts (mV)')
           end
-          submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+          
+          return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 200 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
+          
+          submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'BackgroundColor', '#3dd483', 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
    
           set(submit_in_well_button, 'Visible', 'off')
           
@@ -287,6 +296,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
 
           while(1)
              pause(0.01)
+             if ~ishandle(well_fig)
+                 return
+             end 
              if strcmp(get(well_fig, 'Visible'), 'off')
                 break; 
              end
@@ -343,7 +355,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    %disp(well_min_bp_array);
    %disp(well_max_bp_array);
    
-   analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, save_dir)
+   analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir))
+
+   function returnInputMenuPushed()
+        MEA_GUI(raw_file, save_dir)
+   end
 
    function changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time)
 

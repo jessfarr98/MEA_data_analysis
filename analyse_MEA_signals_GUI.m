@@ -470,6 +470,7 @@ function [electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num
                 electrode_data(electrode_count).t_wave_offset = est_peak_time;
                 electrode_data(electrode_count).t_wave_duration = t_wave_duration;
                 electrode_data(electrode_count).t_wave_shape = t_wave_shape;
+                electrode_data(electrode_count).filter_intensity = filter_intensity;
                 
                 time_region1 = 'N/A';
                 time_region2 = 'N/A';

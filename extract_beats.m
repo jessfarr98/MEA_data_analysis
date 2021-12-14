@@ -85,9 +85,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            post_spike_hold_off_time = t_ime(1)+min_beat_period;
            pshot_indx = find(t_ime >= post_spike_hold_off_time);
            pshot_indx_offset = pshot_indx(1);
-                      
-           beat_indx = find(d_ata(pshot_indx) >= bdt);
-           beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+               
+           if bdt > 0
+               beat_indx = find(d_ata(pshot_indx) >= bdt);
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+           else
+               beat_indx = find(d_ata(pshot_indx) <= bdt);
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+           end
 
        catch
            %Update the beat detection threshold

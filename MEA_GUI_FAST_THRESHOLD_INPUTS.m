@@ -1,4 +1,4 @@
-function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir)
+function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, raw_file)
     close all hidden;
     close all;
 
@@ -105,7 +105,8 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
 
     end
    
-    input_thresh_pan = uipanel(input_thresh_fig, 'BackgroundColor','#B02727', 'Position', [0 0 screen_width screen_height]);
+    input_thresh_pan = uipanel(input_thresh_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
+    %input_thresh_pan = uipanel(input_thresh_fig, 'Position', [0 0 screen_width screen_height]);
     set(input_thresh_pan, 'AutoResizeChildren', 'off');
     
     %submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
@@ -191,8 +192,12 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         end
     end
     
+    return_input_menu_button = uibutton(input_thresh_pan,'push','Text', 'Return to Main Menu', 'Position',[screen_width-250 280 200 60], 'BackgroundColor', '#B02727', 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
+    %set(return_input_menu_button, 'BackgroundColour', '#B02727');
     
-    submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
+    submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 200 200 60],'BackgroundColor', '#3dd483','ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
+    
+    movegui(input_thresh_fig,'center')
     input_thresh_fig.WindowState = 'maximized';
 
     %{
@@ -206,7 +211,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         end
     end
     %}
-    
+    function returnInputMenuPushed()
+        
+        MEA_GUI(raw_file, save_dir)
+    end
     
      
     function submitButtonPushed(submit_in_well_button, input_thresh_fig)
@@ -263,7 +271,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, start_fig, Stims, beat_to_beat, 
         end
         disp(stim_spike_array)
         
-        analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, save_dir)
+        analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir))
 
         
         
