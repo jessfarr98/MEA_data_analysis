@@ -355,14 +355,7 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
 
     %well_electrode_data = WellElectrodeData.empty();
     electrode_data = ElectrodeData.empty(num_electrode_cols*num_electrode_rows, 0);
-    
-    
-    if strcmpi(beat_to_beat, 'off')
-        if strcmp(stable_ave_analysis, 'stable')
-            min_stdev = nan;
-            min_stdev_indx = nan;
-        end
-    end
+
     for j = 1:(num_electrode_cols*num_electrode_rows)
         electrode_data(j).min_stdev = 0;
         electrode_data(j).average_waveform = [];
@@ -559,19 +552,13 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
                     if strcmp(stable_ave_analysis, 'stable')
                         %disp(strcat('compute', electrode_id,'ave waveform'))
                         electrode_data(electrode_count).stable_beats_duration = well_stable_dur_array(well_count);
-                        [average_waveform_duration, average_waveform, elec_min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, well_stable_dur_array(well_count), electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID, post_spike_hold_off, stim_spike_hold_off, spon_paced, beat_to_beat, t_wave_shape, t_wave_duration, est_peak_time, est_fpd, filter_intensity);
+                        [average_waveform_duration, average_waveform, min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, well_stable_dur_array(well_count), electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID, post_spike_hold_off, stim_spike_hold_off, spon_paced, beat_to_beat, t_wave_shape, t_wave_duration, est_peak_time, est_fpd, filter_intensity);
                         %{
                         electrode_data(electrode_count).min_stdev = min_stdev;
                         electrode_data(electrode_count).average_waveform = average_waveform;
                         electrode_data(electrode_count).time = artificial_time_space;
                         electrode_data(electrode_count).electrode_id = electrode_id;
                         %}
-                        if isnan(min_stdev)
-                            min_stdev = elec_min_stdev;
-                            min_stdev_indx = electrode_count;
-                        else
-                            
-                        end
                     elseif strcmp(stable_ave_analysis, 'time_region')
                         %%disp('to be implemented')
                         [average_waveform, electrode_data] = compute_average_time_region_waveform(beat_num_array, cycle_length_array, activation_time_array, time, data, electrode_data, electrode_count, electrode_id, beat_periods, beat_start_times, plot_ave_dir, wellID, post_spike_hold_off, stim_spike_hold_off, spon_paced, beat_to_beat, t_wave_shape, t_wave_duration, est_peak_time, est_fpd, filter_intensity);
@@ -583,15 +570,6 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
             %elecrode_count = electrode_count+1;
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
-     end
-    
-    well_electrode_data(num_analysed).electrode_data = electrode_data;
-    well_electrode_data(num_analysed).wellID = wellID;
-    well_electrode_data(num_analysed).reject_well = 0;
-    if strcmpi(beat_to_beat, 'off')
-        if strcmp(stable_ave_analysis, 'stable')
-            well_electrode_data(num_analysed).GE_electrode_indx = min_stdev_indx;
-        end
     end
     
     %{

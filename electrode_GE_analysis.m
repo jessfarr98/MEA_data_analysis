@@ -45,6 +45,9 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                     well_fig = uifigure;
                     well_fig.Name = electrode_data.electrode_id;
                     well_p = uipanel(well_fig, 'Position', [0 0 screen_width screen_height]);
+                    
+                    movegui(well_fig,'center');
+                    well_fig.WindowState = 'maximized';
 
                     well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
                     plot(well_ax, electrode_data.ave_wave_time, electrode_data.average_waveform);

@@ -116,7 +116,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             
         elseif strcmp(stable_ave_analysis, 'stable')
             close_all_button = uibutton(main_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
-            accept_GE_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1','Text', 'Accept Golden Electrodes', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(accept_GE_button,event) acceptGEButtonPushed(accept_GE_button, out_fig, well_electrode_data));
+            accept_GE_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1','Text', 'Accept Golden Electrodes', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(accept_GE_button,event) acceptGEButtonPushed(accept_GE_button, out_fig, well_electrode_data(:)));
             
             % Accept Golden Electrodes
             % Displays all wells with GE's and T-wave input bars
@@ -152,7 +152,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                            for e_c = 1:num_electrode_cols
                                %electrode_id = strcat(wellID, '_', num2str(e_r),'_',num2str(e_c));
                                el_count = el_count+1;
-                               if (well_electrode_data(button_count, el_count).electrode_id == "")
+                               %if (well_electrode_data(button_count, el_count).electrode_id == "")
+                               if (well_electrode_data(button_count).electrode_data(el_count).electrode_id == "")
                                    continue
                                end
                                electrode_id = strcat(wellID, '_', num2str(e_c),'_',num2str(e_r));
@@ -172,8 +173,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                         change_GE_button = uibutton(button_panel,'push','BackgroundColor', '#e37f7f', 'Text', "Change" + " " + wellID + " " + "Golden Electrode", 'Position', [2*(button_width/3) 0 button_width/3 button_height], 'ButtonPushedFcn', @(change_GE_button,event) changeGEButtonPushed(change_GE_button, added_wells, change_GE_text, change_GE_dropdown, button_panel));
 
-                        stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count, :), change_GE_dropdown));
-                        average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count, :), change_GE_dropdown));
+                        %stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count, :), change_GE_dropdown));
+                        %average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count, :), change_GE_dropdown));
+                        stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count).electrode_data, change_GE_dropdown));
+                        average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(button_count).electrode_data, change_GE_dropdown));
                         
                         
                         %set(change_GE_dropdown, 'Visible', 'off');
@@ -210,7 +213,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                            %%disp(e_r)
                            %%disp(e_c)
                            el_count = el_count+1;
-                           if (well_electrode_data(b, el_count).electrode_id == "")
+                           %if (well_electrode_data(b, el_count).electrode_id == "")
+                           if (well_electrode_data(b).electrode_data(el_count).electrode_id == "")
                                continue
                            end
                            %Computer way of labelling - row, column
@@ -236,8 +240,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     
                     change_GE_button = uibutton(button_panel,'push','BackgroundColor', '#e37f7f', 'Text', strcat('Change', {' '}, wellID, {' '},'Golden Electrode'), 'Position', [2*(button_width/3) 0 button_width/3 button_height], 'ButtonPushedFcn', @(change_GE_button,event) changeGEButtonPushed(change_GE_button, added_wells, change_GE_text, change_GE_dropdown, button_panel));
                     
-                    stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
-                    average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
+                    %stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
+                    %average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
+                    stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown));
+                    average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown));
                     
                     
                     %{
@@ -279,7 +285,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         %%disp(well_ID)
         %%disp(contains(added_wells, well_ID))
         %well_electrode_data(well_count, :).rejected = 0;
-        electrode_data = well_electrode_data(well_count, :);
+        %electrode_data = well_electrode_data(well_count, :);
+        electrode_data = well_electrode_data(well_count).electrode_data;
         %electrode_data = electrod_e_data;
         %%disp(size(electrode_data))
         
@@ -350,7 +357,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 electrode_count = elec_indx;
                 
                 electrode_data(electrode_count).rejected = 0;
-                well_electrode_data(well_count, electrode_count).rejected = 0;
+                %well_electrode_data(well_count, electrode_count).rejected = 0;
+                well_electrode_data(well_count).electrode_data(electrode_count).rejected = 0;
                 %electrode_count = electrode_count+1;
                 if strcmp(beat_to_beat, 'on')
                     %plot all the electrodes analysed data and 
@@ -362,7 +370,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                     end
                     elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
-                    undo_elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
+                    undo_elec_pan = uipanel(well_pan, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
                     undo_reject_electrode_button = uibutton(undo_elec_pan,'push','Text', 'Undo Reject Electrode', 'Position', [0 0 well_p_width/num_electrode_cols well_p_height/num_electrode_rows], 'ButtonPushedFcn', @(reject_electrode_button,event) undoRejectElectrodeButtonPushed(elec_pan, undo_elec_pan, electrode_count));
 
@@ -499,7 +507,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                         end
                         elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
-                        undo_elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
+                        undo_elec_pan = uipanel(well_pan, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
                         undo_reject_electrode_button = uibutton(undo_elec_pan,'push','Text', 'Undo Reject Electrode', 'Position', [0 0 well_p_width/num_electrode_cols well_p_height/num_electrode_rows], 'ButtonPushedFcn', @(reject_electrode_button,event) undoRejectElectrodeButtonPushed(elec_pan, undo_elec_pan, electrode_count));
 
@@ -613,7 +621,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 t_wave_plot.XData = get(t_wave_time_ui, 'Value');
                 t_wave_plot.YData = t_wave_peak;
             end
-            well_electrode_data(well_count, electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
+            %well_electrode_data(well_count, electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
+            well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
             electrode_data(electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
 
             %{
@@ -783,7 +792,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             well_electrode_data(well_count,electrode_count).stable_beats_duration = NaN;
             %}
             electrode_data(electrode_count).rejected = 1;
-            well_electrode_data(well_count,electrode_count).rejected = 1;
+            %well_electrode_data(well_count,electrode_count).rejected = 1;
+            well_electrode_data(well_count).electrode_data(electrode_count).rejected = 1;
             
             set(elec_pan, 'Visible', 'off');
             set(undo_elec_pan, 'Visible', 'on'); 
@@ -791,7 +801,8 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         function undoRejectElectrodeButtonPushed(elec_pan, undo_elec_pan, electrode_count)
             electrode_data(electrode_count).rejected = 0;
-            well_electrode_data(well_count,electrode_count).rejected = 0;
+            %well_electrode_data(well_count,electrode_count).rejected = 0;
+            well_electrode_data(well_count).electrode_data(electrode_count).rejected = 0;
             
             set(elec_pan, 'Visible', 'on');
             set(undo_elec_pan, 'Visible', 'off'); 
@@ -1028,14 +1039,16 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         function reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
             set(well_elec_fig, 'Visible', 'off')
-            [well_electrode_data(well_count, :)] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
-            electrode_data = well_electrode_data(well_count, :);
+            %[well_electrode_data(well_count, :)] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
+            [well_electrode_data(well_count).electrode_data] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
+            
+            electrode_data = well_electrode_data(well_count).electrode_data;
         end
         
         function reanalyseTimeRegionWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
             set(well_elec_fig, 'Visible', 'off')
-            [well_electrode_data(well_count, :)] = reanalyse_time_region_well(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
-            electrode_data = well_electrode_data(well_count, :);
+            [well_electrode_data(well_count).electrode_data] = reanalyse_time_region_well(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
+            electrode_data = well_electrode_data(well_count).electrode_data;
         end
         
         function reanalyseButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
@@ -1094,9 +1107,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(well_count, :)] = electrode_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
+                [well_electrode_data(well_count).electrode_data] = electrode_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
                 %%disp(electrode_data(re_count).activation_times(2))
-                electrode_data = well_electrode_data(well_count, :);
+                electrode_data = well_electrode_data(well_count).electrode_data;
             end
 
         end
@@ -1154,9 +1167,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(well_count, :)] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
+                [well_electrode_data(well_count).electrode_data] = electrode_time_region_analysis(electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
                 %%disp(electrode_data(re_count).activation_times(2))
-                electrode_data = well_electrode_data(well_count, :);
+                electrode_data = well_electrode_data(well_count).electrode_data;
             end
 
             
@@ -1792,7 +1805,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         %set(well_button, 'Visible', 'off');
         set(out_fig, 'Visible', 'on');
         
-        electrode_data = well_electrode_data(well_count, :);
+        electrode_data = well_electrode_data(well_count).electrode_data;
         
         for j = 1:length(electrode_data)
             %{
@@ -1840,7 +1853,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             electrode_data(j).stable_beats_duration = NaN;
             %}
             %electrode_data(j).rejected = 1;
-            well_electrode_data(well_count, j).rejected = 1;
+            well_electrode_data(well_count).electrode_data(j).rejected = 1;
             
         end
         %well_electrode_data(well_count, :) = electrode_data;
@@ -2079,7 +2092,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                    end
                    drop_down = dropdown_array(ge_count);
                    
-                   electrode_data = well_electrode_data(ge_count,:);
+                   electrode_data = well_electrode_data(ge_count).electrode_data;
                    
                    non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
                    
@@ -2133,7 +2146,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
             
             for ge = 1:num_wells
                 drop_down = dropdown_array(ge);
-                electrode_data = well_electrode_data(ge,:);
+                electrode_data = well_electrode_data(ge).electrode_data;
 
                 %disp([electrode_data(:).electrode_id])
                 non_empty_elec_data = find([electrode_data(:).electrode_id] ~= "");
@@ -2179,9 +2192,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         end
 
         function changeGETWaveTime(t_wave_time_ui, GE_ax, well_count, time, data, electrode_count)
-             max_depol_time = well_electrode_data(well_count, electrode_count).ave_max_depol_time;
-             min_depol_time = well_electrode_data(well_count, electrode_count).ave_min_depol_time;
-             act_time = well_electrode_data(well_count, electrode_count).ave_activation_time;
+             max_depol_time = well_electrode_data(well_count).electrode_data(electrode_count).ave_max_depol_time;
+             min_depol_time = well_electrode_data(well_count).electrode_data(electrode_count).ave_min_depol_time;
+             act_time = well_electrode_data(well_count).electrode_data(electrode_count).ave_activation_time;
             
             elec_child = get(GE_ax, 'Children');
             found_plot = 0;
@@ -2210,7 +2223,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 t_wave_plot.XData = get(t_wave_time_ui, 'Value');
                 t_wave_plot.YData = t_wave_peak;
             end
-            well_electrode_data(well_count, electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
+            well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
             %electrode_data(electrode_count).ave_t_wave_peak_time = get(t_wave_time_ui, 'Value');
             
         end 
@@ -2246,7 +2259,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        drop_down = dropdown_array(re_ge_count);
                        re_well_ID = added_wells(re_ge_count);
 
-                       electro_data = well_electrode_data(re_ge_count,:);
+                       electro_data = well_electrode_data(re_ge_count);
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electro_data(:).min_stdev];
                             non_zero_stddevs = find(min_stdevs ~=0);
@@ -2278,12 +2291,12 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 for re_ge = 1:num_wells
                     
                     drop_down = dropdown_array(re_ge);
-                    electro_data = well_electrode_data(re_ge,:);
+                    electro_data = well_electrode_data(re_ge);
                     
                     drop_down = dropdown_array(re_ge);
                     re_well_ID = added_wells(re_ge);
 
-                    electro_data = well_electrode_data(re_ge,:);
+                    electro_data = well_electrode_data(re_ge);
                     if strcmp(get(drop_down, 'Visible'), 'off')
                         min_stdevs = [electro_data(:).min_stdev];
                         non_zero_stddevs = find(min_stdevs ~=0);
@@ -2327,7 +2340,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                 if isempty(electrode_data)
                    return; 
                 end
-                [well_electrode_data(:,:)] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
+                [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
                 %%disp(electrode_data(re_count).activation_times(2))
             end
 
@@ -2367,7 +2380,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
                        end
                        drop_down = dropdown_array(ge_res_count);
 
-                       electrode_data = well_electrode_data(ge_res_count,:);
+                       electrode_data = well_electrode_data(ge_res_count).electrode_data;
                        if strcmp(get(drop_down, 'Visible'), 'off')
                             min_stdevs = [electrode_data(:).min_stdev];
                             non_zero_stddevs = find(min_stdevs ~=0);
@@ -2422,7 +2435,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
 
                 for res_ge = 1:num_wells
                     drop_down = dropdown_array(res_ge);
-                    electrode_data = well_electrode_data(res_ge,:);
+                    electrode_data = well_electrode_data(res_ge).electrode_data;
                     
 
 
@@ -2483,7 +2496,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         %%disp('save b2b')
         %%disp(save_dir)
         disp(strcat('Saving Data for', {' '}, well_ID))
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xlsx'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        if exist(output_filename, 'file')
+            delete(output_filename);
+        end
         
         if ~exist(fullfile(save_dir, strcat(well_ID, '_figures')), 'dir')
             mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
@@ -2826,7 +2842,10 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         %%disp(save_dir)
         %%disp(well_ID)
         disp(strcat('Saving Data for', {' '}, well_ID))
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xlsx'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        if exist(output_filename, 'file')
+            delete(output_filename);
+        end
         
         if ~exist(fullfile(save_dir, strcat(well_ID, '_figures')), 'dir')
             mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
@@ -3142,7 +3161,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         sheet_count = 1;
         for w = 1:num_wells
-            electrode_data = well_electrode_data(w, :);
+            electrode_data = well_electrode_data(w).electrode_data;
             drop_down = dropdown_array(w);
             if strcmp(get(drop_down, 'Visible'), 'off')
                 min_stdevs = [electrode_data(:).min_stdev];
@@ -3383,8 +3402,9 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         for w = 1:num_wells
             well_ID = added_wells(w);
-            electrode_data = well_electrode_data(w, :);
-
+            %electrode_data = well_electrode_data(w, :);
+            electrode_data = well_electrode_data(w).electrode_data;
+            
             saveB2BButtonPushed(save_button, electrode_data, save_dir, well_ID, num_electrode_rows, num_electrode_cols);
             
 
@@ -3395,7 +3415,7 @@ function MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_co
         
         for w = 1:num_wells
             well_ID = added_wells(w);
-            electrode_data = well_electrode_data(w, :);
+            electrode_data = well_electrode_data(w).electrode_data;
             saveAveTimeRegionPushed(save_button, electrode_data, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
 
         end
