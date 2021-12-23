@@ -96,10 +96,10 @@ function MEA_GUI(raw_file, save_dir)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd483', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
    set(run_button, 'Visible', 'off')
    
-   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd483', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
    set(run_fast_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -197,6 +197,35 @@ function MEA_GUI(raw_file, save_dir)
                spon_paced = 'paced_no_stims';
            end
       end
+      
+      if contains(added_wells, 'all')
+         added_wells_all = [];
+         well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
+         for w_r = 1:num_well_rows
+           for w_c = 1:num_well_cols
+              wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+              well_data = 0;
+              for e_r = 1:num_electrode_rows
+                 for e_c = 1:num_electrode_cols
+                    RawWellData = RawData{w_r, w_c, e_r, e_c};
+                    if (strcmp(class(RawWellData),'Waveform'))
+                        well_data = 1;
+                        break
+                    end
+                    
+                 end
+                 if well_data == 1
+                     added_wells_all = [added_wells_all wellID];
+                     break
+                 end
+              end
+              
+           end
+         end
+         added_wells = added_wells_all;
+      end
+      
+      
 
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
@@ -277,7 +306,32 @@ function MEA_GUI(raw_file, save_dir)
 
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      
+      if contains(added_wells, 'all')
+         added_wells_all = [];
+         well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
+         for w_r = 1:num_well_rows
+           for w_c = 1:num_well_cols
+              wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+              well_data = 0;
+              for e_r = 1:num_electrode_rows
+                 for e_c = 1:num_electrode_cols
+                    RawWellData = RawData{w_r, w_c, e_r, e_c};
+                    if (strcmp(class(RawWellData),'Waveform'))
+                        well_data = 1;
+                        break
+                    end
+                    
+                 end
+                 if well_data == 1
+                     added_wells_all = [added_wells_all wellID];
+                     break
+                 end
+              end
+              
+           end
+         end
+         added_wells = added_wells_all;
+      end
       
       if plate_well_options_dropdown.Value == 1
           MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), raw_file)

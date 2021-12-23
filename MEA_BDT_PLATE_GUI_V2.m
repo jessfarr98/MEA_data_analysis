@@ -62,13 +62,16 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    %pause(100)
    well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
    if strcmp(added_wells, 'all')
-       added_wells = [];
+       added_wells_all = [];
+       
+       %{
        for w_r = 1:num_well_rows
           for w_c = 1:num_well_cols
              wellID = strcat(well_dictionary(w_r), '0', string(w_c));
              added_wells = [added_wells; wellID];
           end
        end
+       %}
    end
    
    %{
@@ -143,6 +146,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
           %time_offset = 0;
           max_voltage = NaN;
           min_voltage = NaN;
+          found_waveform = 0;
           for e_r = 1:num_electrode_rows
              for e_c = 1:num_electrode_cols
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
@@ -150,6 +154,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                     %if ~empty(WellRawData)
                     %%disp(num_well_rows*num_well_cols)
                     %%disp(count)
+                    found_waveform = 1;
                     electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
                     [time, data] = RawWellData.GetTimeVoltageVector;
                     
@@ -183,6 +188,11 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                 end
              end
           end
+          if found_waveform == 1
+              if contains(added_wells, 'all')
+                  added_wells_all = [added_wells_all wellID];
+              end
+          end
           
           %hold off;
           
@@ -191,12 +201,17 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        end
         
    end
+   
+   if contains(added_wells, 'all')
+      added_wells = added_wells_all;
+  end
+   
    xlabel(well_ax, 'Seconds (s)');
    ylabel(well_ax, 'Milivolts (mV)');
    
    return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 200 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
           
-   submit_in_well_button = uibutton(well_p,'push', 'BackgroundColor', '#3dd483', 'Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+   submit_in_well_button = uibutton(well_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
    
    set(submit_in_well_button, 'Visible', 'off')
 

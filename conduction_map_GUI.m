@@ -182,7 +182,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
         
     elseif strcmp(spon_paced, 'spon')
         min_act = min(activation_times);
-        min_act_indx = find(activation_times == min_act)
+        min_act_indx = find(activation_times == min_act);
         
         init_e_c = mod(min_act_indx, 4);
         init_e_r = (min_act_indx-init_e_c)/4;
@@ -293,6 +293,7 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     con_fig = uifigure;
     con_pan = uipanel(con_fig, 'Position', [0 0 screen_width screen_height]);
+    movegui(con_fig,'center')
     
     close_button = uibutton(con_pan,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, well_elec_fig, con_fig));
          
@@ -303,7 +304,8 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     %act_ax = uiaxes(fig_pan, 'Position', [0 0 fig_width/2 screen_height]);
                     
     %h_fig = figure();
-    heatmap(act_pan, xlabels, ylabels, transpose(activation_times));
+    heatmap(act_pan, xlabels, ylabels, transpose(activation_times), 'Colormap',jet);
+    %colourmap()
     %x_ax = [1 2 3 4];
     %y_ax = [1 2 3 4];
     %[X,Y] = meshgrid(x_ax, y_ax);
@@ -311,7 +313,8 @@ function conduction_map_GUI(activation_times, num_electrode_rows, num_electrode_
     
     dt_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[fig_width/2 0 fig_width/2 screen_height-100]);
     %dt_ax = uiaxes(dt_pan, 'Position', [0 0 fig_width/2 screen_height]);
-    heatmap(dt_pan, xlabels, ylabels, transpose(dt_array));
+    heatmap(dt_pan, xlabels, ylabels, transpose(dt_array), 'Colormap',jet);
+    con_fig.WindowState = 'maximized';
     %contour(dt_ax, X,Y, dt_array)
     %hold off;
     

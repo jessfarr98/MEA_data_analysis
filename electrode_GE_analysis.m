@@ -144,8 +144,8 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                     else
                         stim_spike_ho = NaN;
                     end
-                    [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, electrode_data.ave_depol_slope] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id, filter_intensity);
-                    [electrode_data.ave_t_wave_peak_time, ~, ~] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data.electrode_id, filter_intensity);
+                    [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, electrode_data.ave_depol_slope, electrode_data.ave_warning] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id, filter_intensity, '');
+                    [electrode_data.ave_t_wave_peak_time, ~, ~, electrode_data.ave_warning] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data.electrode_id, filter_intensity, electrode_data.ave_warning);
 
 
 

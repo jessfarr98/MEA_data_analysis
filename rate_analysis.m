@@ -1,4 +1,5 @@
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity)
+%function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
+function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
 
     % propagation maps:
     % sort the first act time per electrode per well and then calc
@@ -37,6 +38,8 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     post_spike_hold_off
     %}
+    
+    
     if post_spike_hold_off >= time(end)-time(1)
         post_spike_hold_off = time(end)-time(1)/10;
     end
@@ -186,11 +189,27 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     if length(min_depol_time) > 1
         min_depol_time = min_depol_time(1);
+        %warning = strcat(warning, {'Upper Depol. spike clipped'});
+        disp(length(min_depol_time))
+        disp(min_depol_time);
+        if strcmp(warning, '')
+            warning = strcat(warning, 'Lower Depol. stroke clipped');
+        else
+            warning = strcat(warning, {' '}, 'and lower Depol. stroke clipped');
+        end
         
     end
+    
     if length(max_depol_time) > 1
+        disp(length(max_depol_time))
+        disp(max_depol_time);
         max_depol_time = max_depol_time(1);
         
+        if strcmp(warning, '')
+            warning = strcat(warning, 'Upper Depol. stroke clipped');
+        else
+            warning = strcat(warning, {' '}, 'and upper Depol. stroke clipped');
+        end
     end
     
     amplitude = max_depol_point - min_depol_point;
@@ -241,17 +260,31 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
                     activation_time = depol_complex_time_filtered(activation_time_indx_max_abs(1));
                     %slope = depol_complex_data(activation_time_indx(1)); %3/12/2021 bug was calculating the slope using the original y data, not the dydx of te signal - this is a scalar value
                     slope = depol_complex_data_derivative(activation_time_indx_max_abs(1));
+                    
+                    if strcmp(warning, '')
+                        warning = strcat(warning, 'Activation Point Calculated out of the Max/Min Range');
+                    else
+                        warning = strcat(warning, {' '}, ' and Activation Point Calculated out of the Max/Min Range');
+                    end
                 else
                     activation_time = depol_complex_time_filtered(activation_time_indx_min_raw(1));
                     %slope = depol_complex_data(activation_time_indx(1)); %3/12/2021 bug was calculating the slope using the original y data, not the dydx of te signal - this is a scalar value
                     slope = depol_complex_data_derivative(activation_time_indx_min_raw(1));
 
+                    if strcmp(warning, '')
+                        warning = strcat(warning, 'Activation Point Calculated out of the Max/Min Range');
+                    else
+                        warning = strcat(warning, {' '}, ' and Activation Point Calculated out of the Max/Min Range');
+                    end
                 end
             end
         end
         
         
     end
+    
+    
+    
     
     %try
     %{

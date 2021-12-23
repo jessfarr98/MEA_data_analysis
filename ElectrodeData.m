@@ -31,7 +31,10 @@ classdef ElectrodeData
         ave_activation_time;
         ave_t_wave_peak_time;
         ave_depol_slope;
+        ave_warning;
+        GE_electrode_indx;
         %inputs
+        warning_array;
         bdt;
         min_bp;
         max_bp;
@@ -44,7 +47,8 @@ classdef ElectrodeData
         time_region_end;
         stable_beats_duration;
         filter_intensity;
-        rejected
+        rejected;
+        save_fig
         
         
         

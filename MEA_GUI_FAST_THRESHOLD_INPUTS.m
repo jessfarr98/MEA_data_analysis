@@ -195,7 +195,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     return_input_menu_button = uibutton(input_thresh_pan,'push','Text', 'Return to Main Menu', 'Position',[screen_width-250 280 200 60], 'BackgroundColor', '#B02727', 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
     %set(return_input_menu_button, 'BackgroundColour', '#B02727');
     
-    submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 200 200 60],'BackgroundColor', '#3dd483','ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
+    submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 200 200 60],'BackgroundColor', '#3dd4d1','ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
     
     movegui(input_thresh_fig,'center')
     input_thresh_fig.WindowState = 'maximized';
