@@ -1,4 +1,4 @@
-function MEA_GUI(raw_file, save_dir)
+function MEA_GUI_Return(RawData, Stims, save_dir, ski)
 %  Create and then hide the UI as it is being constructed.
     
    close all hidden;
@@ -7,12 +7,12 @@ function MEA_GUI(raw_file, save_dir)
    warning ('off', 'all');
    
    %raw_file = fullfile(save_dir, raw_file);
-   disp('Extracting data from .raw file, one moment please...')
+   %disp('Extracting data from .raw file, one moment please...')
 
-   RawFileData = AxisFile(raw_file);
+   %RawFileData = AxisFile(raw_file);
 
 
-   RawData = RawFileData.DataSets.LoadData;
+   %RawData = RawFileData.DataSets.LoadData;
 
 
    
@@ -80,11 +80,13 @@ function MEA_GUI(raw_file, save_dir)
    set(paced_spon_text, 'Visible', 'off');
    set(paced_spon_options_dropdown, 'Visible', 'off');
    
+   %{
    try
        Stims = sort([RawFileData.StimulationEvents(:).EventTime]);
    catch
        Stims = [];
    end
+   %}
 
    if ~isempty(Stims)
        set(paced_spon_text, 'Visible', 'on');
@@ -232,10 +234,10 @@ function MEA_GUI(raw_file, save_dir)
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
       if plate_well_options_dropdown.Value == 1
-          MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+          MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), raw_file)
       
       else
-          MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+          MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), raw_file)
       
       end
           
@@ -336,10 +338,10 @@ function MEA_GUI(raw_file, save_dir)
       end
       
       if plate_well_options_dropdown.Value == 1
-          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), raw_file)
       
       else
-          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), raw_file)
       
       end
       

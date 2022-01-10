@@ -1,4 +1,4 @@
-function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir)
+function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, raw_file)
     close all hidden;
     close all;
 
@@ -20,8 +20,6 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     num_well_cols = shape_data(2);
     num_electrode_rows = shape_data(3);
     num_electrode_cols = shape_data(4);
-    
-    added_wells = sort(added_wells);
     
     %count = 0;
     %well_dictionary = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -167,10 +165,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
 
         if strcmp(analyse_all_b2b, 'time_region')
             time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'B2B Time region start time (s)', 'Position', [1080 150 100 40], 'Editable','off');
-            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'BackgroundColor','#e68e8e', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(time_start_ui,event) zeroInputChanged(time_start_ui, 0));
+            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
             
             time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1200 150 100 40], 'Editable','off');
-            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'BackgroundColor','#e68e8e', 'Position', [1200 100 100 40], 'ValueChangedFcn', @(time_end_ui,event) zeroInputChanged(time_end_ui, min_end_time));
+            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1200 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
             
             set(time_end_ui, 'Value', min_end_time)
 
@@ -178,10 +176,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     else
         if strcmp(stable_ave_analysis, 'time_region')
             time_start_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region start time (s)', 'Position', [1080 150 100 40], 'Editable','off');
-            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'BackgroundColor','#e68e8e', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(time_start_ui,event) zeroInputChanged(time_start_ui, 0));
+            time_start_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Start Time', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
             
             time_end_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1200 150 100 40], 'Editable','off');
-            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'BackgroundColor','#e68e8e', 'Position', [1200 100 100 40], 'ValueChangedFcn', @(time_end_ui,event) zeroInputChanged(time_end_ui, min_end_time));
+            time_end_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'End Time', 'Position', [1200 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
 
             set(time_end_ui, 'Value', min_end_time);
 
@@ -189,7 +187,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
         if strcmp(stable_ave_analysis, 'stable')
             %sliding time window to find the elctrode with the most stable beat period and then compute average waveform using this region
             stable_duration_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8,'Value', 'Time Window for GE average waveform (s)', 'Position', [1080 150 100 40], 'Editable','off');
-            stable_duration_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'GE Window', 'BackgroundColor','#e68e8e', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(stable_duration_ui,event) zeroInputChanged(stable_duration_ui, 0));
+            stable_duration_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'GE Window', 'BackgroundColor','#e68e8e', 'Position', [1080 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
 
         end
     end
@@ -214,8 +212,8 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     end
     %}
     function returnInputMenuPushed()
-        MEA_GUI_Return(RawData, Stims, save_dir, 0)
-        %MEA_GUI(raw_file, save_dir)
+        
+        MEA_GUI(raw_file, save_dir)
     end
     
     function zeroInputChanged(input_ui, original_value)

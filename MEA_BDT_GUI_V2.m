@@ -1,4 +1,4 @@
-function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, raw_file)
+function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir)
 %  Create and then hide the UI as it is being constructed.
 
 % TO DO
@@ -115,8 +115,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    if contains(added_wells, 'all')
       added_wells_all = [];
    end
+   
    for w_r = 1:num_well_rows
        for w_c = 1:num_well_cols
+          skip_well = 0;
           wellID = strcat(well_dictionary(w_r), '0', string(w_c)); 
           if ~strcmp(added_wells, 'all')
               if ~contains(added_wells, wellID)
@@ -210,9 +212,12 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    
           set(submit_in_well_button, 'Visible', 'off')
           
+          skip_well_button = uibutton(well_p,'push','Text', 'Skip Well', 'Position',[screen_width-250 280 200 60], 'BackgroundColor', '#e68e8e', 'ButtonPushedFcn', @(skip_well_button,event) skipWellButtonPushed(skip_well_button, wellID, well_fig));
+   
+          
           if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
               well_bdt_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'BDT (mV)'),  'Position', [10 60 100 40], 'Editable','off');
-              well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'Position', [10 10 100 40], 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
+              well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'BackgroundColor','#e68e8e', 'Position', [10 10 100 40], 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
           end
           
           t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'Position', [120 60 100 40], 'Editable','off');
@@ -220,16 +225,16 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           t_wave_up_down_dropdown.ItemsData = [1 2 3];
           
           t_wave_peak_offset_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Repol. Time Offset (s)', 'Position', [240 60 100 40], 'Editable','off');
-          t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
+          t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'BackgroundColor','#e68e8e', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
           
           t_wave_duration_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave duration (s)'), 'Position', [360 60 100 40], 'Editable','off');
-          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
+          t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'BackgroundColor','#e68e8e', 'Position', [360 10 100 40], 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
           
           %est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
           %est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
           post_spike_text = uieditfield(well_p, 'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Post spike hold-off (s)'), 'Position', [480 60 100 40], 'Editable','off');
-          post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [480 10 100 40], 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced,  Stims, min_voltage, max_voltage, well_ax));
+          post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'BackgroundColor','#e68e8e', 'Position', [480 10 100 40], 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced,  Stims, min_voltage, max_voltage, well_ax));
           
           filter_intensity_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', 'Filtering Intensity', 'Position', [600 60 100 40], 'Editable','off');
           filter_intensity_dropdown = uidropdown(well_p, 'Items', {'none', 'low', 'medium', 'strong'}, 'FontSize', 8,'Position', [600 10 100 40]);
@@ -238,24 +243,24 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           if strcmp(spon_paced, 'spon')
               
               min_bp_text = uieditfield(well_p,'Text','FontSize', 8, 'Value', strcat(wellID, {' '}, 'Min. BP (s)'), 'Position', [720 60 100 40], 'Editable','off');
-              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [720 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'BackgroundColor','#e68e8e', 'Position', [720 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
 
               max_bp_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Max. BP (s)'),  'Position', [840 60 100 40], 'Editable','off');
-              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [840 10 100 40],'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'BackgroundColor','#e68e8e', 'Position', [840 10 100 40],'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
           elseif strcmp(spon_paced, 'paced bdt')
               min_bp_text = uieditfield(well_p,'Text','FontSize', 8, 'Value', strcat(wellID, {' '}, 'Min. BP (s)'), 'Position', [720 60 100 40], 'Editable','off');
-              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'Position', [720 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              min_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Min BP', 'BackgroundColor','#e68e8e', 'Position', [720 10 100 40], 'ValueChangedFcn',@(min_bp_ui,event) changeMinBPDuration(min_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
 
               max_bp_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'Max. BP (s)'), 'Position', [840 60 100 40], 'Editable','off');
-              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'Position', [840 10 100 40], 'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
+              max_bp_ui = uieditfield(well_p, 'numeric', 'Tag', 'Max BP', 'BackgroundColor','#e68e8e','Position', [840 10 100 40], 'ValueChangedFcn',@(max_bp_ui,event) changeMaxBPDuration(max_bp_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced));
           
               stim_spike_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off (s)'),  'Position', [960 60 100 40], 'Editable','off');
-              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [960 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
+              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'BackgroundColor','#e68e8e','Position', [960 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
 
           elseif strcmp(spon_paced, 'paced') 
               stim_spike_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'Stim. Spike hold-off (s)'), 'Position', [720 60 100 40], 'Editable','off');
-              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [720 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
+              stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'BackgroundColor','#e68e8e', 'Position', [720 10 100 40],  'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, min_voltage, max_voltage, well_ax));
 
           end
           
@@ -264,10 +269,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
  
               if strcmp(analyse_all_b2b, 'time_region')
                   time_start_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'B2B Time region start time (s)', 'Position', [1080 60 100 40], 'Editable','off');
-                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'BackgroundColor','#e68e8e', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   
                   time_end_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1200 60 100 40], 'Editable','off');
-                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1200 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'BackgroundColor','#e68e8e', 'Position', [1200 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   set(time_end_ui, 'Value', time(end))
                   time_region_plot_data = linspace(min_voltage, max_voltage);
                   start_data = ones(length(time_region_plot_data), 1);
@@ -281,10 +286,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           else
               if strcmp(stable_ave_analysis, 'time_region')
                   time_start_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region start time (s)', 'Position', [1080 60 100 40], 'Editable','off');
-                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_start_ui = uieditfield(well_p, 'numeric', 'Tag', 'Start Time', 'BackgroundColor','#e68e8e', 'Position', [1080 10 100 40],  'ValueChangedFcn',@(time_start_ui,event) changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   
                   time_end_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Ave. Waveform time region end time (s)',  'Position', [1200 60 100 40], 'Editable','off');
-                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'Position', [1200 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
+                  time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'BackgroundColor','#e68e8e', 'Position', [1200 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   set(time_end_ui, 'Value', time(end))
                   time_region_plot_data = linspace(min_voltage, max_voltage);
                   start_data = ones(length(time_region_plot_data), 1);
@@ -298,7 +303,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
               if strcmp(stable_ave_analysis, 'stable')
                   %sliding time window to find the elctrode with the most stable beat period and then compute average waveform using this region
                   stable_duration_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'Time Window for GE average waveform (s)', 'Position', [1080 60 100 40], 'Editable','off');
-                  stable_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'GE Window', 'Position', [1080 10 100 40],'ValueChangedFcn',@(stable_duration_ui,event) changeGEWindow(stable_duration_ui, well_ax, spon_paced));
+                  stable_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'GE Window', 'BackgroundColor','#e68e8e','Position', [1080 10 100 40],'ValueChangedFcn',@(stable_duration_ui,event) changeGEWindow(stable_duration_ui, well_ax, spon_paced));
                   
               
               end
@@ -324,6 +329,19 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
              end
           end
           
+          
+          if isempty(added_wells)
+             %msgbox('Skipped all data. Returning to main menu')
+             close(well_fig)
+             %MEA_GUI(raw_file, save_dir)
+             MEA_GUI_Return(RawData, Stims, save_dir, 1)
+             return
+          end
+          
+          if skip_well == 1
+              close(well_fig)
+              continue
+          end
           
           well_figure_array = [well_figure_array; well_fig];
           post_spike_array = [post_spike_array; get(post_spike_ui, 'Value')];
@@ -381,7 +399,14 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir))
 
    function returnInputMenuPushed()
-        MEA_GUI(raw_file, save_dir)
+        %MEA_GUI(raw_file, save_dir)
+        MEA_GUI_Return(RawData, Stims, save_dir, 0)
+   end
+
+   function skipWellButtonPushed(skip_well_button, wellID, well_fig)
+        set(well_fig, 'Visible', 'off')
+        skip_well = 1;
+        added_wells = setdiff(added_wells, wellID);
    end
 
    function changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, orig_end_time)
@@ -389,8 +414,39 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        % BDT CANNOT be equal to 0. 
        if get(well_bdt_ui, 'Value') == 0
            msgbox('BDT cannot be equal to 0','Oops!');
+           set(well_bdt_ui, 'BackgroundColor','#e68e8e')
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+           well_pan_components = get(well_p, 'Children');
+           for i = 1:length(well_pan_components)
+           
+              well_ui_con = well_pan_components(i);
+              if strcmp(string(get(well_ui_con, 'Type')), 'axes')
+                 axes_children = get(well_ui_con, 'Children');
+           
+                 for c = 1:length(axes_children)
+                     child_y_data = axes_children(c).YData;
+                     if length(child_y_data) ~= 1
+                         if child_y_data(1) == child_y_data(:)
+                             prev_bdt_plot = axes_children(c);
+                             break;
+                         end
+                     end
+
+
+                 end
+               
+                 bdt_data = ones(length(prev_bdt_plot.XData), 1);
+                 bdt_data(:,1) = get(well_bdt_ui, 'Value');
+                 prev_bdt_plot.YData = bdt_data;
+              end
+           end
            return;
        end
+       
+       set(well_bdt_ui, 'BackgroundColor','white')
        
        well_pan_components = get(well_p, 'Children');
        t_wave_time_ok = 0;
@@ -527,9 +583,25 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_time_offset_ui, 'Value') == 0
+           set(t_wave_time_offset_ui, 'BackgroundColor','#e68e8e')
            msgbox('T-Wave peak time cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           axes_children = get(well_ax, 'Children');
+           
+           t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+           for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  delete(axes_children(ch))
+              end
+           end
            return;
        end
+       
+       set(t_wave_time_offset_ui, 'BackgroundColor','white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -720,9 +792,26 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_duration_ui, 'Value') == 0
+           set(t_wave_duration_ui, 'BackgroundColor','#e68e8e')
            msgbox('T-Wave duration cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+           axes_children = get(well_ax, 'Children');
+           
+           t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+           for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  delete(axes_children(ch))
+              end
+           end
            return;
        end
+       
+       set(t_wave_duration_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -909,9 +998,16 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(post_spike_ui, 'Value') == 0
+           
+           set(post_spike_ui, 'BackgroundColor','#e68e8e')
            msgbox('Post spike hold-off cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
            return;
        end
+       
+       set(post_spike_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -1091,9 +1187,30 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(stim_spike_ui, 'Value') == 0
+           set(stim_spike_ui, 'BackgroundColor','#e68e8e')
            msgbox('Stim spike hold-off cannot be equal to 0','Oops!');
-           return;
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+              
+          axes_children = get(well_ax, 'Children');
+           
+          t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+          for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  continue
+              end
+              if size(ch_y_data) == 1
+                  delete(axes_children(ch))
+              end
+          end
+
+          return;
        end
+       
+       set(stim_spike_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -1389,9 +1506,15 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(min_bp_ui, 'Value') == 0
+           set(min_bp_ui, 'BackgroundColor','#e68e8e')
            msgbox('Min BP cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
            return;
        end
+       
+       set(min_bp_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -1498,9 +1621,16 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        
        % BDT CANNOT be equal to 0. 
        if get(max_bp_ui, 'Value') == 0
+           set(max_bp_ui, 'BackgroundColor','#e68e8e')
            msgbox('Max BP cannot be equal to 0','Oops!');
+           
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
            return;
        end
+       
+       set(max_bp_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -1714,9 +1844,20 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
 
    function changeStartTime(time_start_ui, well_ax, min_voltage, max_voltage, orig_end_time, spon_paced)
        if get(time_start_ui, 'Value') >= get(time_end_ui, 'Value')
+           set(time_start_ui, 'BackgroundColor','#e68e8e')
            msgbox('Time region start time must be less than the end time.','Oops!');
            set(time_start_ui, 'Value', 0);
+           
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+       else
+           set(time_start_ui, 'BackgroundColor', 'white')
        end
+       
+       
+       
        axes_children = get(well_ax, 'Children');
        
        time_region_plots = [];
@@ -1859,8 +2000,21 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
        if get(time_start_ui, 'Value') >= get(time_end_ui, 'Value')
            msgbox('Time region end time must be greater than the start time.','Oops!');
            %return;
+           set(time_end_ui, 'BackgroundColor','#e68e8e')
            set(time_end_ui, 'Value', orig_end_time);
+           
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+           
+           
+           return;
+       else
+           set(time_end_ui, 'BackgroundColor','white')
        end
+       
+       
        
        axes_children = get(well_ax, 'Children');
        
@@ -1991,8 +2145,14 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    function changeGEWindow(stable_duration_ui, well_ax, spon_paced)
        % BDT CANNOT be equal to 0. 
        if get(stable_duration_ui, 'Value') == 0
-           msgbox('T-Wave duration cannot be equal to 0','Oops!');
+           set(stable_duration_ui, 'BackgroundColor','#e68e8e')
+           msgbox('Stable duration cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
        end
+       
+       set(stable_duration_ui, 'BackgroundColor','white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;

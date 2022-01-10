@@ -2,7 +2,7 @@ classdef WellElectrodeData
     properties
         wellID;
         GE_electrode_indx;
-        reject_well;
+        rejected_well;
         electrode_data
         
         

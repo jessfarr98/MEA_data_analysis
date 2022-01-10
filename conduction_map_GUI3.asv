@@ -1,4 +1,4 @@
-function conduction_map_GUI2(activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
+function conduction_map_GUI3(activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
     % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     
     conduction_velocities = [];
@@ -136,6 +136,8 @@ function conduction_map_GUI2(activation_times, num_electrode_rows, num_electrode
     
     close_button = uibutton(con_pan,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, well_elec_fig, con_fig));
          
+      
+    
     fig_width = screen_width-200;
     fig_pan = uipanel(con_pan, 'Position', [0 0 fig_width screen_height]);
     
@@ -143,7 +145,7 @@ function conduction_map_GUI2(activation_times, num_electrode_rows, num_electrode
     act_ax = uiaxes(act_pan, 'Position', [0 0 (fig_width/2)-10 screen_height-10]);
     contourf(act_ax, X, Y, transpose(activation_times), level_diff, 'LineStyle', 'none')
     colorbar(act_ax)      
-    colormap(act_ax, jet)
+    colormap(act_ax, hsv)
     %h_fig = figure();
     %heatmap(act_pan, xlabels, ylabels, transpose(activation_times), 'Colormap',summer);
 
@@ -154,8 +156,15 @@ function conduction_map_GUI2(activation_times, num_electrode_rows, num_electrode
     con_fig.WindowState = 'maximized';
     contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
     colorbar(dt_ax)
-    colormap(dt_ax, jet)
+    colormap(dt_ax, hsv)
     %hold off;
+    
+    full_spectrum_button = uibutton(con_pan,'push','Text', 'Full Spectrum', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(full_spectrum_button,event) fullSpectrumPushed(full_spectrum_button, act_ax, dt_ax));
+    set(full_spectrum_button, 'Visible', 'off')
+    
+    RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, act_ax, dt_ax));
+     
+    
     
     
     
@@ -165,6 +174,127 @@ function conduction_map_GUI2(activation_times, num_electrode_rows, num_electrode
         close(con_fig);
         %set(well_elec_fig, 'Visible', 'on');
     end
+
+    function RGColourBlindPushed(RG_colourblind_button, act_ax, dt_ax)
+        %{
+        custom_map = [255 255 0 %yellow
+            255 255 88
+            255 255 129
+            255 255 162
+            255 255 203
+            255 255 230
+            255 255 245
+            255 255 255
+            0 255 255           %cyan
+            0 0 255];             %blue
+        %}
+        %{
+        custom_map = [1 1 0 %yellow
+            1 1 0.05
+            1 1 0.1
+            1 1 0.15
+            1 1 0.2
+            1 1 0.25
+            1 1 0.3
+            1 1 0.34509803921
+            1 1 0.4
+            1 1 0.45
+            1 1 0.50588235294
+            1 1 0.55
+            1 1 0.6
+            1 1 0.63529411764
+            1 1 0.65
+            1 1 0.7
+            1 1 0.75
+            1 1 0.79607843137
+            1 1 0.8
+            1 1 0.85
+            1 1 0.90196078431
+            1 1 0.94
+            1 1 0.96078431372
+            1 1 1
+            0.95 1 1
+            0.9 1 1
+            0.85 1 1
+            0.8 1 1
+            0.75 1 1
+            0.7 1 1
+            0.65 1 1
+            0.6 1 1
+            0.55 1 1
+            0.5 1 1
+            0.45 1 1
+            0.4 1 1
+            0.35 1 1
+            0.3 1 1
+            0.25 1 1
+            0.2 1 1
+            0.15 1 1
+            0.1 1 1
+            0.05 1 1
+            0 1 1           %cyan
+            0 0.95 1
+            0 0.9 1 
+            0 0.85 1
+            0 0.8 1
+            0 0.75 1
+            0 0.7 1
+            0 0.65 1
+            0 0.6 1
+            0 0.55 1
+            0 0.5 1
+            0 0.45 1
+            0 0.4 1
+            0 0.35 1
+            0 0.3 1
+            0 0.25 1
+            0 0.2 1
+            0 0.15 1
+            0 0.1 1
+            0 0.05 1
+            0 0 1];             %blue
+        %}
+        custom_map = [];
+        %yellow
+        for yc = 0:0.01:1
+            if isempy(custom_map)
+                custom_map = [1 1 c];
+            else
+                custom_map = [custom_map; 1 1 c];
+            end
+        end
+           
+        %cyan
+        for cc = 0:0.01:1
+            if isempy(custom_map)
+                custom_map = [1 1 c];
+            else
+                custom_map = [custom_map; cc 1 1];
+            end
+        end
+        
+        %cyan
+        for cc = 0:0.01:1
+            if isempy(custom_map)
+                custom_map = [1 1 c];
+            else
+                custom_map = [custom_map; cc 1 1];
+            end
+        end
+        
+        colormap(act_ax, custom_map)
+        colormap(dt_ax, custom_map)
+        set(full_spectrum_button, 'Visible', 'on')
+        set(RG_colourblind_button, 'Visible', 'off')
+    end
+
+    function  fullSpectrumPushed(full_spectrum_button, act_ax, dt_ax)
+        colormap(act_ax, hsv)
+        colormap(dt_ax, hsv)
+        set(full_spectrum_button, 'Visible', 'off')
+        set(RG_colourblind_button, 'Visible', 'on')
+    end
+    
 
 end
 

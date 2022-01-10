@@ -92,13 +92,37 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     max_depol_point = max(depol_complex_data);
     indx_max_depol_point = find(depol_complex_data == max_depol_point);
-    indx_max_depol_point = indx_max_depol_point(1);
-    max_depol_time = depol_complex_time(indx_max_depol_point);
+    
     
     min_depol_point = min(depol_complex_data);
     indx_min_depol_point = find(depol_complex_data == min_depol_point);
+    
+    
+    if length(indx_min_depol_point) > 1
+        if strcmp(warning, '')
+            warning = strcat(warning, 'Lower Depol. stroke clipped');
+        else
+            warning = strcat(warning, {' '}, 'and lower Depol. stroke clipped');
+        end
+        
+    end
+    
+    if length(indx_max_depol_point) > 1
+
+        
+        if strcmp(warning, '')
+            warning = strcat(warning, 'Upper Depol. stroke clipped');
+        else
+            warning = strcat(warning, {' '}, 'and upper Depol. stroke clipped');
+        end
+    end
+    
+    indx_max_depol_point = indx_max_depol_point(1);
+    max_depol_time = depol_complex_time(indx_max_depol_point);
+    
     indx_min_depol_point = indx_min_depol_point(1);
     min_depol_time = depol_complex_time(indx_min_depol_point);
+    
     
     size_depol = length(depol_complex_data);
 
@@ -187,30 +211,6 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     activation_time_indx_max_abs = find(abs(depol_complex_data_derivative) == max_abs_slope);
     
     
-    if length(min_depol_time) > 1
-        min_depol_time = min_depol_time(1);
-        %warning = strcat(warning, {'Upper Depol. spike clipped'});
-        disp(length(min_depol_time))
-        disp(min_depol_time);
-        if strcmp(warning, '')
-            warning = strcat(warning, 'Lower Depol. stroke clipped');
-        else
-            warning = strcat(warning, {' '}, 'and lower Depol. stroke clipped');
-        end
-        
-    end
-    
-    if length(max_depol_time) > 1
-        disp(length(max_depol_time))
-        disp(max_depol_time);
-        max_depol_time = max_depol_time(1);
-        
-        if strcmp(warning, '')
-            warning = strcat(warning, 'Upper Depol. stroke clipped');
-        else
-            warning = strcat(warning, {' '}, 'and upper Depol. stroke clipped');
-        end
-    end
     
     amplitude = max_depol_point - min_depol_point;
     

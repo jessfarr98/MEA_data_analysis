@@ -1,4 +1,4 @@
-function MEA_GUI(raw_file, save_dir)
+function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
 %  Create and then hide the UI as it is being constructed.
     
    close all hidden;
@@ -7,14 +7,16 @@ function MEA_GUI(raw_file, save_dir)
    warning ('off', 'all');
    
    %raw_file = fullfile(save_dir, raw_file);
-   disp('Extracting data from .raw file, one moment please...')
+   %disp('Extracting data from .raw file, one moment please...')
 
-   RawFileData = AxisFile(raw_file);
-
-
-   RawData = RawFileData.DataSets.LoadData;
+   %RawFileData = AxisFile(raw_file);
 
 
+   %RawData = RawFileData.DataSets.LoadData;
+
+   if skipped_data == 1
+       msgbox('Skipped all data. Returning to main menu')
+   end
    
 
    shape_data = size(RawData);
@@ -80,11 +82,13 @@ function MEA_GUI(raw_file, save_dir)
    set(paced_spon_text, 'Visible', 'off');
    set(paced_spon_options_dropdown, 'Visible', 'off');
    
+   %{
    try
        Stims = sort([RawFileData.StimulationEvents(:).EventTime]);
    catch
        Stims = [];
    end
+   %}
 
    if ~isempty(Stims)
        set(paced_spon_text, 'Visible', 'on');
@@ -96,10 +100,10 @@ function MEA_GUI(raw_file, save_dir)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
    set(run_button, 'Visible', 'off')
    
-   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
    set(run_fast_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -145,7 +149,7 @@ function MEA_GUI(raw_file, save_dir)
    end
    %}
 
-   function runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -241,7 +245,7 @@ function MEA_GUI(raw_file, save_dir)
           
    end
 
-   function runFastButtonPushed(run_fast_button, RawData,RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);

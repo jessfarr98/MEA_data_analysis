@@ -15,13 +15,13 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
     %%disp('$$$$$$$$$$$$$$$$$$$$$$$GE ELECTRODE ANALYSIS$$$$$$$$$$$$$$$$$$$$$$$$$$$')
     for w = 1:num_wells
         electrode_count = 0;
-        well_electrode_data(w, :).electrode_id
+        %well_electrode_data(w, :).electrode_id
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
                 %elec_c
                 electrode_count = electrode_count+1;
                 
-                electrode_id = well_electrode_data(w, electrode_count).electrode_id;
+                electrode_id = well_electrode_data(w).electrode_data(electrode_count).electrode_id;
                 
                 if ismember(electrode_id, reanalyse_electrodes)
                     re_count = electrode_count;
@@ -35,7 +35,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                     %reanalyse_electrodes
  
                     
-                    electrode_data = well_electrode_data(w, electrode_count);
+                    electrode_data = well_electrode_data(w).electrode_data(electrode_count);
                     %well_pan = reanalyse_panels(num_analysed);
                     for rp = 1:length(reanalyse_panels)
                         if strcmp(get(reanalyse_panels(rp), 'Title'), electrode_id)
@@ -184,8 +184,8 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                             %activation_points = electrode_data.data(find(electrode_data.activation_times), 'ko');
                             %plot(elec_ax, electrode_data.activation_times, electrode_data.activation_point_array, 'ko');
                             hold(elec_ax,'off')
-                            well_electrode_data(w,electrode_count) = electrode_data;
-                            well_electrode_data(w, :).electrode_id
+                            well_electrode_data(w).electrode_data(electrode_count) = electrode_data;
+                            %well_electrode_data(w, :).electrode_id
                         %end
                     %end
 
