@@ -283,7 +283,7 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         
     end
     
-    
+    %disp(activation_time)
     
     
     %try

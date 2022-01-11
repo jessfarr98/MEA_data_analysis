@@ -3,7 +3,8 @@ classdef WellElectrodeData
         wellID;
         GE_electrode_indx;
         rejected_well;
-        electrode_data
+        electrode_data;
+        conduction_velocity
         
         
     end

@@ -346,7 +346,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
        added_wells = added_wells_all; 
     end
     if strcmp(beat_to_beat, 'on')
-        MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
+        MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
     
     else
         if strcmp(stable_ave_analysis, 'stable')
@@ -354,7 +354,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     
         else
             
-            MEA_GUI_analysis_display_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
+            MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
     
         end
         
@@ -596,10 +596,12 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
      end
+     [conduction_velocity] = calculateConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
     
     well_electrode_data(num_analysed).electrode_data = electrode_data;
     well_electrode_data(num_analysed).wellID = wellID;
     well_electrode_data(num_analysed).rejected_well = 0;
+    well_electrode_data(num_analysed).conduction_velocity = conduction_velocity;
     if strcmpi(beat_to_beat, 'off')
         if strcmp(stable_ave_analysis, 'stable')
             well_electrode_data(num_analysed).GE_electrode_indx = min_stdev_indx;
