@@ -209,7 +209,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    xlabel(well_ax, 'Seconds (s)');
    ylabel(well_ax, 'Milivolts (mV)');
    
-   return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 200 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
+   return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 360 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
           
    submit_in_well_button = uibutton(well_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
    
