@@ -12,7 +12,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     min_beat_period = min_bp;  %seconds
     %post_spike_hold_off = 0.1;   %seconds
     %stim_spike_hold_off = 0.002;
-    window = 0.3;
+    window = min_beat_period;
     
     activation_time_array = [];
     beat_num_array = [];

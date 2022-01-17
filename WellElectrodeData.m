@@ -4,6 +4,7 @@ classdef WellElectrodeData
         GE_electrode_indx;
         rejected_well;
         electrode_data;
+        spon_paced;
         conduction_velocity
         
         

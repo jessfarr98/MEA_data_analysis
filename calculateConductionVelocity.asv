@@ -2,10 +2,15 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
 
     conduction_velocity = 0;
     electrode_count = 1;
+    dist_array = [];
+    act_array =[];
     for er = num_electrode_rows:-1:1
         for ec = num_electrode_cols:-1:1
-            elec_id = electrode_data(electrode_count).electrode_id
+            elec_id = electrode_data(electrode_count).electrode_id;
             
+            if isempty(elec_id)
+                continue
+            end
             
             %origin electrode = 4,
             %{
@@ -19,11 +24,23 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
                 col_dist = 4;
             end
             %}
-            dist = sqrt(ec**2_+ er**2)
+            
+            %%x = y = 350um
+            dist = sqrt((350*ec^2)+(350*er^2));
             
                 
-            
+            dist_array = [dist_array; dist];
+            act_array =[act_array; electrode_data(electrode_count).activation_times(2)];
             electrode_count = electrode_count + 1;
         end
     end
+
+    
+    lin_eqn = fittype('m*x+b');
+    
+    model = fit(dist_array, act_array, lin_eqn);
+    
+    conduction_velocity = 1/model.m;
+    
+    
 end

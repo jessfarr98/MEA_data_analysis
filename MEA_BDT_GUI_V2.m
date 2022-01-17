@@ -145,11 +145,11 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           max_voltage = NaN;
           min_voltage = NaN;
           
-          no_well_data = 0;
+          num_well_elec_data = 0;
           for e_r = 1:num_electrode_rows
              for e_c = 1:num_electrode_cols
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
-                if (strcmp(class(RawWellData),'Waveform'))
+                if (strcmp(class(RawWellData),'Waveform')) 
                     %if ~empty(WellRawData)
                     %%disp(num_well_rows*num_well_cols)
                     %%disp(count)
@@ -183,20 +183,21 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                     %pause(10)
                     %plot(time, data);
                     time_offset = time_offset+0.0015;
-                    
+                    num_well_elec_data = num_well_elec_data+1;
                 else
                     %disp(wellID)
                     %disp('no data');
                     %continue
-                    no_well_data = 1;
+                    %no_well_data = 1;
                 end
              end
              xlabel(well_ax, 'Seconds (s)')
              ylabel(well_ax, 'milivolts (mV)')
           end
           
-          if no_well_data == 1
+          if num_well_elec_data == 0
              close(well_fig);
+             added_wells = setdiff(added_wells, wellID);
              continue
           end
           
@@ -395,6 +396,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    if contains(added_wells, 'all')
       added_wells = added_wells_all;
    end
+   
+
    
    analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir))
 

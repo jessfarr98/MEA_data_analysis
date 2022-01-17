@@ -24,6 +24,7 @@ classdef ElectrodeData
         activation_point_array;
         depol_slope_array;
         Stims;
+        Stim_volts;
         ave_max_depol_time;
         ave_min_depol_time;
         ave_max_depol_point;
@@ -48,7 +49,8 @@ classdef ElectrodeData
         stable_beats_duration;
         filter_intensity;
         rejected;
-        save_fig
+        save_fig;
+        spon_paced
         
         
         

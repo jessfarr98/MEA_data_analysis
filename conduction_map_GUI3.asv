@@ -8,6 +8,8 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     screen_height = screen_size(4);
     
     
+    disp('con map');
+    
     con_fig = uifigure;
     
     con_pan = uipanel(con_fig, 'Position', [0 0 screen_width screen_height-20]);
@@ -80,6 +82,9 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             % Origin electrode analysis
             min_act = min(activation_times);
             max_act = max(activation_times);
+            
+            min_dt = nan;
+            max_dt = nan;
             %for e_r = 1:num_electrode_rows
             for e_r = num_electrode_rows:-1:1
                 %for e_c = num_electrode_cols:-1:1
@@ -91,9 +96,23 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
                         dx = sqrt(e_r^2 + e_c^2);
                         dt = activation_times(count)-min_act;
                     end
+                    
+                    if isnan(min_dt)
+                        max_dt = dt;
+                        min_dt = dt;
+                    else
+                        
+                        if dt > max_dt
+                            max_dt = dt;
+                        end
+                        
+                        if dt < min_dt
+                            min_dt = dt;
+                        end
+                    end 
                     %num2str(e_r)
                     e_id = strcat(num2str(e_c),{' '},num2str(e_r));
-
+                    %dt = round(dt, 2, 'significant');
 
                     dx_array = [dx_array; dx];
                     dt_array = [dt_array; dt];
@@ -106,6 +125,9 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             min_act = min(activation_times);
             max_act = max(activation_times);
             min_act_indx = find(activation_times == min_act);
+            
+            min_dt = nan;
+            max_dt = nan;
 
             init_e_c = mod(min_act_indx, 4);
             init_e_r = (min_act_indx-init_e_c)/4;
@@ -130,12 +152,26 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
                         %disp('count');
                         %disp(count);
                         dx = 0;
-                        dt = activation_times(count)-activation_times(min_act_indx);
+                        dt = activation_times(count)-activation_times(min_act_indx(1));
                     else
                         dx = sqrt(e_r^2 + e_c^2);
-                        dt = activation_times(count)-activation_times(min_act_indx);
+                        dt = activation_times(count)-activation_times(min_act_indx(1));
                     end
+                    %dt = round(dt, 2, 'significant');
                     %num2str(e_r)
+                    if isnan(min_dt)
+                        max_dt = dt;
+                        min_dt = dt;
+                    else
+                        
+                        if dt > max_dt
+                            max_dt = dt;
+                        end
+                        
+                        if dt < min_dt
+                            min_dt = dt;
+                        end
+                    end 
                     e_id = strcat(num2str(e_c),{' '},num2str(e_r));
 
 
@@ -168,29 +204,44 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             %disp((((fig_width/2)-10)/num_beats)*(num_beats-1))
             %act_pan = uipanel(act_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-10]);
             
-            act_ax = uiaxes(act_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-100]);
+            act_ax = uiaxes(act_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-200]);
             contourf(act_ax, X, Y, transpose(activation_times), level_diff, 'LineStyle', 'none')
             colorbar(act_ax)      
             colormap(act_ax, hsv)
+           
 
             %dt_pan = uipanel(dt_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-10]);
-            dt_ax = uiaxes(dt_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-100]);
+            dt_ax = uiaxes(dt_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-200]);
             %heatmap(dt_pan, xlabels, ylabels, transpose(dt_array));
             
             contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
-            colorbar(dt_ax)
+            
+            tick_array = [];
+  
+            for tick = min_dt:(max_dt-min_dt)/7:max_dt
+                
+               tick_array = [tick_array, tick];
+            end
+            tick_array
+            %tick_array = [tick_array, max_dt]
+            %tick_array = round(tick_array, 3, 'significant');
+            colorbar(dt_ax, 'TickLabels', tick_array, 'Limits', [min_dt max_dt], 'Ticks', [0, (screen_height-200)/7, (screen_height-200)/5, (screen_height-200)/4, (screen_height-200)/3, (screen_height-200)/2, (screen_height-200)/1, 0])
+            %colorbar(dt_ax, 'LimitsMode', 'manual','TickLabels', [min_dt:(max_dt-min_dt)/7:max_dt])
             colormap(dt_ax, hsv)
+            
+            
         else
 
             n_rows = ceil(num_beats/5);
    
-            row_num = ceil(n/5);
+            row_num = floor(n/5);
             
-            
+            row_num = n_rows-row_num;
             
             col_num = mod(n,5);
             if col_num == 0
                 col_num = 5;
+                row_num = row_num+1;
             end
             
             %act_pan = uipanel(act_main_pan, 'Position', [(((fig_width/2)-10)/5)*(col_num-1) ((screen_height-100)/n_rows)*(row_num-1) ((fig_width/2)-10)/5 (screen_height-100)/n_rows]);
@@ -205,7 +256,13 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             %heatmap(dt_pan, xlabels, ylabels, transpose(dt_array));
             
             contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
-            colorbar(dt_ax)
+            tick_array = [];
+            for tick = min_dt:(max_dt-min_dt)/1:max_dt
+                
+               tick_array = [tick_array, tick];
+            end
+            tick_array = [tick_array, max_dt];
+            colorbar(dt_ax, 'Ticks', tick_array)
             colormap(dt_ax, hsv)
              
             
@@ -221,7 +278,14 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     set(full_spectrum_button, 'Visible', 'off')
     
     RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan));
+    
     con_fig.WindowState = 'maximized';
+    
+    if num_beats > 1
+        act_video_button = uibutton(con_pan,'push','Text', 'Activation Times Video', 'Position', [screen_width-180 300 120 50], 'ButtonPushedFcn', @(act_video_button,event) ActVideoPushed(act_video_button, act_main_pan));
+    
+        
+    end
     
     set(con_fig, 'Visible', 'on')
 
@@ -236,38 +300,16 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
 
     function RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan)
         
-        
-        set(RG_colourblind_button, 'Visible', 'off')
-        set(full_spectrum_button, 'Visible', 'on')
-        
         custom_map = [];
         
-        %orange
-        %og = 0.8:-0.01:0.47
-        %{
-        og = 0.8;
-        for ob = 00.62:-0.01:0
-            if isempty(custom_map)
-                custom_map = [1 og ob];
-            else
-                custom_map = [custom_map; 1 og ob];
-            end
-            og = og -0.01;
-            if og == 0.47
-                disp('break')
-                break
-            end
-        end
-        disp(og)
-        %}
         
         og = 0.17;
-        
+
         % transition shades
         for ogt = og:0.01:1
             custom_map = [custom_map; 1 ogt 0];
         end
-        
+
         %yellow
         for yc = 0:0.01:1
             if isempty(custom_map)
@@ -276,26 +318,30 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
                 custom_map = [custom_map; 1 1 yc];
             end
         end
-           
+
         %cyan
         for cc = 1:-0.01:0
 
             custom_map = [custom_map; cc 1 1];
 
         end
-        
+
         %blue
         for bc = 1:-0.01:0
 
             custom_map = [custom_map; 0 bc 1];
-            
+
         end
-        
+
         %black
         for bb = 1:-0.01:0
             custom_map = [custom_map; 0 0 bb];
-            
+
         end
+        set(RG_colourblind_button, 'Visible', 'off')
+        set(full_spectrum_button, 'Visible', 'on')
+        
+        
   
         act_axes = get(act_main_pan, 'Children');
         dt_axes = get(dt_main_pan, 'Children');
@@ -322,6 +368,88 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             colormap(dt_axes(a), hsv)
         end
         
+        
+    end
+
+    function  ActVideoPushed(act_video_button, act_main_pan)
+
+        
+        act_axes = get(act_main_pan, 'Children');
+        custom_map = [];
+        
+        
+        og = 0.17;
+
+        % transition shades
+        for ogt = og:0.01:1
+            custom_map = [custom_map; 1 ogt 0];
+        end
+
+        %yellow
+        for yc = 0:0.01:1
+            if isempty(custom_map)
+                custom_map = [1 1 yc];
+            else
+                custom_map = [custom_map; 1 1 yc];
+            end
+        end
+
+        %cyan
+        for cc = 1:-0.01:0
+
+            custom_map = [custom_map; cc 1 1];
+
+        end
+
+        %blue
+        for bc = 1:-0.01:0
+
+            custom_map = [custom_map; 0 bc 1];
+
+        end
+
+        %black
+        for bb = 1:-0.01:0
+            custom_map = [custom_map; 0 0 bb];
+
+        end
+        
+        act_vid_figure = uifigure;
+        movegui(act_vid_figure, 'center');
+        act_vid_figure.WindowState = 'maximized';
+        act_vid_pan = uipanel(act_vid_figure, 'Position', [0 0 screen_width screen_height-20]);
+        close_act_vid_button = uibutton(act_vid_figure,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_act_vid_button,event) closeButtonPushed(close_act_vid_button, '', act_vid_figure));
+        %fig = figure;
+        for a = 1:length(act_axes)
+            
+            %ax = copygraphics(act_axes(a));
+            %ax.Parent = act_vid_pan;
+            %disp(get(act_axes(a).properties));
+            %properties(act_axes(a))
+            
+            axobjs = get(act_axes(a), 'children');
+            
+            properties(axobjs)
+            
+            %cmap = act_axes(a).Colormap;
+            %zgrid = act_axes(a).ZGrid
+            
+
+            act_vid_ax = uiaxes(act_vid_pan, 'Position', [0 0 screen_width-500 screen_height-20]);
+            contourf(act_vid_ax, axobjs.XData, axobjs.YData, axobjs.ZData, axobjs.LabelSpacing, 'linestyle', 'none')
+            
+            if strcmp(get(RG_colourblind_button, 'Visible'), 'off')
+                colormap(act_vid_ax, custom_map)
+                
+            else
+                colormap(act_vid_ax, hsv)
+                
+            end
+            %colormap(act_vid_ax, cmap)
+            pause(1)
+            
+        end
+
         
     end
     

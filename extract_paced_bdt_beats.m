@@ -1,4 +1,4 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp, filter_intensity)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp, filter_intensity)
 
     if strcmpi(beat_to_beat, 'on')
         %disp(electrode_id);
@@ -21,6 +21,15 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
             Stims = Stims(Stim_indx);
         end
     end
+    
+    
+    Stim_volts = [];
+    for s = 1:length(Stims)
+        Stim_indx = find(time >= Stims(s));
+        Stim_volts = [Stim_volts; data(Stim_indx(1))];
+        
+    end
+    
     total_duration = time(end);
     
     prev_beat_indx = 1;

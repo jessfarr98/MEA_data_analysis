@@ -398,6 +398,7 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
         electrode_data(j).min_depol_point_array = [];
         electrode_data(j).activation_point_array = [];
         electrode_data(j).Stims = [];
+        electrode_data(j).Stim_volts = [];
         electrode_data(j).ave_max_depol_time = 0;
         electrode_data(j).ave_min_depol_time = 0;
         electrode_data(j).ave_max_depol_point = 0;
@@ -424,6 +425,8 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
         electrode_data(j).filter_intensity = '';
         
         electrode_data(j).rejected = 0;
+        
+        electrode_data(j).spon_paced = spon_paced;
         
     end
     electrode_count = 0;
@@ -519,10 +522,11 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
                     [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, filter_intensity);     
 
                 elseif strcmp(spon_paced, 'paced bdt')
-                    [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp, filter_intensity);     
-               
+                    [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts] = extract_paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, min_bp, max_bp, filter_intensity);     
+                    electrode_data(electrode_count).Stim_volts = Stim_volts;
                 elseif strcmp(spon_paced, 'paced')
-                    [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, filter_intensity);     
+                    [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, filter_intensity);     
+                    electrode_data(electrode_count).Stim_volts = Stim_volts;
                 end
 
                 electrode_data(electrode_count).electrode_id = electrode_id;
@@ -602,6 +606,7 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
     well_electrode_data(num_analysed).wellID = wellID;
     well_electrode_data(num_analysed).rejected_well = 0;
     well_electrode_data(num_analysed).conduction_velocity = conduction_velocity;
+    well_electrode_data(num_analysed).spon_paced = spon_paced;
     if strcmpi(beat_to_beat, 'off')
         if strcmp(stable_ave_analysis, 'stable')
             well_electrode_data(num_analysed).GE_electrode_indx = min_stdev_indx;

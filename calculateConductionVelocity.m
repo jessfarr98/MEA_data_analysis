@@ -12,7 +12,7 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
                 continue
             end
             
-            %origin electrode = 4,
+            %origin electrode = 4,1
             %{
             if ec == 4
                 col_dist = 1;
@@ -24,7 +24,9 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
                 col_dist = 4;
             end
             %}
-            dist = sqrt((ec^2)+(er^2));
+            
+            %%x = y = 350um
+            dist = sqrt((350*ec^2)+(350*er^2));
             
                 
             dist_array = [dist_array; dist];
