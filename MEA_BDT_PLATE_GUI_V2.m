@@ -127,9 +127,9 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    movegui(well_fig,'center');
    well_fig.WindowState = 'maximized';
    
-   well_p = uipanel(well_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
+   well_p = uipanel(well_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
 
-   well_ax = uiaxes(well_p, 'BackgroundColor','#d43d3d', 'Position', [10 100 screen_width-300 screen_height-200]);
+   well_ax = uiaxes(well_p, 'BackgroundColor','#f2c2c2', 'Position', [10 100 screen_width-300 screen_height-200]);
    hold(well_ax, 'on');
    
    for w_r = 1:num_well_rows

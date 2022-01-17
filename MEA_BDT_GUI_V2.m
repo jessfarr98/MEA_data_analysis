@@ -134,9 +134,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           well_fig.WindowState = 'maximized';
           
           well_fig.Name = strcat(wellID, {''}, 'BDT GUI');
-          well_p = uipanel(well_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
+          well_p = uipanel(well_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
           
-          well_ax = uiaxes(well_p, 'BackgroundColor','#d43d3d', 'Position', [10 100 screen_width-300 screen_height-200]);
+          well_ax = uiaxes(well_p, 'BackgroundColor','#f2c2c2', 'Position', [10 100 screen_width-300 screen_height-200]);
           hold(well_ax, 'on');
           
           
@@ -207,7 +207,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           
           set(well_fig, 'Visible', 'on');
           
-          return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 200 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
+          return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 360 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
           
           submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'BackgroundColor', '#3dd4d1', 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
    

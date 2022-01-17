@@ -263,9 +263,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             %}
             heat_map_button = uibutton(main_well_pan,'push','Text', well_ID+ " " + "Show Heat Map", 'Position', [screen_width-220 150 120 50], 'ButtonPushedFcn', @(heat_map_button,event) heatMapButtonPushed(heat_map_button, well_elec_fig, well_ID, num_electrode_rows, num_electrode_cols, spon_paced));
 
-            reanalyse_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Electrodes', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+            %reanalyse_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Electrodes', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
         
-            reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Well', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+            reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Well', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
         
         else
             if strcmp(stable_ave_analysis, 'time_region')
@@ -323,9 +323,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                     elec_ax = uiaxes(elec_pan, 'Position', [0 20 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-50]);
                     
-                    reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 0 100 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count, undo_elec_pan));
+                    reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 0 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count, undo_elec_pan));
                     
-                    expand_electrode_button = uibutton(elec_pan,'push','Text', 'Expanded Plot', 'Position', [100 0 100 20], 'ButtonPushedFcn', @(expand_electrode_button,event) expandElectrodeButtonPushed(expand_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count));
+                    expand_electrode_button = uibutton(elec_pan,'push','Text', 'Expanded Plot', 'Position', [((well_p_width/num_electrode_cols)-25)/3 0 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(expand_electrode_button,event) expandElectrodeButtonPushed(expand_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count));
+                    
+                    reanalyse_electrode_button = uibutton(elec_pan,'push','Text', 'Reanalyse', 'Position', [2*(((well_p_width/num_electrode_cols)-25)/3) 0 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(reanalyse_electrode_button,event) reanalyseElectrodeButtonPushed(well_count, elec_id));
                     
                     
                     hold(elec_ax,'on')
@@ -455,10 +457,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                         set(undo_elec_pan, 'Visible', 'off');
                         
-                        reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 20 100 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count, undo_elec_pan));
+                        reject_electrode_button = uibutton(elec_pan,'push','Text', 'Reject Electrode', 'Position', [0 20 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(reject_electrode_button,event) rejectElectrodeButtonPushed(reject_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, electrode_count, undo_elec_pan));
         
-                        adv_stats_elec_button = uibutton(elec_pan,'push','Text', 'Advanced Results View', 'Position', [100 20 100 20], 'ButtonPushedFcn', @(adv_stats_elec_button,event) expandAveTimeRegionElectrodePushed(adv_stats_elec_button, electrode_count));
+                        adv_stats_elec_button = uibutton(elec_pan,'push','Text', 'Advanced Results View', 'Position', [((well_p_width/num_electrode_cols)-25)/3 20 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(adv_stats_elec_button,event) expandAveTimeRegionElectrodePushed(adv_stats_elec_button, electrode_count));
 
+                        reanalyse_electrode_button = uibutton(elec_pan,'push','Text', 'Reanalyse', 'Position', [2*(((well_p_width/num_electrode_cols)-25)/3) 20 ((well_p_width/num_electrode_cols)-25)/3 20], 'ButtonPushedFcn', @(reanalyse_electrode_button,event) reanalyseElectrodeButtonPushed(well_count, elec_id));
+                    
+                        
+                        
                         elec_ax = uiaxes(elec_pan, 'Position', [0 40 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-60]);
                         
                         
@@ -647,14 +653,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
            
 
-            if strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'spon')
+            if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'spon')
                 text_box_height = screen_height/14;
                 
                 elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*12 200 text_box_height], 'Editable','off');
                 elec_min_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('min BP = ', num2str(electrode_data(electrode_count).min_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*11 200 text_box_height], 'Editable','off');
                 elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*10 200 text_box_height], 'Editable','off');
          
-            elseif strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced bdt')
+            elseif strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced bdt')
                 text_box_height = screen_height/15;
                 
                 elec_bdt_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('BDT = ', num2str(electrode_data(electrode_count).bdt)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*13 200 text_box_height], 'Editable','off');
@@ -662,7 +668,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 elec_max_bp_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('max BP = ', num2str(electrode_data(electrode_count).max_bp)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*11 200 text_box_height], 'Editable','off');
                 elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*10 200 text_box_height], 'Editable','off');
                 
-            elseif strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced')
+            elseif strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced')
                 text_box_height = screen_height/12;
                 
                 elec_stim_spike_hold_off_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('Stim-spike hold-off = ', num2str(electrode_data(electrode_count).stim_spike_hold_off)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*10 200 text_box_height], 'Editable','off');
@@ -695,11 +701,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             beat_start_volts =  electrode_data(electrode_count).data(beat_start_volts);
             %plot(exp_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
 
-            if strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced') 
+            if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced') 
                         
 
                 plot(exp_ax, electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
-            elseif strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced bdt')
+            elseif strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced bdt')
                 plot(exp_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
                 plot(exp_ax, electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
 
@@ -713,9 +719,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
             plot(exp_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
             
-            if strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced bdt')
+            if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced bdt')
                 legend(exp_ax, 'signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'stimulus point', 'activation point')
-            elseif strcmp(well_electrode_data(well_count).electrode_data.spon_paced, 'paced') 
+            elseif strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced') 
                 legend(exp_ax, 'signal', 'T-wave peak', 'max depol.', 'min depol.', 'stimulus point', 'activation point')
 
             else
@@ -814,67 +820,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             %electrode_data = well_electrode_data(well_count).electrode_data;
         end
         
-        function reanalyseButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
-            set(well_elec_fig, 'Visible', 'off')
-
-            reanalyse_fig = uifigure;
-            movegui(reanalyse_fig,'center')
-            reanalyse_fig.WindowState = 'maximized';
-            reanalyse_pan = uipanel(reanalyse_fig, 'Position', [0 0 screen_width screen_height]);
-            submit_reanalyse_button = uibutton(reanalyse_pan, 'push','Text', 'Submit Electrodes', 'Position', [screen_width-220 200 120 50], 'ButtonPushedFcn', @(submit_reanalyse_button,event) submitReanalyseButtonPushed(submit_reanalyse_button, well_elec_fig, reanalyse_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
-
-            reanalyse_width = screen_width-300;
-            reanalyse_height = screen_height -100;
-            ra_pan = uipanel(reanalyse_pan, 'Position', [0 0 reanalyse_width reanalyse_height]);
-
-            elec_count = 0;
-
-            reanalyse_electrodes = [];
-            elec_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
+        function reanalyseElectrodeButtonPushed(well_count, elec_id)
             
-            for el_r = num_electrode_rows:-1:1
-                for el_c = 1:num_electrode_cols
-                    %elec_id = strcat(well_ID, '_', num2str(el_r), '_', num2str(el_c));
-                    elec_id = strcat(well_ID, '_', num2str(el_c), '_', num2str(el_r));
-                    elec_indx = contains(elec_ids, elec_id);
-                    elec_indx = find(elec_indx == 1);
-                    elec_count = elec_indx;
-                    if isempty(well_electrode_data(well_count).electrode_data(elec_count))
-                        continue;
-                    end
-                    %elec_count = elec_count+1;
-                    ra_elec_pan = uipanel(ra_pan, 'Title', well_electrode_data(well_count).electrode_data(elec_count).electrode_id, 'Position', [(el_c-1)*(reanalyse_width/num_electrode_cols) (el_r-1)*(reanalyse_height/num_electrode_rows) reanalyse_width/num_electrode_cols reanalyse_height/num_electrode_rows]);
-                    ra_elec_button = uibutton(ra_elec_pan, 'push','Text', 'Reanalyse', 'Position', [0 0 reanalyse_width/num_electrode_cols reanalyse_height/num_electrode_rows], 'ButtonPushedFcn', @(ra_elec_button,event) reanalyseElectrodeButtonPushed(ra_elec_button, well_electrode_data(well_count).electrode_data(elec_count).electrode_id));
-                    
-
-                end
-            end
-
-            function reanalyseElectrodeButtonPushed(ra_elec_button, electrode_id)
+            [well_electrode_data(well_count)] = electrode_analysis(well_electrode_data(well_count), num_electrode_rows, num_electrode_cols, elec_id, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
                 
-                if strcmp(get(ra_elec_button, 'Text'), 'Reanalyse')
-                    set(ra_elec_button, 'Text', 'Undo');
-                    reanalyse_electrodes = [reanalyse_electrodes; electrode_id];
-                elseif strcmp(get(ra_elec_button, 'Text'), 'Undo')
-                    set(ra_elec_button, 'Text', 'Reanalyse');
-                    reanalyse_electrodes = reanalyse_electrodes(~contains(reanalyse_electrodes, electrode_id));
-                end
-            end
-            
-            
-
-            function submitReanalyseButtonPushed(submit_reanalyse_button, well_elec_fig, reanalyse_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
-                %set(reanalyse_fig, 'Visible', 'off')
-                delete(submit_reanalyse_button);
-                close(reanalyse_fig);
-                if isempty(well_electrode_data(well_count).electrode_data)
-                   return; 
-                end
-                [well_electrode_data(well_count)] = electrode_analysis(well_electrode_data(well_count), num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
-                %%disp(electrode_data(re_count).activation_times(2))
-                %electrode_data = well_electrode_data(well_count).electrode_data;
-            end
-
+        end
+        
+        function reanalyseTimeRegionElectrodeButtonPushed(well_count, elec_id)
+            [well_electrode_data(well_count).electrode_data] = electrode_time_region_analysis(well_electrode_data(well_count).electrode_data, num_electrode_rows, num_electrode_cols, elec_id, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
         end
         
         function reanalyseTimeRegionButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
@@ -931,6 +884,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                    return; 
                 end
                 [well_electrode_data(well_count).electrode_data] = electrode_time_region_analysis(well_electrode_data(well_count).electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
+                
                 %%disp(electrode_data(re_count).activation_times(2))
                 %electrode_data = well_electrode_data(well_count).electrode_data;
             end
@@ -1496,11 +1450,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
 
 
-                if strcmp(spon_paced, 'paced') 
+                if strcmp(electrode_data(electrode_count).spon_paced, 'paced') 
                         
 
                     plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
-                elseif strcmp(spon_paced, 'paced bdt')
+                elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
                     plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
                     plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
 
@@ -1513,10 +1467,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                 plot(electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
 
-                if strcmp(spon_paced, 'paced')
+                if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
                     legend('signal', 'T-wave peak', 'max depol.', 'min depol.', 'stimulus point', 'activation point', 'location', 'northeastoutside')
 
-                elseif strcmp(spon_paced, 'paced bdt')
+                elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
                     legend('signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'stimulus point', 'activation point', 'location', 'northeastoutside')
 
                 else
