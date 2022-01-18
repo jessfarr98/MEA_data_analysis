@@ -48,6 +48,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                 
                 
                 submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+                
                 set(submit_in_well_button, 'Visible', 'off')
                 
 
@@ -118,6 +119,9 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                     init_bdt_data(:,1) = 0;
                     plot(well_ax, electrode_data(electrode_count).time, init_bdt_data);
                 end
+                
+                %reanalyse_selected_beat_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+                
                 
 
               

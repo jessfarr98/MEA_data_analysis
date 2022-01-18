@@ -413,7 +413,7 @@ function MEA_GUI(raw_file, save_dir)
                     yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button));
                     no_button = uibutton(check_pan,'push','Text', 'No', 'Position',[150 250 50 22], 'ButtonPushedFcn', @(no_button,event) noButtonPushed(no_button, start_fig, check_fig, plots_input_ui));
                     
-                    keep_button = uibutton(check_pan,'push','Text', 'Keep', 'Position',[200 250 50 22], 'ButtonPushedFcn', @(keep_button,event) keepButtonPushed(keep_button, start_fig, check_fig, run_button, run_fast_button));
+                    keep_button = uibutton(check_pan,'push','Text', 'Keep', 'Position',[200 250 50 22], 'ButtonPushedFcn', @(keep_button,event) keepButtonPushed(keep_button, start_fig, check_fig, plots_input_ui));
                     
                     
                     
@@ -500,13 +500,11 @@ function MEA_GUI(raw_file, save_dir)
            
        end
        
-       function keepButtonPushed(keep_button, start_fig, check_fig, run_button, run_fast_button)
-           check = 'keep';
+       function keepButtonPushed(keep_button, start_fig, check_fig, plots_input_ui)
+           check = 'no';
            set(check_fig, 'Visible', 'off');
            set(start_fig, 'Visible', 'on');
-           set(run_button, 'Visible', 'on');
-           set(run_fast_button, 'Visible', 'on')
-           %set(plots_input_ui, 'Value', '');
+           set(plots_input_ui, 'Value', '');
            
        end
    end

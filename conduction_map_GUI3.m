@@ -48,8 +48,13 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     %hold off;
     
     
-    
+    wait_bar = waitbar(0, 'Generating isochrome maps');
+    num_partitions = 1/num_beats;
+    partition = num_partitions;
     for n = 1:num_beats
+        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n)));
+        
+        partition = partition + num_partitions;
         
         activation_times = [all_activation_times{n, :}];
         
@@ -121,7 +126,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         elseif strcmp(spon_paced, 'spon')
             min_act = min(activation_times);
             max_act = max(activation_times);
-            min_act_indx = find(activation_times == min_act);
+            min_act_indx = find(activation_times == min_act, 1);
             
             min_dt = nan;
             max_dt = nan;
@@ -219,7 +224,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
                 
                tick_array = [tick_array, tick];
             end
-            tick_array
+          
             %tick_array = [tick_array, max_dt]
             %tick_array = round(tick_array, 3, 'significant');
             %colorbar(dt_ax, 'TickLabels', tick_array, 'Limits', [min_dt max_dt], 'Ticks', [0, (screen_height-200)/7, (screen_height-200)/6, (screen_height-200)/5, (screen_height-200)/4, (screen_height-200)/3, (screen_height-200)/2, (screen_height-200)/1])
@@ -271,7 +276,8 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         end
 
     end
-    
+
+    close(wait_bar);
 
     %set(con_fig, 'Visible', 'on')
 

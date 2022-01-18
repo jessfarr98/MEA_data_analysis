@@ -99,7 +99,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
         close_all_button = uibutton(main_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Close', 'Position', [screen_width-180 100 150 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
         
-        save_all_button =  uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllB2BButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols, 1));
+        save_all_button =  uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllB2BButtonPushed(save_all_button, out_fig, save_dir, num_electrode_rows, num_electrode_cols, 1));
         
         %display_final_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(display_final_button,event) displayFinalB2BButtonPushed(display_final_button, out_fig));
         
@@ -109,7 +109,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     else
         if strcmp(stable_ave_analysis, 'time_region')
             close_all_button = uibutton(main_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Close', 'Position', [screen_width-180 100 150 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
-            save_all_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllTimeRegionButtonPushed(save_all_button, save_dir, num_electrode_rows, num_electrode_cols, 1));
+            save_all_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1', 'Text', "Save All To"+ " " + save_dir, 'FontSize', 8, 'Position', [screen_width-180 200 150 50], 'ButtonPushedFcn', @(save_all_button,event) saveAllTimeRegionButtonPushed(save_all_button, out_fig, save_dir, num_electrode_rows, num_electrode_cols, 1));
         
             % Display Finalised Results
             % Shows all ave electrodes analysed and also statistics 
@@ -246,11 +246,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             %save_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save', 'Position', [screen_width-220 300 100 50], 'ButtonPushedFcn', @(save_button,event) saveB2BButtonPushed(save_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0));
             
             
-            save_results_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveB2BButtonPushed(save_results_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0));
+            save_results_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveB2BButtonPushed(save_results_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0, 0));
 
-            save_plots_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveB2BPlotsButtonPushed(save_plots_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
+            save_plots_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveB2BPlotsButtonPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
 
-            save_alldata_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveB2BButtonPushed(save_alldata_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1));
+            save_alldata_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveB2BButtonPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
 
             %{
             if num_wells == 1
@@ -272,11 +272,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 %reanalyse_button = uibutton(main_well_pan,'push','Text', 'Re-analyse well', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseButtonPushed(reanalyse_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, 'ave'));
                 %display_final_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd483', 'Text', 'Accept Analysis', 'Position', [screen_width-220 200 120 50], 'ButtonPushedFcn', @(display_final_button,event) displayFinalTimeRegionButtonPushed(display_final_button, out_fig, well_elec_fig, well_button));
                 
-                save_results_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveAveTimeRegionPushed(save_results_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0));
+                save_results_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveAveTimeRegionPushed(save_results_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0, 0));
             
-                save_plots_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveAveTimeRegionPlotsPushed(save_plots_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
+                save_plots_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveAveTimeRegionPlotsPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
             
-                save_alldata_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveAveTimeRegionPushed(save_alldata_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1));
+                save_alldata_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveAveTimeRegionPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
             
                 %set(display_final_button, 'Visible', 'off')
                 
@@ -842,8 +842,25 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             num_beats_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Display how many beat patterns?', 'Position', [240 150 200 40], 'Editable','off');
             num_beats_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [240 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(num_beats_ui,event) changedNumBeats(num_beats_ui));
             
-            go_button = uibutton(hmap_prompt_pan,'push','Text', 'Go', 'Position', [440 100 100 50], 'ButtonPushedFcn', @(go_button,event) conductionMapGo(go_button, get(num_beats_ui, 'Value')));
+            beats_range_1_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Start Beat Range', 'Position', [240 150 100 40], 'Editable','off');
+            beats_range_1_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Start Beat Range', 'Position', [240 100 100 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui));
             
+            beats_range_2_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'End Beat Range', 'Position', [340 150 100 40], 'Editable','off');
+            beats_range_2_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'End Beat Range', 'Position', [340 100 100 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui));
+            
+            
+            go_button = uibutton(hmap_prompt_pan,'push','Text', 'Go',  'BackgroundColor', '#3dd4d1', 'Position', [440 50 100 50], 'ButtonPushedFcn', @(go_button,event) conductionMapGo(go_button));
+            
+
+            range_button = uibutton(hmap_prompt_pan,'push','Text', 'Enter Beat Range', 'Position', [440 100 100 50], 'ButtonPushedFcn', @(range_button,event) numBeatsRangeButtonPressed('off', 'on'));
+            
+            num_beats_button = uibutton(hmap_prompt_pan,'push','Text', 'Enter Num Beats', 'Position', [440 100 100 50], 'ButtonPushedFcn', @(num_beats_button,event) numBeatsRangeButtonPressed('on', 'off'));
+            
+            set(num_beats_button, 'visible', 'off')
+            set(beats_range_1_text, 'visible', 'off')
+            set(beats_range_1_ui, 'visible', 'off')
+            set(beats_range_2_text, 'visible', 'off')
+            set(beats_range_2_ui, 'visible', 'off')
 
             function changedNumBeats(num_beats_ui)
                 if get(num_beats_ui, 'Value') > length(well_electrode_data(well_count).electrode_data(1,1).activation_times)
@@ -852,11 +869,47 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 end
             
             end
-            function conductionMapGo(go_button, num_beats)
+            
+            function numBeatsRangeButtonPressed(action1, action2)
+                
+                set(range_button, 'visible', action1)
+                set(num_beats_text, 'visible', action1)
+                set(num_beats_ui, 'visible', action1)
+                set(num_beats_button, 'visible', action2)
+                set(beats_range_1_text, 'visible', action2)
+                set(beats_range_1_ui, 'visible', action2)
+                set(beats_range_2_text, 'visible', action2)
+                set(beats_range_2_ui, 'visible', action2)
+                
+                
+            end
+            
+            function conductionMapGo(go_button)
+                
+                if strcmp(get(range_button, 'visible'), 'off')
+                    start_beat = get(beats_range_1_ui, 'value');
+                    end_beat = get(beats_range_2_ui, 'value');
+                    
+                    if start_beat > end_beat
+                        msgbox('Start beat entered after end beat. Choose new values please');
+                        set(beats_range_1_ui, 'value', 1);
+                        set(beats_range_2_ui, 'value', 1);
+                        return
+                    end
+                    num_hm_beats = end_beat - start_beat;
+                    if end_beat == start_beat
+                        num_hm_beats = 1;
+                    end
+                else
+                    num_hm_beats = get(num_beats_ui, 'value');
+                    start_beat = 1;
+                    end_beat = get(num_beats_ui, 'value');
+                end
                 start_activation_times = [];
                 %start_activation_times = empty(num_beats, 0);
                 %%disp(size(electrode_data))
-                for n = 1:num_beats
+                for n = start_beat:end_beat
+                    
                     act_row = [];
                     for e = 1:num_electrode_rows*num_electrode_cols
                         %%disp(e);
@@ -881,7 +934,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     start_activation_times = [start_activation_times; {act_row}];
                 end
                 %conduction_map_GUI(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
-                conduction_map_GUI3(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats)
+                conduction_map_GUI3(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_hm_beats)
             end
         end
 
@@ -976,13 +1029,21 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
     end
 
-    function saveB2BButtonPushed(save_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots)
+    function saveB2BButtonPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots, saving_multiple)
         %%disp('save b2b')
         %%disp(save_dir)
+        
+        
         disp(strcat('Saving Data for', {' '}, well_ID))
         output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
         if exist(output_filename, 'file')
             delete(output_filename);
+        end
+        
+        if saving_multiple == 0
+            set(well_elec_fig, 'visible', 'off')
+            wait_bar = waitbar(0, strcat('Saving Data for ', {' '}, well_ID));
+            
         end
         
         if save_plots == 1
@@ -1013,8 +1074,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         min_act_elec_id = '';
         min_act_time = nan;
         %for elec_r = 1:num_electrode_rows
+        num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+        partition = num_partitions;
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
+                if saving_multiple == 0
+                    waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_ID));
+                    partition = partition+num_partitions;
+                end
                 
                 %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
@@ -1238,7 +1305,12 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 % all_data must be a cell array
                 %xlswrite(output_filename, electrode_stats, sheet_count);
+                
+                if sheet_count ~= 2
+                    fileattrib(output_filename, '-h +w');
+                end
                 writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                fileattrib(output_filename, '+h +w');
                 
                 if save_plots == 1
                     fig = figure();
@@ -1322,15 +1394,24 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
+        fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
-        msgbox(strcat('Saved Results for', {' '}, well_ID, {' '}, 'to', {' '}, output_filename));
+        
+        if saving_multiple == 0
+            close(wait_bar)
+            msgbox(strcat('Saved Data for', {' '}, well_ID, {' '}, 'to', {' '}, output_filename));
+        
+            set(well_elec_fig, 'visible', 'on')
+        end
 
     end
 
-    function saveB2BPlotsButtonPushed(save_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
+    function saveB2BPlotsButtonPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
         %%disp('save b2b')
         %%disp(save_dir)
+        set(well_elec_fig, 'visible', 'off');
+        
         disp(strcat('Saving Data for', {' '}, well_ID))
         
         if ~exist(fullfile(save_dir, strcat(well_ID, '_figures')), 'dir')
@@ -1346,10 +1427,16 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             mkdir(fullfile(save_dir, strcat(well_ID, '_images')))
         end
         
+        wait_bar = waitbar(0, strcat('Saving Plots for ', {' '}, well_ID));
+        
         electrode_data = well_electrode_data(well_count).electrode_data;
         elec_ids = [electrode_data(:).electrode_id];
+        num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+        partition = num_partitions;
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
+                waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_ID));
+                partition = partition+num_partitions;
                 
                 %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
@@ -1425,11 +1512,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         end
         
         
+        close(wait_bar)
         msgbox(strcat('Saved Plots for', {' '}, well_ID, {' '}, 'to', {' '}, save_dir));
-
+        
+        set(well_elec_fig, 'visible', 'on')
     end
 
-    function saveAveTimeRegionPushed(save_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots)
+    function saveAveTimeRegionPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots, saving_multiple)
         %%disp('save b2b')
         %%disp(save_dir)
         %%disp(well_ID)
@@ -1458,11 +1547,22 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         well_amps = [];
         well_bps = [];
         
+        if saving_multiple == 0
+            set(well_elec_fig, 'visible', 'off')
+            wait_bar = waitbar(0, strcat('Saving Data for ', {' '}, well_ID));
+        end
+        
         sheet_count = 1;
         elec_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
         %for elec_r = 1:num_electrode_rows
+        num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+        partition = num_partitions;
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
+                if saving_multiple == 0
+                    waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_ID));
+                    partition = partition+num_partitions;
+                end
                 
                 %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
@@ -1683,7 +1783,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 % all_data must be a cell array
                 %xlswrite(output_filename, electrode_stats, sheet_count);
+                if sheet_count ~= 2
+                    fileattrib(output_filename, '-h +w');
+                end
                 writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                fileattrib(output_filename, '+h +w');
                 
                 if save_plots == 1
                     fig = figure();
@@ -1730,35 +1834,53 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
+        fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
-        msgbox(strcat('Saved Results for', {' '}, well_ID, {' '}, 'to', {' '}, output_filename));
+        if saving_multiple == 0
+            close(wait_bar)
+            msgbox(strcat('Saved Data for', {' '}, well_ID, {' '}, 'to', {' '}, output_filename));
+            set(well_elec_fig, 'visible', 'off')
+            
+        end
     end
 
 
-    function saveAveTimeRegionPlotsPushed(save_button, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
+    function saveAveTimeRegionPlotsPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
         %%disp('save b2b')
         %%disp(save_dir)
         %%disp(well_ID)
         
-        if ~exist(fullfile(save_dir, strcat(well_ID, '_figures')), 'dir')
-            mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
+        figs_dir = fullfile(save_dir, strcat(well_ID, '_figures'));
+        if ~exist(figs_dir, 'dir')
+            mkdir(figs_dir)
         else
-            rmdir(fullfile(save_dir, strcat(well_ID, '_figures')), 's')
-            mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
+            rmdir(figs_dir, 's')
+            mkdir(figs_dir)
         end
-        if ~exist(fullfile(save_dir, strcat(well_ID, '_images')), 'dir')
-            mkdir(fullfile(save_dir, strcat(well_ID, '_images')))
+        
+        images_dir = fullfile(save_dir, strcat(well_ID, '_images'));
+        if ~exist(images_dir, 'dir')
+            mkdir(images_dir)
         else
-            rmdir(fullfile(save_dir, strcat(well_ID, '_images')), 's')
-            mkdir(fullfile(save_dir, strcat(well_ID, '_images')))
+            rmdir(images_dir, 's')
+            mkdir(images_dir)
         end
+        
+        set(well_elec_fig, 'visible', 'off')
+        wait_bar = waitbar(0, strcat('Saving Plots for ', {' '}, well_ID));
         
         electrode_data = well_electrode_data(well_count).electrode_data;
         elec_ids = [electrode_data(:).electrode_id];
         %for elec_r = 1:num_electrode_rows
+        
+        num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+        partition = num_partitions;
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
+                waitbar(partition, wait_bar, strcat('Saving Plots for ', {' '}, well_ID));
+                partition = partition+num_partitions;
+                
                 
                 %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
                 elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
@@ -1794,42 +1916,75 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 legend('signal', 'max depol', 'min depol', 'act. time', 'repol. recovery', 'location', 'northeastoutside')
                 title({electrode_data(electrode_count).electrode_id},  'Interpreter', 'none')
-                savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  electrode_data(electrode_count).electrode_id));
-                saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
+                savefig(fullfile(figs_dir,  electrode_data(electrode_count).electrode_id));
+                saveas(fig, fullfile(images_dir,  electrode_data(electrode_count).electrode_id), 'png')
                 hold('off')
             end
         end
         
+       
+        close(wait_bar)
+        msgbox(strcat('Saved Plots for', {' '}, well_ID, {' '}, 'to', {' '}, save_dir));
         
-        msgbox(strcat('Saved Results for', {' '}, well_ID, {' '}, 'to', {' '}, save_dir));
+        set(well_elec_fig, 'visible', 'on')
     end
 
 
 
 
-    function saveAllB2BButtonPushed(save_button, save_dir, num_electrode_rows, num_electrode_cols, save_plots)
+    function saveAllB2BButtonPushed(save_button, out_fig, save_dir, num_electrode_rows, num_electrode_cols, save_plots)
+        set(out_fig, 'visible', 'off')
         
+        num_partitions = 1/(2*num_wells);
+        partition = num_partitions;
+        wait_bar = waitbar(0, 'Please Wait...');
         for w = 1:num_wells
             well_ID = added_wells(w);
             %electrode_data = well_electrode_data(w, :);
-            electrode_data = well_electrode_data(w).electrode_data;
+            %electrode_data = well_electrode_data(w).electrode_data;
             
-            saveB2BButtonPushed(save_button, w, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots);
-            
+            waitbar(partition, wait_bar, strcat('Saving', {' '}, well_ID));
+            partition = partition+num_partitions;
+            saveB2BButtonPushed(save_button, '', w, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots, 1);
+            if num_partitions ~= 1
+                waitbar(partition, wait_bar, strcat('Saved', {' '}, well_ID));
+                pause(0.8)
+            else
+                waitbar(partition, wait_bar, 'Saving all data complete.');
+                pause(0.8)
+            end
+            partition = partition+num_partitions;
 
         end
-        msgbox('Saving all data complete.')
+        close(wait_bar)
+        set(out_fig, 'visible', 'on')
     end
     
-    function saveAllTimeRegionButtonPushed(save_button, save_dir, num_electrode_rows, num_electrode_cols, save_plots)
+    function saveAllTimeRegionButtonPushed(save_button, out_fig, save_dir, num_electrode_rows, num_electrode_cols, save_plots)
+        set(out_fig, 'visible', 'off')
         
+        num_partitions = 1/(2*num_wells);
+        partition = num_partitions;
+        wait_bar = waitbar(0, 'Please Wait...');
         for w = 1:num_wells
             well_ID = added_wells(w);
-            electrode_data = well_electrode_data(w).electrode_data;
-            saveAveTimeRegionPushed(save_button, w, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots)
-
+            %electrode_data = well_electrode_data(w).electrode_data;
+            
+            waitbar(partition, wait_bar, strcat('Saving', {' '}, well_ID));
+            partition = partition+num_partitions;
+            saveAveTimeRegionPushed(save_button, '', w, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots, 1)
+            if num_partitions ~= 1
+                waitbar(partition, wait_bar, strcat('Saved', {' '}, well_ID));
+                pause(0.8)
+            else
+                waitbar(partition, wait_bar, 'Saving all data complete.');
+                pause(0.8)
+            end
+            partition = partition+num_partitions;
         end
-        msgbox('Saving all data complete.')
+        
+        close(wait_bar)
+        set(out_fig, 'visible', 'onn')
     end
 
 end

@@ -131,6 +131,9 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     num_analysis_wells = length(added_wells);
     well_electrode_data = WellElectrodeData.empty(num_analysis_wells, 0);
     num_analysed = 1;
+    wait_bar = waitbar(0, 'Commencing Analysis');
+    num_partitions = 1/(num_analysis_wells*(num_electrode_rows*num_electrode_cols));
+    partition = num_partitions;
     for w_r = 1:num_well_rows
         for w_c = 1:num_well_cols
             
@@ -171,7 +174,8 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
                 %added_wells_all = [added_wells_all wellID];
                 disp(strcat('Analysing', {' '}, wellID));
                 
-                [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, well_electrode_data, num_analysed);
+                
+                [well_electrode_data, partition] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, well_electrode_data, num_analysed, partition, num_partitions, wait_bar);
                 num_analysed = num_analysed+1;
                 %{
                 if isempty(well_electrode_data)
@@ -342,6 +346,9 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
             end
         end
     end
+    
+    close(wait_bar);
+    
     if contains(added_wells, 'all')
        added_wells = added_wells_all; 
     end
@@ -361,7 +368,7 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
     end
 end
 
-function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, well_electrode_data, num_analysed)
+function [well_electrode_data, partition] = extract_well_threshold_beats(AllDataRaw, wellID, num_well_rows, num_well_cols, num_electrode_cols, num_electrode_rows, well_bdts, well_dictionary, beat_to_beat, analyse_all_b2b, spon_paced, stable_ave_analysis, well_t_wave_durations, well_t_wave_shapes, well_time_reg_start_array, well_time_reg_end_array, well_stable_dur_array, w_r, w_c, well_count, plot_ave_dir, Stims, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, well_electrode_data, num_analysed, partition, num_partitions, wait_bar)
     
     wellID = strcat(well_dictionary(w_r), '0', string(w_c));
 
@@ -597,6 +604,8 @@ function [well_electrode_data] = extract_well_threshold_beats(AllDataRaw, wellID
                 
             end
             %elecrode_count = electrode_count+1;
+            waitbar(partition, wait_bar, strcat('Analysing', {' ' }, wellID))
+            partition = partition+num_partitions;
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
      end

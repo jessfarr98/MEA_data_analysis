@@ -1214,7 +1214,12 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
             % all_data must be a cell array
             %xlswrite(output_filename, electrode_stats, sheet_count);
+            
+            if sheet_count ~= 2
+                fileattrib(output_filename, '-h +w');
+            end
             writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+            fileattrib(output_filename, '+h +w');
             
             fig = figure();
             set(fig, 'visible', 'off');
@@ -1258,6 +1263,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         %cell%disp(well_stats)
         
         %xlswrite(output_filename, well_stats, 1);
+        fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
         msgbox(strcat('Saved Golden Electrode Results', {' '}, 'to', {' '}, output_filename));
