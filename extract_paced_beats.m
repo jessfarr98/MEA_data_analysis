@@ -82,8 +82,13 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         warning = '';
         stim_time = Stims(i);
         
+        %{
         beat_time = time(find(time >= prev_stim_time & time <= stim_time));
         beat_data = data(find(time >= prev_stim_time & time <= stim_time));
+        %}
+        beat_time = time(find(time >= prev_stim_time & time < stim_time));
+        beat_data = data(find(time >= prev_stim_time & time < stim_time));
+        
        
         beat_period = beat_time(end) - beat_time(1);
        

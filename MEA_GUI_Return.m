@@ -416,6 +416,10 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
                     check_text = uieditfield(check_pan,'Text','Position',[80 300 500 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
                     yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button));
                     no_button = uibutton(check_pan,'push','Text', 'No', 'Position',[150 250 50 22], 'ButtonPushedFcn', @(no_button,event) noButtonPushed(no_button, start_fig, check_fig, plots_input_ui));
+                    keep_button = uibutton(check_pan,'push','Text', 'Keep', 'Position',[200 250 50 22], 'ButtonPushedFcn', @(keep_button,event) keepButtonPushed(keep_button, start_fig, check_fig, run_button, run_fast_button));
+                    
+                    
+                    
                     
                     while(1)
                         pause(0.01);
@@ -497,6 +501,16 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
            set(check_fig, 'Visible', 'off');
            set(start_fig, 'Visible', 'on');
            set(plots_input_ui, 'Value', '');
+           
+       end
+       
+       function keepButtonPushed(keep_button, start_fig, check_fig, run_button, run_fast_button)
+           check = 'keep';
+           set(check_fig, 'Visible', 'off');
+           set(start_fig, 'Visible', 'on');
+           set(run_button, 'Visible', 'on');
+           set(run_fast_button, 'Visible', 'on')
+           %set(plots_input_ui, 'Value', '');
            
        end
    end

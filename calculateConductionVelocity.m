@@ -26,10 +26,14 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
             %}
             
             %%x = y = 350um
-            dist = sqrt((350*ec^2)+(350*er^2));
+            dist = sqrt(((350*ec)^2)+((350*er)^2));
             
                 
+            if length(electrode_data(electrode_count).activation_times) < 2
+                continue
+            end
             dist_array = [dist_array; dist];
+            
             act_array =[act_array; electrode_data(electrode_count).activation_times(2)];
             electrode_count = electrode_count + 1;
         end
