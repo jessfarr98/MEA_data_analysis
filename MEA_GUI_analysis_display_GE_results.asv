@@ -368,7 +368,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
         plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
         plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-        plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
+        plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
         peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
         peak_indx = peak_indx(1);
         t_wave_peak = electrode_data(min_electrode_beat_stdev_indx).average_waveform(peak_indx);
@@ -403,7 +403,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                     %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                     plot(elec_ax, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, 'ro');
                     plot(elec_ax, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, 'bo');
-                    plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'ko');
+                    plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'go');
                     peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
                     peak_indx = peak_indx(1);
                     t_wave_peak = electrode_data(electrode_count).average_waveform(peak_indx);
@@ -459,7 +459,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                         plot(overlaid_ax, electrode_data(electrode_count).ave_min_depol_time-electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).ave_min_depol_point, 'bo');
                         
                         
-                        plot(overlaid_ax, 0, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'ko');
+                        plot(overlaid_ax, 0, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'go');
                         peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
                         peak_indx = peak_indx(1);
                         t_wave_peak = electrode_data(electrode_count).average_waveform(peak_indx);
@@ -567,7 +567,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                    %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                   plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
+                   plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
 
                    peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                    peak_indx = peak_indx(1);
@@ -633,7 +633,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
+                plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
 
                 peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                 peak_indx = peak_indx(1);
@@ -903,7 +903,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                        %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                        plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                        plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
+                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
 
                        peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                        peak_indx = peak_indx(1);
@@ -963,7 +963,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                     %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                     plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                     plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
+                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
                     title(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).electrode_id,  'Interpreter', 'none')
                     peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                     peak_indx = peak_indx(1);

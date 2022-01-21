@@ -40,11 +40,14 @@ function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  n
     end
 
     
+    if isempty(dist_array)
+        conduction_velocity = nan;
+        return
+    end
     lin_eqn = fittype('m*x+b');
     
     model = fit(dist_array, act_array, lin_eqn);
     
     conduction_velocity = 1/model.m;
-    
     
 end

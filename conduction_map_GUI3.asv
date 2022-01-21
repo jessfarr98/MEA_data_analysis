@@ -1,4 +1,4 @@
-function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats)
+function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
     % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     close(hmap_prompt_fig)
     
@@ -41,7 +41,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     num_partitions = 1/num_beats;
     partition = num_partitions;
     for n = 1:num_beats
-        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n)));
+        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
         
         partition = partition + num_partitions;
         
@@ -232,7 +232,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             dt_ax = uiaxes(dt_main_pan, 'Position', [(((fig_width)-10)/num_beats)*(n-1) 0 ((fig_width)-10)/num_beats screen_height-200]);
             %heatmap(dt_pan, xlabels, ylabels, transpose(dt_array));
             
-            contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none', 'Title', strcat('Isochrome map for beat No.', {' '}, num2str(n), {' '}, '(min activation time = '))
+            contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
             
             tick_array = [];
   
@@ -243,7 +243,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
           
             colorbar(dt_ax, 'TickLabels', tick_array, 'Limits', [min_dt max_dt], 'Ticks', tick_array);
             colormap(dt_ax, hsv)
-            
+            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
         else
 
             n_rows = ceil(num_beats/5);
@@ -293,6 +293,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
 
             colorbar(dt_ax, 'TickLabels', tick_array, 'Limits', [min_dt max_dt], 'Ticks', tick_array);
             colormap(dt_ax, hsv)
+            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
             
         end
 
@@ -380,7 +381,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         %act_axes = get(act_main_pan, 'Children');
         dt_axes = get(dt_main_pan, 'Children');
         
-        for a = 1:length(act_axes)
+        for a = 1:length(dt_axes)
             %colormap(act_axes(a), custom_map)
             colormap(dt_axes(a), custom_map)
         end

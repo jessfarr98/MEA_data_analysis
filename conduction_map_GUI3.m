@@ -381,7 +381,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         %act_axes = get(act_main_pan, 'Children');
         dt_axes = get(dt_main_pan, 'Children');
         
-        for a = 1:length(act_axes)
+        for a = 1:length(dt_axes)
             %colormap(act_axes(a), custom_map)
             colormap(dt_axes(a), custom_map)
         end
@@ -398,7 +398,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         %act_axes = get(act_main_pan, 'Children');
         dt_axes = get(dt_main_pan, 'Children');
         
-        for a = 1:length(act_axes)
+        for a = 1:length(dt_axes)
             %colormap(act_axes(a), hsv)
             colormap(dt_axes(a), hsv)
         end
@@ -455,7 +455,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         act_vid_pan = uipanel(act_vid_figure, 'Position', [0 0 screen_width screen_height-20]);
         close_act_vid_button = uibutton(act_vid_figure,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_act_vid_button,event) closeButtonPushed(close_act_vid_button, '', act_vid_figure));
         %fig = figure;
-        for a = 1:length(act_axes)
+        for a = 1:length(dt_axes)
             
             %ax = copygraphics(act_axes(a));
             %ax.Parent = act_vid_pan;

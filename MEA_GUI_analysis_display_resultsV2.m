@@ -459,6 +459,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                         plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).ave_max_depol_time, well_electrode_data(well_count).electrode_data(electrode_count).ave_max_depol_point, 'ro');
                         plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).ave_min_depol_time, well_electrode_data(well_count).electrode_data(electrode_count).ave_min_depol_point, 'bo');
+                        
                         plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).ave_activation_time, well_electrode_data(well_count).electrode_data(electrode_count).average_waveform(well_electrode_data(well_count).electrode_data(electrode_count).ave_wave_time == well_electrode_data(well_count).electrode_data(electrode_count).ave_activation_time), 'ko');
 
                         if well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time ~= 0 
@@ -1444,6 +1445,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  electrode_data(electrode_count).electrode_id));
                     saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
                     hold('off')
+                    close(fig)
                 end
             end
         end
@@ -1588,6 +1590,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  electrode_data(electrode_count).electrode_id));
                 saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
                 hold('off')
+                close(fig)
             end
         end
         
@@ -1889,6 +1892,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  well_electrode_data(well_count).electrode_data(electrode_count).electrode_id));
                     saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  well_electrode_data(well_count).electrode_data(electrode_count).electrode_id), 'png')
                     hold('off')
+                    close(fig)
                 end
             end
         end
@@ -1999,6 +2003,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 savefig(fullfile(figs_dir,  electrode_data(electrode_count).electrode_id));
                 saveas(fig, fullfile(images_dir,  electrode_data(electrode_count).electrode_id), 'png')
                 hold('off')
+                close(fig)
             end
         end
         
