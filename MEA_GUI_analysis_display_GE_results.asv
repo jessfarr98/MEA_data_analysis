@@ -261,6 +261,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         %set(out_fig, 'Visible', 'off');
         close(out_fig);
         close all hidden;
+        close all;
+        clear;
     end
 
     function stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, electrode_data, change_GE_dropdown)
@@ -368,7 +370,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
         plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
         plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-        plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
+        plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
         peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
         peak_indx = peak_indx(1);
         t_wave_peak = electrode_data(min_electrode_beat_stdev_indx).average_waveform(peak_indx);
@@ -403,7 +405,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                     %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                     plot(elec_ax, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, 'ro');
                     plot(elec_ax, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, 'bo');
-                    plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'go');
+                    plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'ko');
                     peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
                     peak_indx = peak_indx(1);
                     t_wave_peak = electrode_data(electrode_count).average_waveform(peak_indx);
@@ -459,7 +461,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                         plot(overlaid_ax, electrode_data(electrode_count).ave_min_depol_time-electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).ave_min_depol_point, 'bo');
                         
                         
-                        plot(overlaid_ax, 0, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'go');
+                        plot(overlaid_ax, 0, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'ko');
                         peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
                         peak_indx = peak_indx(1);
                         t_wave_peak = electrode_data(electrode_count).average_waveform(peak_indx);
@@ -521,7 +523,11 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         
         back_GE_button = uibutton(main_ge_pan,'push','Text', 'Back', 'Position', [screen_width-220 450 100 50], 'ButtonPushedFcn', @(back_GE_button,event) backButtonPushed(ge_results_fig, out_fig));
             
-        display_results_button = uibutton(main_ge_pan,'push', 'BackgroundColor', '#3dd483','Text', 'Show Results', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(display_results_button,event) displayGEResultsPushed(display_results_button, ge_results_fig));
+        %display_results_button = uibutton(main_ge_pan,'push', 'BackgroundColor', '#3dd483','Text', 'Show Results', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(display_results_button,event) displayGEResultsPushed(display_results_button, ge_results_fig));
+        
+        save_button = uibutton(main_ge_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save', 'Position', [screen_width-220 300 100 50], 'ButtonPushedFcn', @(save_button,event) saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array));
+        close_button = uibutton(main_ge_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_button,event) closeAllButtonPushed(close_button, ge_results_fig));
+            
         
         well_p_width = screen_width-300;
         well_p_height = screen_height -100;
@@ -567,7 +573,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                    %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                   plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
+                   plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
 
                    peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                    peak_indx = peak_indx(1);
@@ -589,9 +595,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                    t_wave_time_text = uieditfield(ge_panel,'Text', 'Value', 'T-wave Peak Time', 'FontSize', 8, 'Position', [0 0 (button_w/2)-25 20], 'Editable','off');
                    t_wave_time_ui = uieditfield(ge_panel, 'numeric', 'Tag', 'T-Wave', 'Position', [button_w/2 0 (button_w/2)-25 20], 'FontSize', 8, 'ValueChangedFcn',@(t_wave_time_ui,event) changeGETWaveTime(t_wave_time_ui, GE_ax, ge_count, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform, min_electrode_beat_stdev_indx));
 
-                   manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 0 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
+                   manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
                    
-                   reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 0 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge_count, undo_reject_ge_panel));
+                   reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge_count, undo_reject_ge_panel));
                    
                    set(t_wave_time_text, 'Visible', 'off')
                    set(t_wave_time_ui, 'Visible', 'off')
@@ -626,14 +632,14 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 
                 ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((ge-1)*button_w) 0 button_w button_h]);
                 
-                GE_ax = uiaxes(ge_panel,  'Position', [0 20 button_w button_h-20]);
+                GE_ax = uiaxes(ge_panel,  'Position', [0 40 button_w button_h-40]);
                 
                 hold(GE_ax,'on')
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
                 %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
+                plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'ko');
 
                 peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
                 peak_indx = peak_indx(1);
@@ -653,8 +659,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 end
                 
                
-                manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 0 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
-                reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 0 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge, undo_reject_ge_panel));
+                manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
+                reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge, undo_reject_ge_panel));
                    
                 
                 
@@ -721,7 +727,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         end 
         
         function reanalyseGEButtonPushed(reanalyse_button, ge_results_fig, num_electrode_rows, num_electrode_cols, ge_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
-            %disp('$$$$$$$$$$$$$$$$$$$$REANALYSE$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
             set(ge_results_fig, 'Visible', 'off')
 
             reanalyse_fig = uifigure;
@@ -845,152 +851,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
         end
         
-        function displayGEResultsPushed(display_results_button, ge_results_fig)
-            set(ge_results_fig, 'Visible', 'off')
-            ge_res_fig = uifigure;
-            movegui(ge_res_fig,'center')
-            ge_res_fig.WindowState = 'maximized';
-            ge_res_fig.Name = 'Golden Electrode Results';
-            % left bottom width height
-            main_ge_res_pan = uipanel(ge_res_fig, 'Position', [0 0 screen_width screen_height]);
-
-            back_button = uibutton(main_ge_res_pan,'push','Text', 'Back', 'Position', [screen_width-220 450 100 50], 'ButtonPushedFcn', @(back_button,event) backButtonPushed(ge_res_fig, ge_results_fig));
-            
-            close_button = uibutton(main_ge_res_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_button,event) closeAllButtonPushed(close_button, ge_res_fig));
-            save_button = uibutton(main_ge_res_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save', 'Position', [screen_width-220 300 100 50], 'ButtonPushedFcn', @(save_button,event) saveGEPushed(save_button, well_electrode_data, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array));
-
-            
-            well_p_width = screen_width-300;
-            well_p_height = screen_height -100;
-            
-            button_w = well_p_width/num_button_cols;
-            button_h = well_p_height/num_button_rows;
-            
-            ge_res_pan = uipanel(main_ge_res_pan, 'Position', [0 0 well_p_width well_p_height]);
-
-            if num_button_rows > 1
-                ge_res_count = 1;
-                stop_ge_res_add = 0;
-                for ge_res_r = 1:num_button_rows
-                   for ge_res_c = 1: num_button_cols
-                       if ge_res_count > num_wells
-                           stop_ge_res_add = 1;
-                           break;
-                       end
-                       drop_down = dropdown_array(ge_res_count);
-
-                       electrode_data = well_electrode_data(ge_res_count).electrode_data;
-                       if strcmp(get(drop_down, 'Visible'), 'off')
-                            min_stdevs = [electrode_data(:).min_stdev];
-                            non_zero_stddevs = find(min_stdevs ~=0);
-                            min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
-                       else
-                            new_ge = get(drop_down, 'Value');
-                            new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
-                            min_electrode_beat_stdev_indx = find(new_ge_indx == 1);
-                       end
-
-                       ge_res_panel = uipanel(ge_res_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id,'Position', [((ge_res_c-1)*button_w) ((ge_res_r-1)*button_h) button_w button_h]);
-                       if well_electrode_data(ge_res_count).rejected_well == 1
-                           ge_res_count = ge_res_count+1;
-                           continue
-                       end
-                       GE_res_ax = uiaxes(ge_res_panel,  'Position', [0 20 button_w button_h-20]);
-
-                       
-                       hold(GE_res_ax,'on')
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
-                       %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
-
-                       peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
-                       peak_indx = peak_indx(1);
-                       t_wave_peak = electrode_data(min_electrode_beat_stdev_indx).average_waveform(peak_indx);
-                       
-                       plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time, t_wave_peak, 'co');
-                       
-                       FPD = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time - electrode_data(min_electrode_beat_stdev_indx).ave_activation_time;
-                       slope = electrode_data(min_electrode_beat_stdev_indx).ave_depol_slope;
-                       bp = electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end) - electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1);
-                       amplitude = electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point - electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point;
-                    
-                       fpd_text = uieditfield(ge_res_panel,'Text', 'Value', "FPD = " + " " + num2str(FPD), 'FontSize', 9, 'Position', [0 0 button_w/4 20], 'Editable','off');
-                       amp_text = uieditfield(ge_res_panel,'Text', 'Value', "Depol Spike Amplitude =" + " " + num2str(amplitude), 'FontSize', 9, 'Position', [button_w/4 0 button_w/4 20], 'Editable','off');
-                       slope_text = uieditfield(ge_res_panel,'Text', 'Value', "Depol Spike Slope = " + " " + num2str(slope), 'FontSize', 9, 'Position', [button_w/4+(button_w/4) 0 (button_w/4) 20], 'Editable','off');
-                       bp_text = uieditfield(ge_res_panel,'Text', 'Value', "Beat Period = " + " " + num2str(bp), 'FontSize', 9, 'Position', [button_w/4+2*(button_w/4) 0 (button_w/4) 20], 'Editable','off');
-                    
-                       
-                       
-                       %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
-                       %plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
-                       hold(GE_res_ax,'off');
-
-                       ge_res_count = ge_res_count+1;
-                   end
-                   if stop_ge_res_add == 1
-                       break;
-                   end
-                end
-
-
-            else
-
-                for res_ge = 1:num_wells
-                    drop_down = dropdown_array(res_ge);
-                    electrode_data = well_electrode_data(res_ge).electrode_data;
-                    
-
-
-                    if strcmp(get(drop_down, 'Visible'), 'off')
-                        min_stdevs = [electrode_data(:).min_stdev];
-                        non_zero_stddevs = find(min_stdevs ~=0);
-                        min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
-                    else
-                        new_ge = get(drop_down, 'Value');
-                        new_ge_indx = contains([electrode_data(:).electrode_id], new_ge);
-                        min_electrode_beat_stdev_indx = find(new_ge_indx == 1);
-                    end
-                    ge_res_panel = uipanel(ge_res_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((res_ge-1)*button_w) 0 button_w button_h]);
-                    if well_electrode_data(res_ge).rejected_well == 1
-                       continue
-                    end
-                    GE_res_ax = uiaxes(ge_res_panel,  'Position', [0 20 button_w button_h-20]);
-                    
-                    hold(GE_res_ax,'on')
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
-                    %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point, 'ro');
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_time, electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point, 'bo');
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_activation_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time == electrode_data(min_electrode_beat_stdev_indx).ave_activation_time), 'go');
-                    title(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).electrode_id,  'Interpreter', 'none')
-                    peak_indx = find(electrode_data(min_electrode_beat_stdev_indx).ave_wave_time >= electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time);
-                    peak_indx = peak_indx(1);
-                    t_wave_peak = electrode_data(min_electrode_beat_stdev_indx).average_waveform(peak_indx);
-
-                    plot(GE_res_ax, electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time, t_wave_peak, 'co');
-
-                    FPD = electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time - electrode_data(min_electrode_beat_stdev_indx).ave_activation_time;
-                    slope = electrode_data(min_electrode_beat_stdev_indx).ave_depol_slope;
-                    bp = electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end) - electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1);
-                    amplitude = electrode_data(min_electrode_beat_stdev_indx).ave_max_depol_point - electrode_data(min_electrode_beat_stdev_indx).ave_min_depol_point;
-                    
-                    fpd_text = uieditfield(ge_res_panel,'Text', 'Value', "FPD = " + " " + num2str(FPD), 'FontSize', 9, 'Position', [0 0 (button_w/4) 20], 'Editable','off');
-                    amp_text = uieditfield(ge_res_panel,'Text', 'Value', "Depol Spike Amplitude = " + " " +num2str(amplitude), 'FontSize', 9, 'Position', [button_w/4 0 (button_w/4) 20], 'Editable','off');
-                    slope_text = uieditfield(ge_res_panel,'Text', 'Value', "Depol Spike Slope ="+  " "+num2str(slope), 'FontSize', 9, 'Position', [button_w/4+((button_w/4)) 0 (button_w/4) 20], 'Editable','off');
-                    bp_text = uieditfield(ge_res_panel,'Text', 'Value', "Beat Period = " + " " + num2str(bp), 'FontSize', 9, 'Position', [button_w/4+2*((button_w/4)) 0 (button_w/4) 20], 'Editable','off');
-                    
-                  
-                    
-                    %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
-                    %plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
-                    hold(GE_res_ax,'off')
-                end
-            end
-            
-        end
+        
     end
+    
 
     function manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui)
         set(t_wave_time_text, 'Visible', 'on');
@@ -1001,8 +864,10 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
     
 
-    function saveGEPushed(save_button, well_electrode_data, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array)
+    function saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array)
         disp('Saving Golden Electrode Data')
+        
+        set(ge_results_fig, 'visible', 'off')
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
         if ~exist(fullfile(save_dir, 'figures'), 'dir')
             mkdir(fullfile(save_dir, 'figures'))
@@ -1268,6 +1133,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         writecell(well_stats, output_filename, 'Sheet', 1);
         
         msgbox(strcat('Saved Golden Electrode Results', {' '}, 'to', {' '}, output_filename));
+        set(ge_results_fig, 'visible', 'on')
     end
 
     

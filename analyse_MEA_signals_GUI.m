@@ -915,7 +915,7 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
             average_waveform = average_waveform + data_array;
         end
 
-        stable_waves = [stable_waves; {store_data_array}];
+        stable_waves = [stable_waves; {data_array}];
         stable_times = [stable_times; {store_time_array}];
         stable_act_offsets = [stable_act_offsets; {act_offset}];
         stable_act_offset_indxs = [stable_act_offset_indxs; {act_indx}];
@@ -938,13 +938,35 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
 
         dat = stable_waves(wf, 1);
         dat = dat{1};
-        
+        %size_dat_before = size(dat)
 
         dat = cat(1, extra_elements, dat(1:end-num_extra_elements));
+        size_dat_after = length(dat);
+        
+        size_ave = length(average_waveform);
+        
+        
+        
         
         if isempty(average_waveform)
             average_waveform = dat;
         else
+            
+            
+            if size_ave<size_dat_after
+                num_extra_end_elements = size_dat_after-size_ave;
+
+                extra_end_elements = zeros(num_extra_end_elements, 1);
+                average_waveform = cat(1, average_waveform, extra_end_elements);
+            end
+
+            if size_ave>size_dat_after
+                
+                num_extra_end_elements = size_ave-size_dat_after;
+
+                extra_end_elements = zeros(num_extra_end_elements, 1);
+                dat = cat(1, dat, extra_end_elements);
+            end
             average_waveform = average_waveform+dat;
             
         end
@@ -1139,15 +1161,34 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
         
 
         dat = cat(1, extra_elements, dat(1:end-num_extra_elements));
+        size_dat_after = length(dat);
         new_stable_data = [new_stable_data; {cat(1, extra_elements, dat)}];
+        
+        
+        size_ave = length(average_waveform);
         
         if isempty(average_waveform)
             average_waveform = dat;
         else
+            
+            
+            if size_ave<size_dat_after
+                num_extra_end_elements = size_dat_after-size_ave;
+
+                extra_end_elements = zeros(num_extra_end_elements, 1);
+                average_waveform = cat(1, average_waveform, extra_end_elements);
+            end
+
+            if size_ave>size_dat_after
+                
+                num_extra_end_elements = size_ave-size_dat_after;
+
+                extra_end_elements = zeros(num_extra_end_elements, 1);
+                dat = cat(1, dat, extra_end_elements);
+            end
             average_waveform = average_waveform+dat;
             
         end
-        
         %[activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, electrode_data(electrode_count).ave_warning] = rate_analysis(time, dat, post_spike_hold_off, stim_spike_hold_off, spon_paced, time(1), electrode_id, filter_intensity, '');
         
         %act_point = dat(find(time == activation_time));

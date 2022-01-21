@@ -86,7 +86,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     button_panel_width = screen_width-200;
     
     button_width = button_panel_width/num_button_cols;
-    button_height = (screen_height-40)/num_button_rows;
+    button_height = ((screen_height)/num_button_rows)-40;
     
     out_fig = uifigure;
     out_fig.Name = 'MEA Results';
@@ -313,7 +313,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     reanalyse_electrode_button = uibutton(elec_pan,'push','Text', 'Reanalyse Electrode', 'Position', [2*(((well_p_width/num_electrode_cols)-25)/4) 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(reanalyse_electrode_button,event) reanalyseElectrodeButtonPushed(well_count, elec_id));
                     
                     
-                    reanalyse_beat_button = uibutton(elec_pan,'push','Text', 'Reanalyse Beat', 'Position', [3*(((well_p_width/num_electrode_cols)-25)/4) 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(reanalyse_beat_button,event) reanalyseBeatButtonPushed(well_count, electrode_count, elec_id));
+                    reanalyse_beat_button = uibutton(elec_pan,'push','Text', 'Reanalyse Beat', 'Position', [3*(((well_p_width/num_electrode_cols)-25)/4) 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(reanalyse_beat_button,event) reanalyseBeatButtonPushed(well_count, electrode_count, elec_id, elec_ax));
                     
                     
                     hold(elec_ax,'on')
@@ -399,9 +399,6 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                         [~, beat_start_volts, ~] = intersect(well_electrode_data(well_count).electrode_data(electrode_count).time, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
                         beat_start_volts = well_electrode_data(well_count).electrode_data(electrode_count).data(beat_start_volts);
-                        
-
-
 
 
                         if strcmp(spon_paced, 'paced')
@@ -819,7 +816,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             [well_electrode_data(well_count).electrode_data] = electrode_time_region_analysis(well_electrode_data(well_count).electrode_data, num_electrode_rows, num_electrode_cols, elec_id, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis);
         end
         
-        function reanalyseBeatButtonPushed(well_count, electrode_count, elec_id)
+        function reanalyseBeatButtonPushed(well_count, electrode_count, elec_id, elec_ax)
             reanalyse_beat_fig = uifigure;
             reanalyse_beat_panel = uipanel(reanalyse_beat_fig, 'Position', [0 0 screen_width screen_height]);
             
@@ -883,13 +880,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     end
                     
                     start_indx = start_beat;
-                    end_indx = end_beat+1;
-                    
-                    
+                    if end_beat == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                        end_indx = end_beat;
+                    else
+                        end_indx = end_beat+1;
+                    end
                 else
                     beat_num = get(beat_num_ui, 'value');
                     start_indx = beat_num;
-                    end_indx = beat_num+1;
+                    if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                        end_indx = beat_num;
+                    else
+                        end_indx = beat_num+1;
+                    end
                     
                     
                 end
@@ -897,13 +900,47 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
                 reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
                 
-                [well_electrode_data(well_count)] = reanalyse_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig);
+                [well_electrode_data(well_count)] = reanalyse_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, elec_ax, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig);
  
             end
             
             function removeSelectedBeats(remove_button, reanalyse_beat_fig)
                 
-                disp('function TBI')
+                if strcmp(get(range_button, 'visible'), 'off')
+                    start_beat = get(beats_range_1_ui, 'value');
+                    end_beat = get(beats_range_2_ui, 'value');
+                    
+                    if start_beat > end_beat
+                        msgbox('Start beat entered after end beat. Choose new values please');
+                        set(beats_range_1_ui, 'value', 1);
+                        set(beats_range_2_ui, 'value', 1);
+                        return
+                    end
+                    
+                    start_indx = start_beat;
+                    if end_beat == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                        end_indx = end_beat;
+                    else
+                        end_indx = end_beat+1;
+                    end
+                else
+                    beat_num = get(beat_num_ui, 'value');
+                    start_indx = beat_num;
+                    if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                        end_indx = beat_num;
+                    else
+                        end_indx = beat_num+1;
+                    end
+
+                    
+                    
+                end
+                
+                reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
+                reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
+                
+                [well_electrode_data(well_count)] = remove_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, elec_ax, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig);
+ 
             end
             
             
@@ -1099,6 +1136,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         close(out_fig);
         close all;
         close all hidden;
+        clear;
     end
 
     
@@ -1387,11 +1425,22 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 % all_data must be a cell array
                 %xlswrite(output_filename, electrode_stats, sheet_count);
                 
-                if sheet_count ~= 2
-                    fileattrib(output_filename, '-h +w');
+                try
+                    if sheet_count ~= 2
+                        fileattrib(output_filename, '-h +w');
+                    end
+
+                    writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                    fileattrib(output_filename, '+h +w');
+                catch
+                    msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
+                    if saving_multiple == 0
+                        close(wait_bar)
+
+                        set(well_elec_fig, 'visible', 'on')
+                        return
+                    end
                 end
-                writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
-                fileattrib(output_filename, '+h +w');
                 
                 if save_plots == 1
                     fig = figure();
@@ -1486,6 +1535,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
             set(well_elec_fig, 'visible', 'on')
         end
+        
+        fclose('all');
 
     end
 
@@ -1865,13 +1916,23 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 
                 % all_data must be a cell array
-                %xlswrite(output_filename, electrode_stats, sheet_count);
-                if sheet_count ~= 2
-                    fileattrib(output_filename, '-h +w');
+
+                try
+                    if sheet_count ~= 2
+                        fileattrib(output_filename, '-h +w');
+                    end
+
+                    writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                    fileattrib(output_filename, '+h +w');
+                catch
+                    msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
+                    if saving_multiple == 0
+                        close(wait_bar)
+
+                        set(well_elec_fig, 'visible', 'on')
+                        return
+                    end
                 end
-                writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
-                fileattrib(output_filename, '+h +w');
-                
                 if save_plots == 1
                     fig = figure();
                     set(fig, 'visible', 'off');
