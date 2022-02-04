@@ -14,6 +14,7 @@ classdef ElectrodeData
         beat_num_array; 
         cycle_length_array;
         beat_start_times;
+        beat_start_volts;
         beat_periods;
         t_wave_peak_times;
         t_wave_peak_array;
@@ -36,6 +37,7 @@ classdef ElectrodeData
         GE_electrode_indx;
         %inputs
         warning_array;
+        arrhythmia_indx;
         bdt;
         min_bp;
         max_bp;

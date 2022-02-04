@@ -865,6 +865,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
     function saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array)
         disp('Saving Golden Electrode Data')
+        wait_bar = waitbar(0, 'Saving GE Data');
+        
         
         set(ge_results_fig, 'visible', 'off')
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
@@ -886,10 +888,18 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         well_bps = [];
         
         sheet_count = 1;
+        num_partitions = 1/(num_wells);
+        partition = num_partitions;
+        
         for w = 1:num_wells
             if well_electrode_data(w).rejected_well == 1
                 continue
             end
+            
+            waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_electrode_data(w).wellID));
+            partition = partition+num_partitions;
+            
+            
             electrode_data = well_electrode_data(w).electrode_data;
             drop_down = dropdown_array(w);
             if strcmp(get(drop_down, 'Visible'), 'off')
@@ -1131,6 +1141,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
+        close(wait_bar)
         msgbox(strcat('Saved Golden Electrode Results', {' '}, 'to', {' '}, output_filename));
         set(ge_results_fig, 'visible', 'on')
     end

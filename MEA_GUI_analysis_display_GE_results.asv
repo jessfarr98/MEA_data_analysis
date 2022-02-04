@@ -566,7 +566,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                    
                    ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position',[((ge_c-1)*button_w) ((ge_r-1)*button_h) button_w button_h]);
                    
-                   GE_ax = uiaxes(ge_panel,  'Position', [0 20 button_w button_h-20]);
+                   GE_ax = uiaxes(ge_panel,  'Position', [0 40 button_w button_h-40]);
                    
                    hold(GE_ax,'on')
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
@@ -675,7 +675,6 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         
         function rejectGEWellPushed(reject_well_button, review_ge_panel, i, undo_reject_ge_panel)
 
-            disp(panel_array)
             set(panel_array(1,i).panel, 'visible', 'off')
             set(review_ge_panel, 'visible', 'off')
             set(undo_reject_ge_panel, 'visible', 'on')
@@ -866,6 +865,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
     function saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array)
         disp('Saving Golden Electrode Data')
+        wait_bar = waitbar(0, 'Saving GE Data');
+        
         
         set(ge_results_fig, 'visible', 'off')
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
@@ -887,10 +888,18 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         well_bps = [];
         
         sheet_count = 1;
+        num_partitions = 1/(num_wells);
+        partition = num_partitions;
+        
         for w = 1:num_wells
             if well_electrode_data(w).rejected_well == 1
                 continue
             end
+            
+            waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_electrode_data(w).wellID));
+            partition = partition+num_partitions;
+            
+            
             electrode_data = well_electrode_data(w).electrode_data;
             drop_down = dropdown_array(w);
             if strcmp(get(drop_down, 'Visible'), 'off')
@@ -1132,6 +1141,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
+        close(wait_bar)
         msgbox(strcat('Saved Golden Electrode Results', {' '}, 'to', {' '}, output_filename));
         set(ge_results_fig, 'visible', 'on')
     end

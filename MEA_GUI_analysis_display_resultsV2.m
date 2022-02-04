@@ -397,8 +397,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).max_depol_time_array, well_electrode_data(well_count).electrode_data(electrode_count).max_depol_point_array, 'ro');
                         plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).min_depol_time_array, well_electrode_data(well_count).electrode_data(electrode_count).min_depol_point_array, 'bo');
 
-                        [~, beat_start_volts, ~] = intersect(well_electrode_data(well_count).electrode_data(electrode_count).time, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
-                        beat_start_volts = well_electrode_data(well_count).electrode_data(electrode_count).data(beat_start_volts);
+                        %[~, beat_start_volts, ~] = intersect(well_electrode_data(well_count).electrode_data(electrode_count).time, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                        %beat_start_volts = well_electrode_data(well_count).electrode_data(electrode_count).data(beat_start_volts);
 
 
                         if strcmp(spon_paced, 'paced')
@@ -406,11 +406,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).Stims, well_electrode_data(well_count).electrode_data(electrode_count).Stim_volts, 'mo');
                             
                         elseif strcmp(spon_paced, 'paced bdt')
-                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_volts, 'go');
                             plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).Stims, well_electrode_data(well_count).electrode_data(electrode_count).Stim_volts, 'mo');
                             
                         else
-                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_volts, 'go');
                             
                             
                             
@@ -681,8 +681,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             plot(exp_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
             plot(exp_ax, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
 
-            [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
-            beat_start_volts =  electrode_data(electrode_count).data(beat_start_volts);
+            %[~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
+            %beat_start_volts =  electrode_data(electrode_count).data(beat_start_volts);
+
             %plot(exp_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
 
             if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced') 
@@ -690,12 +691,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                 plot(exp_ax, electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
             elseif strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced bdt')
-                plot(exp_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+
+                plot(exp_ax, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
                 plot(exp_ax, electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
 
             else
 
-                plot(exp_ax, electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                plot(exp_ax, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
 
             end
             % Need slope value
@@ -736,20 +738,21 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 stats_close_button = uibutton(stats_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(stats_close_button,event) closeSingleFig(stats_close_button, stat_plots_fig));
 
                 % BASED ON THE CYCLE LENGTHS PERFROM ARRHYTHMIA ANALYSIS
-                [arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
-                if ~isempty(arrhythmia_indx)
+                
+                %[arrhythmia_indx] = arrhythmia_analysis(electrode_data.beat_num_array(2:end), electrode_data.cycle_length_array(2:end));
+                if ~isempty(electrode_data.arrhythmia_indx)
                     %disp('detected arrhythmia!')
-                    arrhythmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(arrhythmia_indx(1)), '-', num2str(arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
+                    arrhythmia_text = uieditfield(stats_pan,'Text', 'Value', strcat('Arrhthmic Event Detected Between Beats:', num2str(electrode_data.arrhythmia_indx(1)), '-', num2str(electrode_data.arrhythmia_indx(end))), 'FontSize', 10, 'Position', [screen_width-220 100 250 50], 'Editable','off');
 
                 end
-
+                
                 cl_ax = uiaxes(plots_p, 'Position', [0 0 well_p_width well_p_height/4]);
                 beat_num_array = electrode_data.beat_num_array(2:end);
                 cycle_length_array = electrode_data.cycle_length_array(2:end);
                 plot(cl_ax, beat_num_array, cycle_length_array, 'bo');
-                if  ~isempty(arrhythmia_indx)
+                if  ~isempty(electrode_data.arrhythmia_indx)
                     hold(cl_ax, 'on')
-                    plot(cl_ax, beat_num_array(arrhythmia_indx), cycle_length_array(arrhythmia_indx), 'ro');
+                    plot(cl_ax, beat_num_array(electrode_data.arrhythmia_indx), cycle_length_array(electrode_data.arrhythmia_indx), 'ro');
                 end
                 xlabel(cl_ax, 'Beat Number');
                 ylabel(cl_ax,'Cycle Length (s)');
@@ -1456,24 +1459,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     plot(electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
                     plot(electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
 
-                    [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
-                    beat_start_volts = electrode_data(electrode_count).data(beat_start_volts);
-                    
-
-
-
+                   
 
                     if strcmp(electrode_data(electrode_count).spon_paced, 'paced') 
                         
 
                         plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
                     elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
-                        plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                        plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
                         plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
                         
                     else
                         
-                        plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                        plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
                         
                     end
                     %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
@@ -1493,6 +1491,65 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     title({electrode_data(electrode_count).electrode_id},  'Interpreter', 'none')
                     savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  electrode_data(electrode_count).electrode_id));
                     saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
+                    hold('off')
+                    close(fig)
+                    
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    beat_num_array = electrode_data(electrode_count).beat_num_array(2:end);
+                    cycle_length_array = electrode_data(electrode_count).cycle_length_array(2:end);
+                    plot(beat_num_array, cycle_length_array, 'bo');
+                    if  ~isempty(electrode_data(electrode_count).arrhythmia_indx)
+                        hold('on')
+                        plot(beat_num_array(electrode_data(electrode_count).arrhythmia_indx), cycle_length_array(electrode_data(electrode_count).arrhythmia_indx), 'ro');
+                        legend('Stable beats', 'Arrhythmic beats', 'location', 'northeastoutside');
+                    end
+                    xlabel('Beat Number');
+                    ylabel('Cycle Length (s)');
+                    title(strcat('Cycle Length per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).beat_periods, 'bo');
+                    xlabel('Beat Number');
+                    ylabel('Beat Period (s)');
+                    title(strcat('Beat Period per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(electrode_data(electrode_count).cycle_length_array(2:end-1), electrode_data(electrode_count).cycle_length_array(3:end), 'bo');
+                    xlabel('Cycle Length Previous Beat (s)');
+                    ylabel('Cycle Length (s)');
+                    title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                    t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
+                    t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
+                    t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
+                    activation_times = electrode_data(electrode_count).activation_times;
+                    activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                    fpd_beats = electrode_data(electrode_count).beat_num_array(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                    elec_FPDs = [t_wave_peak_times - activation_times];
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(fpd_beats, elec_FPDs, 'bo');
+                    xlabel('Beat Number');
+                    ylabel('FPD (s)');
+                    title(strcat('FPD per Beat Num', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, 'FPD_per_beat_number')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, 'FPD_per_beat_number')), 'png')
                     hold('off')
                     close(fig)
                 end
@@ -1603,8 +1660,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 plot(electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
                 plot(electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
 
-                [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
-                beat_start_volts = electrode_data(electrode_count).data(beat_start_volts);
+                %[~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
+                %beat_start_volts = electrode_data(electrode_count).data(beat_start_volts);
                 %plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
 
 
@@ -1615,12 +1672,12 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                     plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
                 elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
-                    plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                    plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
                     plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'mo');
 
                 else
 
-                    plot(electrode_data(electrode_count).beat_start_times, beat_start_volts, 'go');
+                    plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
 
                 end
                 %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
@@ -1642,6 +1699,69 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
                 hold('off')
                 close(fig)
+                
+                
+                
+                fig = figure();
+                set(fig, 'Visible', 'off')
+                beat_num_array = electrode_data(electrode_count).beat_num_array(2:end);
+                cycle_length_array = electrode_data(electrode_count).cycle_length_array(2:end);
+                plot(beat_num_array, cycle_length_array, 'bo');
+                if  ~isempty(electrode_data(electrode_count).arrhythmia_indx)
+                    hold('on')
+                    plot(beat_num_array(electrode_data(electrode_count).arrhythmia_indx), cycle_length_array(electrode_data(electrode_count).arrhythmia_indx), 'ro');
+                    legend('Stable beats', 'Arrhythmic beats', 'location', 'northeastoutside');
+                end
+                xlabel('Beat Number');
+                ylabel('Cycle Length (s)');
+                title(strcat('Cycle Length per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')));
+                saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')), 'png')
+                hold('off')
+                close(fig)
+
+                fig = figure();
+                set(fig, 'Visible', 'off')
+                plot(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).beat_periods, 'bo');
+                xlabel('Beat Number');
+                ylabel('Beat Period (s)');
+                title(strcat('Beat Period per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')));
+                saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')), 'png')
+                hold('off')
+                close(fig)
+
+                fig = figure();
+                set(fig, 'Visible', 'off')
+                plot(electrode_data(electrode_count).cycle_length_array(2:end-1), electrode_data(electrode_count).cycle_length_array(3:end), 'bo');
+                xlabel('Cycle Length Previous Beat (s)');
+                ylabel('Cycle Length (s)');
+                title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')));
+                saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')), 'png')
+                hold('off')
+                close(fig)
+
+                t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
+                t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
+                t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
+                activation_times = electrode_data(electrode_count).activation_times;
+                activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                fpd_beats = electrode_data(electrode_count).beat_num_array(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                elec_FPDs = [t_wave_peak_times - activation_times];
+                fig = figure();
+                set(fig, 'Visible', 'off')
+                plot(fpd_beats, elec_FPDs, 'bo');
+                xlabel('Beat Number');
+                ylabel('FPD (s)');
+                title(strcat('FPD per Beat Num', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, 'FPD_per_beat_number')));
+                saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, 'FPD_per_beat_number')), 'png')
+                hold('off')
+                close(fig)
+                
+                
             end
         end
         

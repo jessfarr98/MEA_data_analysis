@@ -1,4 +1,4 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time, filter_intensity)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = paced_bdt_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, stim_spike_hold_off, prev_activation_time, filter_intensity)
 
     
     total_duration = time(end);
@@ -18,6 +18,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     beat_num_array = [];
     cycle_length_array = [];
     beat_start_times = [];
+    beat_start_volts = [];
     beat_end_times = [];
     beat_periods = [];
     t_wave_peak_times = [];
@@ -240,6 +241,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
        beat_num_array = [beat_num_array count];
        beat_start_times = [beat_start_times beat_time(1)];
+       beat_start_volts = [beat_start_volts beat_data(1)];
        beat_end_times = [beat_end_times beat_time(end)];
        beat_periods = [beat_periods beat_period]; 
        
