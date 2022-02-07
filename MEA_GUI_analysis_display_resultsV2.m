@@ -266,6 +266,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 %auto_t_wave_button = uibutton(main_well_pan,'push','Text', 'Auto T-Wave Peak Search', 'Position', [screen_width-220 400 120 50], 'ButtonPushedFcn', @(auto_t_wave_button,event) autoTwavePeakButtonPushed(auto_t_wave_button, out_fig, well_elec_fig, well_button));
                 
+                overlaid_plots_button = uibutton(main_well_pan,'push',  'Text', 'View Overlaid Plots', 'Position', [screen_width-220 200 120 50], 'ButtonPushedFcn', @(overlaid_plots_button,event) viewOverlaidPlotsPushed(overlaid_plots_button, well_count));
+            
                 
             end
         end
@@ -1057,6 +1059,64 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 %conduction_map_GUI(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig)
                 conduction_map_GUI3(start_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_hm_beats, start_beat)
             end
+        end
+        
+        function viewOverlaidPlotsPushed(overlaid_plots_button, well_count)
+            overlaid_fig = uifigure;
+            movegui(overlaid_fig,'center')
+            overlaid_fig.WindowState = 'maximized';
+            overlaid_fig.Name = strcat(well_ID, '_', 'Overlaid Electrode Results');
+            % left bottom width height
+            overlaid_main_well_pan = uipanel(overlaid_fig, 'Position', [0 0 screen_width screen_height]);
+            close_overlaid_button = uibutton(overlaid_main_well_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_overlaid_button,event) closeSingleFig(close_overlaid_button, overlaid_fig));
+
+            overlaid_well_pan = uipanel(overlaid_main_well_pan, 'Position', [0 0 well_p_width well_p_height]);
+            overlaid_ax = uiaxes(overlaid_well_pan, 'Position', [0 0 well_p_width well_p_height]);
+            hold(overlaid_ax,'on')
+            
+            elec_count = 0;
+            el_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
+            max_act = max([well_electrode_data(well_count).electrode_data(:).ave_activation_time]);
+            legend_array = [];
+            plot_array = [];
+            for el_r = num_electrode_rows:-1:1
+                for el_c = 1:num_electrode_cols
+                    %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
+                    el_id = strcat(well_ID, '_', num2str(el_c), '_', num2str(el_r));
+                    el_indx = contains(el_ids, el_id);
+                    el_indx = find(el_indx == 1);
+                    if isempty(el_indx)
+                        continue
+                    end
+                    elec_count = el_indx;
+                    
+                    if isempty(well_electrode_data(well_count).electrode_data(elec_count).electrode_id)
+                       continue 
+                    end
+                    
+                    
+                    p = plot(overlaid_ax, well_electrode_data(well_count).electrode_data(elec_count).ave_wave_time+(max_act-well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), well_electrode_data(well_count).electrode_data(elec_count).average_waveform);
+                    %plot(elec_ax, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, 'co');
+                    plot(overlaid_ax, well_electrode_data(well_count).electrode_data(elec_count).ave_max_depol_time+(max_act-well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), well_electrode_data(well_count).electrode_data(elec_count).ave_max_depol_point, 'ro');
+                    plot(overlaid_ax, well_electrode_data(well_count).electrode_data(elec_count).ave_min_depol_time+(max_act-well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), well_electrode_data(well_count).electrode_data(elec_count).ave_min_depol_point, 'bo');
+
+                    plot(overlaid_ax, well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time+(max_act-well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), well_electrode_data(well_count).electrode_data(elec_count).average_waveform(well_electrode_data(well_count).electrode_data(elec_count).ave_wave_time == well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), 'ko');
+
+                    if well_electrode_data(well_count).electrode_data(elec_count).ave_t_wave_peak_time ~= 0 
+                        peak_indx = find(well_electrode_data(well_count).electrode_data(elec_count).ave_wave_time >= well_electrode_data(well_count).electrode_data(elec_count).ave_t_wave_peak_time);
+                        peak_indx = peak_indx(1);
+                        t_wave_peak = well_electrode_data(well_count).electrode_data(elec_count).average_waveform(peak_indx);
+                        plot(overlaid_ax, well_electrode_data(well_count).electrode_data(elec_count).ave_t_wave_peak_time+(max_act-well_electrode_data(well_count).electrode_data(elec_count).ave_activation_time), t_wave_peak, 'co');
+                    end
+                    
+                    plot_array = [plot_array; p];
+                    legend_array = [legend_array; {el_id}];
+  
+                end
+            end
+            legend(overlaid_ax, plot_array, legend_array, 'interpreter', 'none')
+            hold(overlaid_ax,'off')
+
         end
 
         function bipolarButtonPushed(bipolar_button, well_ID, num_electrode_rows, num_electrode_cols)

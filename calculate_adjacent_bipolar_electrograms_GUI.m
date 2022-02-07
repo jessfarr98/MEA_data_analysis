@@ -179,6 +179,7 @@ function calculate_adjacent_bipolar_electrograms_GUI(electrode_data, num_electro
     screen_height = screen_size(4);
     
     bipolar_fig = uifigure;
+    movegui(bipolar_fig,'center')
     main_p = uipanel(bipolar_fig, 'Position', [0 0 screen_width screen_height]);
     
     close_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, bipolar_fig));
@@ -210,7 +211,7 @@ function calculate_adjacent_bipolar_electrograms_GUI(electrode_data, num_electro
         %title(strcat(bipolar_data(bp).electrode_id, {' '}, 'Bipolar Electrogram'));
         
     end
-    
+    bipolar_fig.WindowState = 'maximized';
     
     function closeButtonPushed(close_button, bipolar_fig)
         set(bipolar_fig, 'Visible', 'off');

@@ -198,8 +198,6 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
     end
     %%disp(electrode_data(electrode_count).activation_times(2))
 
-   
-    disp(warning_array)
     for w = 1:length(warning_array)
         if ~isempty(warning_array{w})
             if strcmp(spon_paced, 'spon')
@@ -458,7 +456,7 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
     set(well_elec_fig, 'Visible', 'on');
     
     function changedPacedBDT(paced_ectopic_dropdown, well_ax, num_time_points)
-        disp(get(paced_ectopic_dropdown, 'Value'))
+        %disp(get(paced_ectopic_dropdown, 'Value'))
         if get(paced_ectopic_dropdown, 'Value') == 2
             set(well_bdt_ui,'value', 0)
             set(well_bdt_text,'visible', 'on')

@@ -6,12 +6,12 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
     
     well_fig = uifigure;
     well_fig.Name = well_ID;
-    well_p = uipanel(well_fig, 'Position', [0 0 screen_width screen_height]);
+    well_p = uipanel(well_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
     
     movegui(well_fig,'center');
     well_fig.WindowState = 'maximized';
 
-    well_ax = uiaxes(well_p, 'Position', [10 100 screen_width-300 screen_height-200]);
+    well_ax = uiaxes(well_p, 'BackgroundColor','#f2c2c2', 'Position', [10 100 screen_width-300 screen_height-200]);
     hold(well_ax, 'on');
     
     
@@ -48,7 +48,7 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
     xlabel(well_ax, 'Seconds (s)');
     ylabel(well_ax, 'Milivolts (mV)');
     
-    submit_in_well_button = uibutton(well_p,'push','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
+    submit_in_well_button = uibutton(well_p,'push', 'BackgroundColor', '#3dd4d1','Text', 'Submit Inputs for Well', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, well_fig));
     set(submit_in_well_button, 'Visible', 'off')
 
     t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', 'T-wave shape', 'FontSize', 8,'Position', [120 60 100 40], 'Editable','off');
@@ -56,16 +56,16 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
     t_wave_up_down_dropdown.ItemsData = [1 2 3];
 
     t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Repol. Time Offset (s)', 'FontSize', 8, 'Position', [240 60 100 40], 'Editable','off');
-    t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 10 100 40], 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, well_ax, min_voltage, max_voltage));
+    t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time',  'BackgroundColor','#e68e8e', 'Position', [240 10 100 40], 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, well_ax, min_voltage, max_voltage));
 
     t_wave_duration_text = uieditfield(well_p,'Text', 'Value', 'T-wave duration (s)', 'FontSize', 8, 'Position', [360 60 100 40], 'Editable','off');
-    t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, well_ax, min_voltage, max_voltage));
+    t_wave_duration_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Dur',  'BackgroundColor','#e68e8e', 'Position', [360 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_duration_ui,event) changeTWaveDuration(t_wave_duration_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, well_ax, min_voltage, max_voltage));
 
     %est_fpd_text = uieditfield(well_p, 'Text', 'Value', 'Estimated FPD', 'FontSize', 12, 'Position', [480 60 100 40], 'Editable','off');
     %est_fpd_ui = uieditfield(well_p, 'numeric', 'Tag', 'FPD', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(est_fpd_ui,event) changeFPD(est_fpd_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced));
 
     post_spike_text = uieditfield(well_p, 'Text', 'Value', 'Post spike hold-off (s)', 'FontSize', 8, 'Position', [480 60 100 40], 'Editable','off');
-    post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced,  electrode_data(1).Stims, min_voltage, max_voltage, well_ax));
+    post_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Post-spike',  'BackgroundColor','#e68e8e', 'Position', [480 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(post_spike_ui,event) changePostSpike(post_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced,  electrode_data(1).Stims, min_voltage, max_voltage, well_ax));
 
     filter_intensity_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', 'Filtering Intensity', 'Position', [600 60 100 40], 'Editable','off');
     filter_intensity_dropdown = uidropdown(well_p, 'Items', {'none', 'low', 'medium', 'strong'}, 'FontSize', 8,'Position', [600 10 100 40]);
@@ -73,7 +73,7 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
 
     if strcmp(spon_paced, 'paced')|| strcmp(spon_paced, 'paced bdt')
         stim_spike_text = uieditfield(well_p,'Text', 'Value', 'Stim. Spike hold-off (s)', 'FontSize', 8, 'Position', [720 60 100 40], 'Editable','off');
-        stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike', 'Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, min_voltage, max_voltage, well_ax));
+        stim_spike_ui = uieditfield(well_p, 'numeric', 'Tag', 'Stim spike',  'BackgroundColor','#e68e8e','Position', [720 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(stim_spike_ui,event) changeStimSpike(stim_spike_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(1).time(end), spon_paced, electrode_data(1).Stims, min_voltage, max_voltage, well_ax));
 
     end
        
@@ -190,8 +190,40 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
        % BDT CANNOT be equal to 0. 
        if get(well_bdt_ui, 'Value') == 0
            msgbox('BDT cannot be equal to 0','Oops!');
+           set(well_bdt_ui, 'BackgroundColor','#e68e8e')
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+           well_pan_components = get(well_p, 'Children');
+           for i = 1:length(well_pan_components)
+           
+              well_ui_con = well_pan_components(i);
+              if strcmp(string(get(well_ui_con, 'Type')), 'axes')
+                 axes_children = get(well_ui_con, 'Children');
+           
+                 for c = 1:length(axes_children)
+                     child_y_data = axes_children(c).YData;
+                     if length(child_y_data) ~= 1
+                         if child_y_data(1) == child_y_data(:)
+                             prev_bdt_plot = axes_children(c);
+                             break;
+                         end
+                     end
+
+
+                 end
+               
+                 bdt_data = ones(length(prev_bdt_plot.XData), 1);
+                 bdt_data(:,1) = get(well_bdt_ui, 'Value');
+                 prev_bdt_plot.YData = bdt_data;
+              end
+           end
            return;
        end
+       
+       set(well_bdt_ui, 'BackgroundColor','white')
+       
        
        well_pan_components = get(well_p, 'Children');
        t_wave_time_ok = 0;
@@ -328,9 +360,25 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_time_offset_ui, 'Value') == 0
+           set(t_wave_time_offset_ui, 'BackgroundColor','#e68e8e')
            msgbox('T-Wave peak time cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           axes_children = get(well_ax, 'Children');
+           
+           t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+           for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  delete(axes_children(ch))
+              end
+           end
            return;
        end
+       
+       set(t_wave_time_offset_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -521,9 +569,27 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
        
        % BDT CANNOT be equal to 0. 
        if get(t_wave_duration_ui, 'Value') == 0
+           set(t_wave_duration_ui, 'BackgroundColor','#e68e8e')
            msgbox('T-Wave duration cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+           
+           axes_children = get(well_ax, 'Children');
+           
+           t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+           for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  delete(axes_children(ch))
+              end
+           end
            return;
        end
+       
+       set(t_wave_duration_ui, 'BackgroundColor', 'white')
+       
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -710,9 +776,16 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
        
        % BDT CANNOT be equal to 0. 
        if get(post_spike_ui, 'Value') == 0
+           
+           set(post_spike_ui, 'BackgroundColor','#e68e8e')
            msgbox('Post spike hold-off cannot be equal to 0','Oops!');
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
            return;
        end
+       
+       set(post_spike_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;
@@ -892,9 +965,30 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
        
        % BDT CANNOT be equal to 0. 
        if get(stim_spike_ui, 'Value') == 0
+           set(stim_spike_ui, 'BackgroundColor','#e68e8e')
            msgbox('Stim spike hold-off cannot be equal to 0','Oops!');
-           return;
+           if strcmp(get(submit_in_well_button, 'Visible'), 'on')
+               set(submit_in_well_button, 'Visible', 'off')
+           end
+              
+          axes_children = get(well_ax, 'Children');
+           
+          t_wave_y_data = linspace(min_voltage*0.25, max_voltage*0.25);
+          for ch = 1:length(axes_children)
+              ch_y_data = axes_children(ch).YData;
+              ch_x_data = axes_children(ch).XData;
+              if size(ch_y_data) == size(t_wave_y_data)
+                  continue
+              end
+              if size(ch_y_data) == 1
+                  delete(axes_children(ch))
+              end
+          end
+
+          return;
        end
+       
+       set(stim_spike_ui, 'BackgroundColor', 'white')
        
        well_pan_components = get(well_p, 'Children');
        bdt_ok = 1;

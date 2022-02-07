@@ -177,6 +177,7 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
     screen_height = screen_size(4);
     
     bipolar_fig = uifigure;
+    movegui(bipolar_fig,'center')
     main_p = uipanel(bipolar_fig, 'Position', [0 0 screen_width screen_height]);
     
     close_button = uibutton(main_p,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, bipolar_fig));
@@ -191,8 +192,8 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
     %3 4
     %5 6
     for bp = 1:bipolar_count
-        disp('plot')
-        disp(bp)
+        %disp('plot')
+        %disp(bp)
         %disp(bipolar_data(bp).electrode_id);
         %figure();
         bp_row = ceil(bp/2);
@@ -210,6 +211,7 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
         
     end
     
+    bipolar_fig.WindowState = 'maximized';
     
     function closeButtonPushed(close_button, bipolar_fig)
         set(bipolar_fig, 'Visible', 'off');
