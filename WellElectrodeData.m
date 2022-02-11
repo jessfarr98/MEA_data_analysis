@@ -5,7 +5,8 @@ classdef WellElectrodeData
         rejected_well;
         electrode_data;
         spon_paced;
-        conduction_velocity
+        conduction_velocity;
+        conduction_velocity_model
         
         
     end

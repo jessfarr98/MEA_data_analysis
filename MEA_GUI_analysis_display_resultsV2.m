@@ -250,7 +250,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
             reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Well', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
         
-            
+            assess_conduction_velocity_model_button = uibutton(main_well_pan,'push','Text', 'Assess Conduction Velocity Model', 'Position', [screen_width-220 500 200 50], 'ButtonPushedFcn', @(assess_conduction_velocity_model_button,event) assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count));
+        
             
         else
             if strcmp(stable_ave_analysis, 'time_region')
@@ -1082,7 +1083,79 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             set(restore_full_beat_button, 'visible', 'off')
         end
         
+        function assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count)
         
+            conduction_velocity_figure = uifigure;
+            conduction_velocity_figure.Name = 'Conduction Velocity Model';
+            movegui(conduction_velocity_figure,'center')
+            conduction_velocity_figure.WindowState = 'maximized';
+            con_vel_panel = uipanel(conduction_velocity_figure, 'Position', [0 0 screen_width screen_height]);
+            close_con_vel_button = uibutton(con_vel_panel,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_con_vel_button,event) closeSingleFig(close_con_vel_button, conduction_velocity_figure));
+
+            el_count = 1;
+            dist_array = [];
+            act_array =[];
+            for er = num_electrode_rows:-1:1
+                for ec = num_electrode_cols:-1:1
+                    elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
+
+                    if isempty(elec_id)
+                        continue
+                    end
+
+                    %origin electrode = 4,1
+                    %{
+                    if ec == 4
+                        col_dist = 1;
+                    elseif ec == 3
+                        col_dist = 2;
+                    elseif ec == 2
+                        col_dist = 3;
+                    elseif ec == 2
+                        col_dist = 4;
+                    end
+                    %}
+
+                    %%x = y = 350um
+                    dist = sqrt(((350*ec)^2)+((350*er)^2));
+
+
+                    if length(well_electrode_data(well_count).electrode_data(el_count).activation_times) < 2
+                        continue
+                    end
+                    dist_array = [dist_array; dist];
+
+                    act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
+                    el_count = el_count + 1;
+                end
+            end
+
+
+            if isempty(dist_array)
+                close(conduction_velocity_figure)
+                return
+            end
+            
+            conduction_velocity = well_electrode_data(well_count).conduction_velocity;
+            lin_eqn = fittype(sprintf('(1/%f)*x+b', conduction_velocity));
+    
+            %model = fit(dist_array, act_array, lin_eqn)
+            model = well_electrode_data(well_count).conduction_velocity_model;
+            plot_model = (model.m)*dist_array+model.b;
+
+            con_vel_ax = uiaxes(con_vel_panel, 'Position', [0 0 well_p_width well_p_height]);
+            plot(con_vel_ax, dist_array, act_array, '.', 'MarkerSize', 20)
+            hold(con_vel_ax, 'on')
+            plot(con_vel_ax, dist_array , plot_model)
+            xlabel(con_vel_ax, '(\mum)')
+            ylabel(con_vel_ax, '(s)')
+            legend(con_vel_ax, 'Activation Times', 'Model')
+            
+            
+            
+            
+        end
+            
         function reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
             set(well_elec_fig, 'Visible', 'off')
             %[well_electrode_data(well_count, :)] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);

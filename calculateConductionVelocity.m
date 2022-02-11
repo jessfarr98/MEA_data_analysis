@@ -1,4 +1,4 @@
-function [conduction_velocity] =  calculateConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols)
+function [conduction_velocity, model] =  calculateConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols)
 
     conduction_velocity = 0;
     electrode_count = 1;

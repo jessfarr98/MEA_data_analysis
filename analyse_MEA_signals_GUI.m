@@ -612,7 +612,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
      end
-    [conduction_velocity] = calculateConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
+    [conduction_velocity, model] = calculateConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
     
     
     well_electrode_data(num_analysed).electrode_data = electrode_data;
@@ -620,6 +620,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
     well_electrode_data(num_analysed).rejected_well = 0;
     well_electrode_data(num_analysed).conduction_velocity = conduction_velocity;
     well_electrode_data(num_analysed).spon_paced = spon_paced;
+     well_electrode_data(num_analysed).conduction_velocity_model = model;
     if strcmpi(beat_to_beat, 'off')
         if strcmp(stable_ave_analysis, 'stable')
             well_electrode_data(num_analysed).GE_electrode_indx = min_stdev_indx;
