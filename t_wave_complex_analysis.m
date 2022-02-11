@@ -444,11 +444,11 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning] = t_wave_complex_analysis
             for i = 2:length(t_wave_peak_times)
                 try
                     if isalmost(t_wave_peak_times(i-1), t_wave_peak_times(i), 0.08)
-                        t_wave_peak_times
-                        half1 = t_wave_peak_times(1:i-1)
-                        half2 = t_wave_peak_times(i+1:end)
 
-                        t_wave_peak_times = vertcat(half1, half2)
+                        half1 = t_wave_peak_times(1:i-1);
+                        half2 = t_wave_peak_times(i+1:end);
+
+                        t_wave_peak_times = vertcat(half1, half2);
                     end
                 catch
                     break;
@@ -478,7 +478,7 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning] = t_wave_complex_analysis
             tangent_eqn = @(x) m*(x-t_wave_peak_time)+t_wave_peak == 0;
             tangent_line = tangent_eqn(t_wave_time);
             baseline_indx = find(tangent_line == baseline_voltage);
-            intersect_baseline = t_wave_time(baseline_indx)
+            intersect_baseline = t_wave_time(baseline_indx);
 
             baseline_voltage
 

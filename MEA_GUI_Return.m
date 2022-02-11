@@ -381,15 +381,14 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
             return;
         end
         
-        [spaces_end, toks] = regexp(dir_name, '(.+)\s+$', 'match', 'tokens');
+        [spaces_end, toks] = regexp(dir_name, '^([\w*\s{0,1}\w*]+[^\s])(\s+)$', 'match', 'tokens');
         
-        %{
+        
         if ~isempty(spaces_end)
-            disp(toks{:});
-        
-            return;
+            set(plots_input_ui, 'Value', toks{1}{1});
+            dir_name = toks{1}{1};
         end
-        %}
+        
         
         % Embed the new files and directory in data directory so analyses are grouped
         dir_name = fullfile(data_dir, dir_name);

@@ -198,6 +198,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           if num_well_elec_data == 0
              close(well_fig);
              added_wells = setdiff(added_wells, wellID);
+             if isempty(added_wells)
+                  msgbox('Selected wells have no data to analyse')
+                  return
+              end
              continue
           end
           
@@ -1409,7 +1413,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
 
                for i = 1:length(stim_hold_off_points)  
  
-                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'ro')                  
+                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'r.', 'MarkerSize', 20)                  
                    
 
                end

@@ -210,9 +210,21 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                     cla(elec_ax);
                     hold(elec_ax, 'on')
   
-                    num_beats = length(electrode_data(electrode_count).beat_start_times);
+                    if strcmp(well_electrode_data.spon_paced, 'paced')
+                        num_beats = length(electrode_data(electrode_count).Stims);
+                    elseif strcmp(well_electrode_data.spon_paced, 'spon')
+                        
+                        num_beats = length(electrode_data(electrode_count).beat_start_times);
+                    elseif strcmp(well_electrode_data.spon_paced, 'paced bdt')
+                        %num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                        ectopic_plus_stims = [electrode_data(electrode_count).beat_start_times electrode_data(electrode_count).Stims];
+                        ectopic_plus_stims = sort(ectopic_plus_stims);
+                        ectopic_plus_stims = uniquetol(ectopic_plus_stims);
+                        num_beats = length(ectopic_plus_stims);
+                    end
                     if num_beats > 4    
-
+                        
+                        %{
                         mid_beat = floor(num_beats/2);
                         %elec_ax.XLim = [electrode_data(electrode_count).beat_start_times(mid_beat) electrode_data(electrode_count).beat_start_times(mid_beat+1)];
 
@@ -239,6 +251,75 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                         %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
 
                         plot(elec_ax, electrode_data(electrode_count).activation_times(mid_beat), electrode_data(electrode_count).activation_point_array(mid_beat), 'ko');
+                        %}
+                        mid_beat = floor(num_beats/2);
+                        if strcmp(well_electrode_data.spon_paced, 'paced')
+                            time_start = electrode_data(electrode_count).Stims(mid_beat);
+                            time_end = electrode_data(electrode_count).Stims(mid_beat+1);
+
+                            time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
+                            time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
+                            %plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).Stims, well_electrode_data(well_count).electrode_data(electrode_count).Stim_volts, 'mo');
+
+                            plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+
+
+                            plot(elec_ax, electrode_data(electrode_count).Stims(mid_beat), electrode_data(electrode_count).Stim_volts(mid_beat), 'm.', 'MarkerSize', 20);
+
+                        elseif strcmp(well_electrode_data.spon_paced, 'paced bdt')
+                            time_start = ectopic_plus_stims(mid_beat);
+                            time_end = ectopic_plus_stims(mid_beat+1);
+
+                            time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
+                            time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
+
+
+                            plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+
+                            if ismember(electrode_data(electrode_count).beat_start_times , time_start)
+                                plot(elec_ax, ectopic_plus_stims(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+
+                            else
+                                plot(elec_ax, ectopic_plus_stims(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'm.', 'MarkerSize', 20);
+
+                            end
+                        else
+                            time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                            time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
+
+                            time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
+                            time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
+
+
+                            plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+
+                            plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat),  electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+
+                        end
+
+
+
+                        t_wave_indx = find(electrode_data(electrode_count).t_wave_peak_times >= time_start);
+                        t_wave_indx = t_wave_indx(1);
+                        t_wave_peak_time = electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
+                        t_wave_p = electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
+                        if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
+                            plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                        end
+
+                        max_depol_indx = find(electrode_data(electrode_count).max_depol_time_array >= time_start);
+                        max_depol_indx = max_depol_indx(1);
+
+                        min_depol_indx = find(electrode_data(electrode_count).min_depol_time_array >= time_start);
+                        min_depol_indx = min_depol_indx(1);
+                        plot(elec_ax, electrode_data(electrode_count).max_depol_time_array(max_depol_indx), electrode_data(electrode_count).max_depol_point_array(max_depol_indx), 'r.', 'MarkerSize', 20);
+                        plot(elec_ax, electrode_data(electrode_count).min_depol_time_array(min_depol_indx), electrode_data(electrode_count).min_depol_point_array(min_depol_indx), 'b.', 'MarkerSize', 20);
+
+
+                        act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
+                        act_indx = act_indx(1);
+                        plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
+
 
 
                     else
@@ -248,11 +329,11 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                         t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
                         t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
                         t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
-                        plot(elec_ax, t_wave_peak_times, t_wave_peak_array, 'co');
-                        plot(elec_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'ro');
-                        plot(elec_ax, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'bo');
+                        plot(elec_ax, t_wave_peak_times, t_wave_peak_array, 'c.', 'MarkerSize', 20);
+                        plot(elec_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'r.', 'MarkerSize', 20);
+                        plot(elec_ax, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'b.', 'MarkerSize', 20);
 
-                        plot(elec_ax, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'go');
+                        plot(elec_ax, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'g.', 'MarkerSize', 20);
 
 
 
@@ -268,11 +349,11 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                             %%disp(length(electrode_data(electrode_count).Stims))
                             %Stim_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).time == electrode_data(electrode_count).Stims));
 
-                            plot(elec_ax, Stim_times, Stim_points, 'mo');
+                            plot(elec_ax, Stim_times, Stim_points, 'm.', 'MarkerSize', 20);
                         end
                         %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
 
-                        plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
+                        plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'k.', 'MarkerSize', 20);
 
                         % Zoom in on beat in the middle
 
@@ -295,7 +376,6 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
     
   
     function changedPacedBDT(paced_ectopic_dropdown, well_ax, num_time_points)
-        disp(get(paced_ectopic_dropdown, 'Value'))
         if get(paced_ectopic_dropdown, 'Value') == 2
             set(well_bdt_ui,'value', 0)
             set(well_bdt_text,'visible', 'on')
@@ -339,6 +419,17 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
             
             %electrode_data(:).spon_paced = 'paced';
             well_electrode_data.spon_paced = 'paced';
+            
+            if get(stim_spike_ui, 'value') ~= 0
+                if get(post_spike_ui, 'value') ~= 0
+                   if get(t_wave_duration_ui, 'value') ~= 0
+                      if get(t_wave_peak_offset_ui, 'value') ~= 0
+                          
+                          set(submit_in_well_button, 'visible', 'on')
+                      end
+                   end
+                end
+            end
             
             
             axes_children = get(well_ax, 'Children');
@@ -1359,7 +1450,7 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
 
                for i = 1:length(stim_hold_off_points)  
  
-                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'ro')                  
+                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'r.', 'MarkerSize', 20)                  
                    
 
                end

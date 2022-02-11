@@ -132,21 +132,23 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    well_ax = uiaxes(well_p, 'BackgroundColor','#f2c2c2', 'Position', [10 100 screen_width-300 screen_height-200]);
    hold(well_ax, 'on');
    
+   found_well = 0;
    for w_r = 1:num_well_rows
        for w_c = 1:num_well_cols
-          wellID = strcat(well_dictionary(w_r), '0', string(w_c)); 
+          wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+
           if ~strcmp(added_wells, 'all')
               if ~contains(added_wells, wellID)
                   continue;
               end
           end
           count = count + 1;
-                   
-          
+
           %time_offset = 0;
           max_voltage = NaN;
           min_voltage = NaN;
-          found_waveform = 0;
+          %found_waveform = 0;
+          num_well_elec_data = 0;
           for e_r = 1:num_electrode_rows
              for e_c = 1:num_electrode_cols
                 RawWellData = RawData{w_r, w_c, e_r, e_c};
@@ -154,7 +156,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                     %if ~empty(WellRawData)
                     %%disp(num_well_rows*num_well_cols)
                     %%disp(count)
-                    found_waveform = 1;
+                    %found_waveform = 1;
                     electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
                     [time, data] = RawWellData.GetTimeVoltageVector;
                     
@@ -181,19 +183,29 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
                     %pause(10)
                     %plot(time, data);
                     %time_offset = time_offset+0.015;
-                    
+                    num_well_elec_data = num_well_elec_data+1;
                 else
                     %disp(wellID)
                     %disp('no data');
                 end
              end
           end
-          if found_waveform == 1
-              if contains(added_wells, 'all')
-                  added_wells_all = [added_wells_all wellID];
+          
+          if num_well_elec_data == 0
+             %close(well_fig);
+             added_wells = setdiff(added_wells, wellID);
+             if isempty(added_wells)
+                  msgbox('Selected wells have no data to analyse')
+                  close(well_fig)
+                  return
               end
+             continue
           end
           
+          found_well = 1;
+          if contains(added_wells, 'all')
+             added_wells_all = [added_wells_all wellID];
+          end
           %hold off;
           
           %hold(well_ax,'off');
@@ -201,7 +213,11 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
        end
         
    end
-   
+   if found_well == 0
+       
+       close(well_fig)
+       
+   end
    if contains(added_wells, 'all')
       added_wells = added_wells_all;
   end
@@ -1427,7 +1443,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
 
                for i = 1:length(stim_hold_off_points)  
  
-                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'ro')                  
+                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'r.', 'MarkerSize', 20)                  
                    
 
                end

@@ -171,15 +171,15 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                             cla(elec_ax);
                             hold(elec_ax,'on')
                             plot(elec_ax, electrode_data.ave_wave_time, electrode_data.average_waveform)
-                            plot(elec_ax, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, 'ro');
-                            plot(elec_ax, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, 'bo');
-                            plot(elec_ax, electrode_data.ave_activation_time, electrode_data.average_waveform(electrode_data.ave_wave_time == electrode_data.ave_activation_time), 'ko');
+                            plot(elec_ax, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, 'r.', 'MarkerSize', 20);
+                            plot(elec_ax, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, 'b.', 'MarkerSize', 20);
+                            plot(elec_ax, electrode_data.ave_activation_time, electrode_data.average_waveform(electrode_data.ave_wave_time == electrode_data.ave_activation_time), 'k.', 'MarkerSize', 20);
 
                             if electrode_data.ave_t_wave_peak_time ~= 0 
                                 peak_indx = find(electrode_data.ave_wave_time >= electrode_data.ave_t_wave_peak_time);
                                 peak_indx = peak_indx(1);
                                 t_wave_peak = electrode_data.average_waveform(peak_indx);
-                                plot(elec_ax, electrode_data.ave_t_wave_peak_time, t_wave_peak, 'co');
+                                plot(elec_ax, electrode_data.ave_t_wave_peak_time, t_wave_peak, 'c.', 'MarkerSize', 20);
                             end
                             %activation_points = electrode_data.data(find(electrode_data.activation_times), 'ko');
                             %plot(elec_ax, electrode_data.activation_times, electrode_data.activation_point_array, 'ko');
@@ -1200,7 +1200,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
 
                for i = 1:length(stim_hold_off_points)  
  
-                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'ro')                  
+                  plot(well_ax, stim_hold_off_points(i), stim_y_points(i), 'r.', 'MarkerSize', 20)                  
                    
 
                end
