@@ -215,7 +215,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                             num_beats = length(electrode_data(electrode_count).Stims);
                         elseif strcmp(electrode_data(electrode_count).spon_paced, 'spon')
 
-                            num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                            num_beats = length(electrode_data(electrode_count).beat_start_times);
                         elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
                             %num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
                             ectopic_plus_stims = [electrode_data(electrode_count).beat_start_times electrode_data(electrode_count).Stims];
