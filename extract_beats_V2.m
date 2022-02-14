@@ -58,6 +58,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     orig_post_spike_hold_off = post_spike_hold_off;
     orig_est_peak_time = est_peak_time;
     iterations = 0;
+    
+    average_beat_period = 0;
     while(1)
        %%%disp(t+window)
        %Use the beat detection threshold to determine the regions that need
@@ -66,6 +68,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        est_peak_time = orig_est_peak_time;
        warning = '';
        iterations = iterations +1;
+       
+       if ~isempty(beat_periods)
+           
+           average_beat_period = mean(beat_periods);
+           window = average_beat_period;
+       end
+           
+       
        if (time(prev_beat_indx)+window) > total_duration
            break;
        end  
@@ -73,7 +83,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        if iterations == 1000
            break;
        end
-           
+       
+       
        %Take segments of data from each window to search for the next beat 
        if beat_indx == 1
        %if t == 0
