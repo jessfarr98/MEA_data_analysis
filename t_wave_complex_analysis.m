@@ -231,144 +231,149 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning] = t_wave_complex_analysis
         end
         %}
         
-        t_wave_indx = find(time >= lower & time <= upper);
-        t_wave_time = time(t_wave_indx);
-        t_wave_data = data(t_wave_indx);
+        try 
+            t_wave_indx = find(time >= lower & time <= upper);
+            t_wave_time = time(t_wave_indx);
+            t_wave_data = data(t_wave_indx);
 
 
-        %t_wave_data = t_wave_data*1000;
-        %t_wave_orig = t_wave_data;
-        
-        t_wave_max_indx = find(t_wave_data == max(t_wave_data), 1);
-        t_wave_min_indx = find(t_wave_data == min(t_wave_data), 1);
-        
-        t_wave_max_time = t_wave_time(t_wave_max_indx);
-            
-        t_wave_min_time = t_wave_time(t_wave_min_indx);
-        
-        %{
-        if strcmp(filter_intensity, 'none')
-            filtration_rate = 1;
-        elseif strcmp(filter_intensity, 'low')
-            filtration_rate = 5;
-        elseif strcmp(filter_intensity, 'medium')
-            filtration_rate = 10;
-        else
+            %t_wave_data = t_wave_data*1000;
+            %t_wave_orig = t_wave_data;
+
+            t_wave_max_indx = find(t_wave_data == max(t_wave_data), 1);
+            t_wave_min_indx = find(t_wave_data == min(t_wave_data), 1);
+
+            t_wave_max_time = t_wave_time(t_wave_max_indx);
+
+            t_wave_min_time = t_wave_time(t_wave_min_indx);
+
+            %{
+            if strcmp(filter_intensity, 'none')
+                filtration_rate = 1;
+            elseif strcmp(filter_intensity, 'low')
+                filtration_rate = 5;
+            elseif strcmp(filter_intensity, 'medium')
+                filtration_rate = 10;
+            else
+                filtration_rate = 20;
+            end
+            %}
             filtration_rate = 20;
-        end
-        %}
-        filtration_rate = 20;
-        
-        
-        [dr, dc] = size(t_wave_data);
-        [tr, tc] = size(t_wave_time);
-        
-        if t_wave_min_indx < t_wave_max_indx
-            if dc == 1
-                filtered_data = vertcat(t_wave_data(1:filtration_rate:t_wave_min_indx), t_wave_data(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_data(t_wave_max_indx:filtration_rate:end));
-
-            else
 
 
-                filtered_data = horzcat(t_wave_data(1:filtration_rate:t_wave_min_indx), t_wave_data(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_data(t_wave_max_indx:filtration_rate:end));
+            [dr, dc] = size(t_wave_data);
+            [tr, tc] = size(t_wave_time);
 
-            end
+            if t_wave_min_indx < t_wave_max_indx
+                if dc == 1
+                    filtered_data = vertcat(t_wave_data(1:filtration_rate:t_wave_min_indx), t_wave_data(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_data(t_wave_max_indx:filtration_rate:end));
 
-            if tc == 1
-                time_filtered = vertcat(t_wave_time(1:filtration_rate:t_wave_min_indx), t_wave_time(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_time(t_wave_max_indx:filtration_rate:end));
-
-            else
-                time_filtered = horzcat(t_wave_time(1:filtration_rate:t_wave_min_indx), t_wave_time(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_time(t_wave_max_indx:filtration_rate:end));
-
-            end
-
-
-            %depol_complex_time_filtered = depol_complex_time;
-
-            %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
-
-            t_wave_data_derivative = gradient(filtered_data);
-        else
-            if dc == 1
-                filtered_data = vertcat(t_wave_data(1:filtration_rate:t_wave_max_indx), t_wave_data(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_data(t_wave_min_indx:filtration_rate:end));
-
-            else
-
-                filtered_data = horzcat(t_wave_data(1:filtration_rate:t_wave_max_indx), t_wave_data(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_data(t_wave_min_indx:filtration_rate:end));
-
-            end
-
-            if tc == 1
-                time_filtered = vertcat(t_wave_time(1:filtration_rate:t_wave_max_indx), t_wave_time(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_time(t_wave_min_indx:filtration_rate:end));
-
-            else
-
-                time_filtered = horzcat(t_wave_time(1:filtration_rate:t_wave_max_indx), t_wave_time(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_time(t_wave_min_indx:filtration_rate:end));
-
-            end
-
-            %depol_complex_time_filtered = depol_complex_time;
-
-            %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
-
-            t_wave_data_derivative = gradient(filtered_data);
-
-        end
-        
-        min_raw_slope = min(t_wave_data_derivative);
-        max_raw_slope = max(t_wave_data_derivative);
-        max_abs_slope = max(abs(t_wave_data_derivative));
-        
-        repol_indx_min_raw = find(t_wave_data_derivative == min_raw_slope);
-        repol_indx_max_raw = find(t_wave_data_derivative == max_raw_slope);
-        repol_indx_max_abs = find(abs(t_wave_data_derivative) == max_abs_slope);
-        
-        min_raw_repol_time = time_filtered(repol_indx_min_raw(1));
-        max_raw_repol_time = time_filtered(repol_indx_max_raw(1));
-        max_abs_repol_time = time_filtered(repol_indx_max_abs(1));
-        
-        if ((t_wave_max_time >= min_raw_repol_time)&& (min_raw_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= min_raw_repol_time) && (min_raw_repol_time>= t_wave_max_time))
-            t_wave_peak = filtered_data(repol_indx_min_raw(1));
-            
-            t_wave_peak_time = time_filtered(repol_indx_min_raw(1));
-
-        else
-            if ((t_wave_max_time >= max_abs_repol_time)&& (max_abs_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= max_abs_repol_time)&& (max_abs_repol_time>= t_wave_max_time))
-                t_wave_peak = filtered_data(repol_indx_max_abs(1));
-                
-                t_wave_peak_time = time_filtered(repol_indx_max_abs(1));
-            else
-
-                if ((t_wave_max_time >= max_raw_repol_time)&& (max_raw_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= max_raw_repol_time)&& (max_raw_repol_time>= t_wave_max_time))
-                    t_wave_peak = filtered_data(repol_indx_max_raw(1));
-                    
-                    t_wave_peak_time = time_filtered(repol_indx_max_raw(1));
                 else
-                    if t_wave_min_time < t_wave_max_time
-                        t_wave_peak = filtered_data(repol_indx_max_abs(1));
-                        
-                        t_wave_peak_time = time_filtered(repol_indx_max_abs(1));
 
-                        if strcmp(warning, '')
-                            warning = {'T-wave inflection point outside expected range'};
-                        else
-                            warning = strcat(warning, {' '}, 'and T-wave inflection point outside expected range');
-                        end
+
+                    filtered_data = horzcat(t_wave_data(1:filtration_rate:t_wave_min_indx), t_wave_data(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_data(t_wave_max_indx:filtration_rate:end));
+
+                end
+
+                if tc == 1
+                    time_filtered = vertcat(t_wave_time(1:filtration_rate:t_wave_min_indx), t_wave_time(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_time(t_wave_max_indx:filtration_rate:end));
+
+                else
+                    time_filtered = horzcat(t_wave_time(1:filtration_rate:t_wave_min_indx), t_wave_time(t_wave_min_indx+1:filtration_rate:t_wave_max_indx-1), t_wave_time(t_wave_max_indx:filtration_rate:end));
+
+                end
+
+
+                %depol_complex_time_filtered = depol_complex_time;
+
+                %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
+
+                t_wave_data_derivative = gradient(filtered_data);
+            else
+                if dc == 1
+                    filtered_data = vertcat(t_wave_data(1:filtration_rate:t_wave_max_indx), t_wave_data(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_data(t_wave_min_indx:filtration_rate:end));
+
+                else
+
+                    filtered_data = horzcat(t_wave_data(1:filtration_rate:t_wave_max_indx), t_wave_data(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_data(t_wave_min_indx:filtration_rate:end));
+
+                end
+
+                if tc == 1
+                    time_filtered = vertcat(t_wave_time(1:filtration_rate:t_wave_max_indx), t_wave_time(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_time(t_wave_min_indx:filtration_rate:end));
+
+                else
+
+                    time_filtered = horzcat(t_wave_time(1:filtration_rate:t_wave_max_indx), t_wave_time(t_wave_max_indx+1:filtration_rate:t_wave_min_indx-1), t_wave_time(t_wave_min_indx:filtration_rate:end));
+
+                end
+
+                %depol_complex_time_filtered = depol_complex_time;
+
+                %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
+
+                t_wave_data_derivative = gradient(filtered_data);
+
+            end
+
+            min_raw_slope = min(t_wave_data_derivative);
+            max_raw_slope = max(t_wave_data_derivative);
+            max_abs_slope = max(abs(t_wave_data_derivative));
+
+            repol_indx_min_raw = find(t_wave_data_derivative == min_raw_slope);
+            repol_indx_max_raw = find(t_wave_data_derivative == max_raw_slope);
+            repol_indx_max_abs = find(abs(t_wave_data_derivative) == max_abs_slope);
+
+            min_raw_repol_time = time_filtered(repol_indx_min_raw(1));
+            max_raw_repol_time = time_filtered(repol_indx_max_raw(1));
+            max_abs_repol_time = time_filtered(repol_indx_max_abs(1));
+
+            if ((t_wave_max_time >= min_raw_repol_time)&& (min_raw_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= min_raw_repol_time) && (min_raw_repol_time>= t_wave_max_time))
+                t_wave_peak = filtered_data(repol_indx_min_raw(1));
+
+                t_wave_peak_time = time_filtered(repol_indx_min_raw(1));
+
+            else
+                if ((t_wave_max_time >= max_abs_repol_time)&& (max_abs_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= max_abs_repol_time)&& (max_abs_repol_time>= t_wave_max_time))
+                    t_wave_peak = filtered_data(repol_indx_max_abs(1));
+
+                    t_wave_peak_time = time_filtered(repol_indx_max_abs(1));
+                else
+
+                    if ((t_wave_max_time >= max_raw_repol_time)&& (max_raw_repol_time>= t_wave_min_time)) || ((t_wave_min_time >= max_raw_repol_time)&& (max_raw_repol_time>= t_wave_max_time))
+                        t_wave_peak = filtered_data(repol_indx_max_raw(1));
+
+                        t_wave_peak_time = time_filtered(repol_indx_max_raw(1));
                     else
-                        t_wave_peak = filtered_data(repol_indx_min_raw(1));
-                        
-                        t_wave_peak_time = time_filtered(repol_indx_min_raw(1));
+                        if t_wave_min_time < t_wave_max_time
+                            t_wave_peak = filtered_data(repol_indx_max_abs(1));
 
-                        if strcmp(warning, '')
-                            warning = {'T-wave inflection point outside expected range'};
+                            t_wave_peak_time = time_filtered(repol_indx_max_abs(1));
+
+                            if strcmp(warning, '')
+                                warning = {'T-wave inflection point outside expected range'};
+                            else
+                                warning = strcat(warning, {' '}, 'and T-wave inflection point outside expected range');
+                            end
                         else
-                            warning = strcat(warning, {' '}, 'and T-wave inflection point outside expected range');
+                            t_wave_peak = filtered_data(repol_indx_min_raw(1));
+
+                            t_wave_peak_time = time_filtered(repol_indx_min_raw(1));
+
+                            if strcmp(warning, '')
+                                warning = {'T-wave inflection point outside expected range'};
+                            else
+                                warning = strcat(warning, {' '}, 'and T-wave inflection point outside expected range');
+                            end
                         end
                     end
                 end
             end
+        catch
+            t_wave_peak_time = nan;
+            t_wave_peak = nan;
+            
         end
-
             
         
     elseif strcmp(peak_analysis, 'zero crossing') 
@@ -509,7 +514,12 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning] = t_wave_complex_analysis
        
     %disp(activation_time)
     %t_wave_peak_time = t_wave_peak_times(1);
-    FPD = t_wave_peak_time - activation_time;
+    
+    if ~isnan(t_wave_peak_time)
+        FPD = t_wave_peak_time - activation_time;
+    else
+        FPD = nan;
+    end
     %FPD = 1;
 
 

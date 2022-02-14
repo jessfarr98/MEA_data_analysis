@@ -394,7 +394,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             end
                             
                         else
-                            time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat);
+                            if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                                time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat)-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                            
+                            else
+                                time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat);
+                            
+                            end
+                                
                             time_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
                             time_reg_start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_start);
@@ -910,8 +917,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                     % Change the view of the panel
                                     
                                     axes_children = get(electrode_panel_children(elec_panel_child), 'children');
-                                    post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
                                     
+                                    if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                                        post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off*2;
+                                    
+                                    else
+                                        post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                                    end
                                     for plot_child = 1:length(axes_children)
                                         x_data = axes_children(plot_child).XData;
                                         if length(x_data) > 1

@@ -148,9 +148,15 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
 
     % now go through every electrode and reanalyse its data and replot it on the ui
     electrode_count = 0;
+    
+    wait_bar = waitbar(0, strcat('Reanalysing', well_ID));
+    num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+    partition = 0;
     for elec_r = num_electrode_rows:-1:1
         for elec_c = 1:num_electrode_cols
             electrode_count = electrode_count+1;
+            partition = partition+num_partitions;
+            waitbar(partition, wait_bar, strcat('Reanalysing', {' '}, well_ID))
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
             end
@@ -170,7 +176,7 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                 electrode_data(electrode_count).min_bp = get(min_bp_ui, 'Value');
                 electrode_data(electrode_count).max_bp = get(max_bp_ui, 'Value');   
                 
-                [electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, electrode_data(electrode_count).beat_periods, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).max_depol_point_array, electrode_data(electrode_count).min_depol_point_array, electrode_data(electrode_count).depol_slope_array, electrode_data(electrode_count).warning_array] = extract_beats('', electrode_data(electrode_count).time, electrode_data(electrode_count).data, get(well_bdt_ui, 'Value')/1000, well_electrode_data.spon_paced, 'on', 'stable', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims, get(min_bp_ui, 'Value'), get(max_bp_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan, filter_intensity);     
+                [electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, electrode_data(electrode_count).beat_periods, electrode_data(electrode_count).t_wave_peak_times, electrode_data(electrode_count).t_wave_peak_array, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).max_depol_point_array, electrode_data(electrode_count).min_depol_point_array, electrode_data(electrode_count).depol_slope_array, electrode_data(electrode_count).warning_array] = extract_beats_V2('', electrode_data(electrode_count).time, electrode_data(electrode_count).data, get(well_bdt_ui, 'Value')/1000, well_electrode_data.spon_paced, 'on', 'stable', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims, get(min_bp_ui, 'Value'), get(max_bp_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan, filter_intensity);     
                 %well_electrode_data.conduction_velocity = calculateConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
 
                 [electrode_data(electrode_count).arrhythmia_indx, electrode_data(electrode_count).warning_array] = arrhythmia_analysis(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).warning_array);
@@ -284,7 +290,14 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
 
                             end
                         else
-                            time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                            if electrode_data(electrode_count).bdt < 0
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+                            
+                            else
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                            
+                            end
+                            %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
                             time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
                             time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
@@ -364,7 +377,7 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
             end
         end
     end
-
+    close(wait_bar);
     close(well_fig);
     
    

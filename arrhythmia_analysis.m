@@ -1,8 +1,13 @@
 function [arrhythmia_indx, warning_array] = arrhythmia_analysis(beat_num_array, cycle_length_array, warning_array)
     % POSSIBLE INDEXING BUG
+    arrhythmia_indx = [];
+    if length(cycle_length_array) < 2
+        return
+        
+    end
     prev_cycle = cycle_length_array(1);
     mean_cl = mean(cycle_length_array);
-    arrhythmia_indx = [];
+    
     window = 1;
 
     for i = 2:length(cycle_length_array)

@@ -405,7 +405,14 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
 
             end
         else
-            time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+            if electrode_data(electrode_count).bdt < 0
+                time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+
+            else
+                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+
+            end
+            %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
             time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
             time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);

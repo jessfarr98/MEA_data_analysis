@@ -1,44 +1,5 @@
 %function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
-
-    % propagation maps:
-    % sort the first act time per electrode per well and then calc
-    % delta_time between each 
-    % Can use diff prop patterns - see statistic compiler. Some are more
-    % common than others. Not default, need to be turned on. 
-
-    %{
-    if strcmp(electrode_id, 'A02_1_4')
-        figure()
-
-        plot(time, data);
-        title('Full beat');
-
-        disp('post spike hold off')
-        disp(post_spike_hold_off);
-        disp('tim spike hold off')
-        disp(stim_spike_hold_off);
-        disp('stim');
-        disp(stim_time);
-
-        disp('start time');
-        disp(time(1))
-        disp('end time')
-        disp(time(end))
-    
-    end
-    %}
-    %time
-    %{
-    if isempty(time)
-        disp(time)
-    end
-    time(end)
-    time(1)
-    
-    post_spike_hold_off
-    %}
-    
+function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)    
     
     if post_spike_hold_off >= time(end)-time(1)
         post_spike_hold_off = time(end)-time(1)/10;
@@ -54,6 +15,7 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         start_time_indx = find(time >= time(1)+stim_spike_hold_off);
         
         %start_time_indx(1)
+        
         post_spike_hold_off_time = time(1)+post_spike_hold_off;
         pshot_indx = find(time >= post_spike_hold_off_time);
         pshot_indx_offset = pshot_indx(1);

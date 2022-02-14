@@ -40,6 +40,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     
     %pause(20);
     orig_bdt = bdt;
+    orig_post_spike_hold_off = post_spike_hold_off;
+    orig_est_peak_time = est_peak_time;
     iterations = 0;
     while(1)
        %disp(t+window)
@@ -47,6 +49,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        %to be analysed
        warning = '';
        iterations = iterations+1;
+       post_spike_hold_off = orig_post_spike_hold_off;
+       est_peak_time = orig_est_peak_time;
        if iterations == 1000
            break;
        end
@@ -195,6 +199,22 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            stim_time = 'N/A';
        end
        
+       if bdt < 0
+           if count > 0
+               new_beat_start_indx = find(time >= beat_time(1)-post_spike_hold_off);
+               new_beat_end_indx = find(time >= beat_time(end));
+               new_beat_start_indx = new_beat_start_indx(1);
+               new_beat_end_indx = new_beat_end_indx(1);
+               
+               beat_time = time(new_beat_start_indx:new_beat_end_indx);
+               beat_data = data(new_beat_start_indx:new_beat_end_indx);
+               
+               est_peak_time = est_peak_time+post_spike_hold_off;
+               post_spike_hold_off = post_spike_hold_off*2;
+               
+               
+           end           
+       end
        if strcmp(spon_paced, 'paced bdt')
            if count == 0
                [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
@@ -236,6 +256,16 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        end
            
        act_point = beat_data(beat_time == activation_time);
+       
+       if bdt < 0
+          if count > 0
+              new_beat_start_indx = find(beat_time >= beat_time(1)+(post_spike_hold_off/2));
+              new_beat_start_indx = new_beat_start_indx(1);
+              beat_time = beat_time(new_beat_start_indx:end);
+              beat_data = beat_data(new_beat_start_indx:end);
+          end
+       end
+       
        activation_point_array = [activation_point_array act_point];
        activation_time_array = [activation_time_array activation_time];
        cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];

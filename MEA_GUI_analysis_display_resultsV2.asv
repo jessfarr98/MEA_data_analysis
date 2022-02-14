@@ -394,7 +394,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             end
                             
                         else
-                            time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat);
+                            if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                                time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat)-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                            
+                            else
+                                time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat);
+                            
+                            end
+                                
                             time_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
                             time_reg_start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_start);
@@ -1144,7 +1151,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             plot_model = (model.m)*dist_array+model.b;
 
             con_vel_ax = uiaxes(con_vel_panel, 'Position', [0 0 well_p_width well_p_height]);
-            plot(con_vel_ax, dist_array, act_array, 'o')
+            plot(con_vel_ax, dist_array, act_array, '.', 'MarkerSize', 20)
             hold(con_vel_ax, 'on')
             plot(con_vel_ax, dist_array , plot_model)
             xlabel(con_vel_ax, '(\mum)')
