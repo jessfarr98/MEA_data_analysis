@@ -378,21 +378,30 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             time_start = ectopic_plus_stims(mid_beat);
                             time_end = ectopic_plus_stims(mid_beat+1);
                             
-                            time_reg_start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_start);
-                            time_reg_end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_end);
                             
                             
                             
-                            plot(elec_ax,well_electrode_data(well_count). electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
-                        
+                            
                             if ismember(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times , time_start)
+                                if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                                    time_start = time_start - well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                                end
+                                time_reg_start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_start);
+                                time_reg_end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_end);
+                            
                                 plot(elec_ax, ectopic_plus_stims(mid_beat), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
                             
                             else
+                                time_reg_start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_start);
+                                time_reg_end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).time >= time_end);
+                            
                                 plot(elec_ax, ectopic_plus_stims(mid_beat), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1)), 'm.', 'MarkerSize', 20);
                             
                             end
                             
+                            
+                            plot(elec_ax,well_electrode_data(well_count).electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+                        
                         else
                             if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
                                 time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat)-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
@@ -775,6 +784,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
             % Need slope value
 
+            %disp(electrode_data(electrode_count).beat_start_volts)
+            %disp(electrode_data(electrode_count).activation_point_array);
             %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
             plot(exp_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'k.', 'MarkerSize', 20);
             
@@ -1104,44 +1115,101 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             con_vel_panel = uipanel(conduction_velocity_figure, 'Position', [0 0 screen_width screen_height]);
             close_con_vel_button = uibutton(con_vel_panel,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_con_vel_button,event) closeSingleFig(close_con_vel_button, conduction_velocity_figure));
 
-            el_count = 1;
-            dist_array = [];
-            act_array =[];
-            for er = num_electrode_rows:-1:1
-                for ec = num_electrode_cols:-1:1
-                    elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
+            
+            
+            if strcmp(well_electrode_data(well_count).spon_paced, 'spon')
+                el_count = 1;
+                dist_array = [];
+                %act_array = one(num_electrode_rows*num_electrode_cols);
+                act_array =[];
+                electrode_ids = [];
+                for er = num_electrode_rows:-1:1
+                    for ec = num_electrode_cols:-1:1
+                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
 
-                    if isempty(elec_id)
-                        continue
+                        if isempty(elec_id)
+                            continue
+                        end
+                        act_array = [act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
+                        electrode_ids = [electrode_ids; elec_id];
+                        el_count = el_count + 1;
+
                     end
+                end
+                min_act_indx = find(act_array == min(act_array));
+                origin_electrode = electrode_ids(min_act_indx(1));
 
-                    %origin electrode = 4,1
-                    %{
-                    if ec == 4
-                        col_dist = 1;
-                    elseif ec == 3
-                        col_dist = 2;
-                    elseif ec == 2
-                        col_dist = 3;
-                    elseif ec == 2
-                        col_dist = 4;
+                split_orig_elec = strsplit(origin_electrode, '_');
+                origin_elec_row = str2num(split_orig_elec{2});
+                origin_elec_col = str2num(split_orig_elec{3});
+
+                el_count = 1;
+                act_array =[];
+                for er = num_electrode_rows:-1:1
+                    for ec = 1:num_electrode_cols
+                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
+
+                        if isempty(elec_id)
+                            continue
+                        end
+
+                        %%x = y = 350um
+                        split_elec = strsplit(elec_id, '_');
+                        elec_row = str2num(split_elec{2});
+                        elec_col = str2num(split_elec{3});
+
+                        if elec_row < origin_elec_row
+                            row_dist = origin_elec_row - elec_row;
+
+                        else
+                            row_dist = elec_row - origin_elec_row;
+                        end
+
+
+                        if elec_col < origin_elec_col
+                            col_dist = origin_elec_col - elec_col;
+                        else
+                            col_dist = elec_col - origin_elec_col;
+
+                        end
+
+                        dist = sqrt(((350*col_dist)^2)+((350*row_dist)^2));
+
+
+                        if length(well_electrode_data(well_count).electrode_data(el_count).activation_times) < 2
+                            continue
+                        end
+                        dist_array = [dist_array; dist];
+
+                        act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
+                        el_count = el_count + 1;
                     end
-                    %}
+                end
+            else
+                el_count = 1;
+                dist_array = [];
+                act_array =[];
+                for er = num_electrode_rows:-1:1
+                    for ec = num_electrode_cols:-1:1
+                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
 
-                    %%x = y = 350um
-                    dist = sqrt(((350*ec)^2)+((350*er)^2));
+                        if isempty(elec_id)
+                            continue
+                        end
+                        
+                        dist = sqrt(((350*ec)^2)+((350*er)^2));
 
 
-                    if length(well_electrode_data(well_count).electrode_data(el_count).activation_times) < 2
-                        continue
+                        if length(well_electrode_data(well_count).electrode_data(el_count).activation_times) < 2
+                            continue
+                        end
+                        dist_array = [dist_array; dist];
+
+                        act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
+                        el_count = el_count + 1;
                     end
-                    dist_array = [dist_array; dist];
-
-                    act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
-                    el_count = el_count + 1;
                 end
             end
-
 
             if isempty(dist_array)
                 close(conduction_velocity_figure)
@@ -1159,8 +1227,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             plot(con_vel_ax, dist_array, act_array, '.', 'MarkerSize', 20)
             hold(con_vel_ax, 'on')
             plot(con_vel_ax, dist_array , plot_model)
-            xlabel(con_vel_ax, '(\mum)')
-            ylabel(con_vel_ax, '(s)')
+            xlabel(con_vel_ax, 'Distance from Origin Electrode (\mum)')
+            ylabel(con_vel_ax, 'Electrode Activation Time (s)')
             legend(con_vel_ax, 'Activation Times', 'Model')
             
             
@@ -1198,48 +1266,131 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             reanalyse_beat_fig = uifigure;
             reanalyse_beat_panel = uipanel(reanalyse_beat_fig, 'Position', [0 0 screen_width screen_height]);
             
-            beat_num_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Reanalyse Beat Number', 'Position', [240 150 200 40], 'Editable','off');
-            beat_num_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [240 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui, electrode_count));
+            beat_num_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Reanalyse Beat Number', 'Position', [10 150 200 40], 'Editable','off');
+            beat_num_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [10 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui, electrode_count));
             
-            beats_range_1_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Start Beat Range', 'Position', [240 150 100 40], 'Editable','off');
-            beats_range_1_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'Start Beat Range', 'Position', [240 100 100 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui, electrode_count));
+            beats_range_1_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Start Beat Range', 'Position', [10 150 150 40], 'Editable','off');
+            beats_time_range_1_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Beat Time Range Start (s)', 'Position', [10 150 150 40], 'Editable','off');
+            beats_range_1_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'Start Beat Range', 'Position', [10 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui, electrode_count));
             
-            beats_range_2_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'End Beat Range', 'Position', [340 150 100 40], 'Editable','off');
-            beats_range_2_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'End Beat Range', 'Position', [340 100 100 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui, electrode_count));
+            beats_range_2_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'End Beat Range', 'Position', [160 150 150 40], 'Editable','off');
+            beats_time_range_2_text = uieditfield(reanalyse_beat_panel,'Text', 'FontSize', 12, 'Value', 'Beat Time Range End (s)', 'Position', [160 150 150 40], 'Editable','off');
+            beats_range_2_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui, electrode_count));
             
             
-            reanalyse_button = uibutton(reanalyse_beat_panel,'push','Text', 'Reanalyse Beats',  'BackgroundColor', '#3dd4d1', 'Position', [440 50 100 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig));
-            remove_button = uibutton(reanalyse_beat_panel,'push','Text', 'Remove Beats',  'BackgroundColor', '#3dd4d1', 'Position', [440 0 100 50], 'ButtonPushedFcn', @(remove_button,event) removeSelectedBeats(remove_button, reanalyse_beat_fig));
+            reanalyse_button = uibutton(reanalyse_beat_panel,'push','Text', 'Reanalyse Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 50 100 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig));
+            remove_button = uibutton(reanalyse_beat_panel,'push','Text', 'Remove Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 0 100 50], 'ButtonPushedFcn', @(remove_button,event) removeSelectedBeats(remove_button, reanalyse_beat_fig));
             
 
-            range_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Beat Range', 'Position', [440 100 100 50], 'ButtonPushedFcn', @(range_button,event) numBeatsRangeButtonPressed('off', 'on'));
+            range_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Beat Number Range', 'Position', [210 100 150 50], 'ButtonPushedFcn', @(range_button,event) numBeatsRangeButtonPressed('off', 'on', 'no'));
             
-            num_beats_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Num Beats', 'Position', [440 100 100 50], 'ButtonPushedFcn', @(num_beats_button,event) numBeatsRangeButtonPressed('on', 'off'));
+            time_range_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Beat Time Range', 'Position', [360 100 150 50], 'ButtonPushedFcn', @(time_range_button,event) numBeatsRangeButtonPressed('off', 'on', 'yes'));
+               
+            num_beats_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Num Beats', 'Position', [310 100 100 50], 'ButtonPushedFcn', @(num_beats_button,event) numBeatsRangeButtonPressed('on', 'off', 'N/A'));
             
             set(num_beats_button, 'visible', 'off')
             set(beats_range_1_text, 'visible', 'off')
+            set(beats_time_range_1_text, 'visible', 'off')
             set(beats_range_1_ui, 'visible', 'off')
             set(beats_range_2_text, 'visible', 'off')
+            set(beats_time_range_2_text, 'visible', 'off')
             set(beats_range_2_ui, 'visible', 'off')
 
             function changedNumBeats(ui, electrode_count)
-                if get(ui, 'Value') > length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times)
-                    msgbox('The value entered was too large')
-                    set(ui, 'Value', 1)
+                if strcmp(get(time_range_button, 'visible'), 'on')
+                    % Means assessing beat number/index
+                    if get(ui, 'Value') > length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times)
+                        msgbox('The value entered was too large')
+                        set(ui, 'Value', 1)
+                    end
+                    if get(ui, 'Value') < 1
+                        msgbox('The value entered was too small')
+                        set(ui, 'Value', 1)
+                    end
+                    
+                else
+                    if get(ui, 'Value') > well_electrode_data(well_count).electrode_data(electrode_count).time(end)
+                        msgbox('The value entered was too large')
+                        %disp(get(ui, 'tag'))
+                        tag = get(ui, 'tag');
+                        if contains(tag, 'End')
+                            set(ui, 'Value', well_electrode_data(well_count).electrode_data(electrode_count).time(end))
+                        else
+                            set(ui, 'Value', well_electrode_data(well_count).electrode_data(electrode_count).time(1))
+                        end
+                        
+                    end
+                    if get(ui, 'Value') < well_electrode_data(well_count).electrode_data(electrode_count).time(1)
+                        msgbox('The value entered was too small')
+                        tag = get(ui, 'tag');
+                        if contains(tag, 'End')
+                            set(ui, 'Value', well_electrode_data(well_count).electrode_data(electrode_count).time(end))
+                        else
+                            set(ui, 'Value', well_electrode_data(well_count).electrode_data(electrode_count).time(1))
+                        end
+                    end
                 end
-            
+
             end
             
-            function numBeatsRangeButtonPressed(action1, action2)
+            function numBeatsRangeButtonPressed(action1, action2, time_range)
                 
-                set(range_button, 'visible', action1)
+                
                 set(beat_num_text, 'visible', action1)
                 set(beat_num_ui, 'visible', action1)
                 set(num_beats_button, 'visible', action2)
-                set(beats_range_1_text, 'visible', action2)
+                
                 set(beats_range_1_ui, 'visible', action2)
-                set(beats_range_2_text, 'visible', action2)
                 set(beats_range_2_ui, 'visible', action2)
+                
+                if strcmp(action2, 'on')
+                    if strcmp(time_range, 'no')
+                        set(beats_range_1_text, 'visible', action2)
+                        set(beats_range_2_text, 'visible', action2)
+                        set(beats_time_range_1_text, 'visible', action1)
+                        set(beats_time_range_2_text, 'visible', action1)
+                        
+                        
+                        set(beats_range_1_ui, 'value', 1)
+                        set(beats_range_2_ui, 'value', 1)
+                    
+                        
+                        set(time_range_button, 'visible', action2)
+                        set(range_button, 'visible', action1)
+                        set(time_range_button, 'position', [410 100 150 50])
+                        
+                    elseif strcmp(time_range, 'yes')
+                        set(beats_range_1_text, 'visible', action1)
+                        set(beats_range_2_text, 'visible', action1)
+                        set(beats_time_range_1_text, 'visible', action2)
+                        set(beats_time_range_2_text, 'visible', action2)
+                        
+                        set(beats_range_1_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(1))
+                        set(beats_range_2_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(end))
+                    
+                        set(time_range_button, 'visible', action1)
+                        set(range_button, 'visible', action2)
+                        
+                        set(range_button, 'position', [410 100 150 50])
+                    end
+                    set(reanalyse_button, 'position', [310 50 100 50])
+                    set(remove_button, 'position', [310 0 100 50])
+                else
+                    set(beats_range_1_text, 'visible', action2)
+                    set(beats_range_2_text, 'visible', action2)
+                    set(beats_time_range_1_text, 'visible', action2)
+                    set(beats_time_range_2_text, 'visible', action2)
+                    
+                    set(reanalyse_button, 'position', [210 50 100 50])
+                    set(remove_button, 'position', [210 0 100 50])
+                    
+                    set(time_range_button, 'position', [360 100 150 50])
+                    set(range_button, 'position', [210 100 150 50])
+                    
+                    set(time_range_button, 'visible', action1)
+                    set(range_button, 'visible', action1)
+                end
+                
                 
                 
             end
@@ -1247,13 +1398,17 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             function reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig)
                 
                 if strcmp(get(range_button, 'visible'), 'off')
+                    
+                    
                     start_beat = get(beats_range_1_ui, 'value');
                     end_beat = get(beats_range_2_ui, 'value');
                     
                     if start_beat > end_beat
                         msgbox('Start beat entered after end beat. Choose new values please');
+
                         set(beats_range_1_ui, 'value', 1);
                         set(beats_range_2_ui, 'value', 1);
+                        
                         return
                     end
                     
@@ -1264,19 +1419,110 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         end_indx = end_beat+1;
                     end
                 else
-                    beat_num = get(beat_num_ui, 'value');
-                    start_indx = beat_num;
-                    if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
-                        end_indx = beat_num;
+                    if strcmp(get(time_range_button, 'visible'), 'off')
+                        start_beat = get(beats_range_1_ui, 'value');
+                        end_beat = get(beats_range_2_ui, 'value');
+                        
+                        
+                    
+                        if start_beat > end_beat
+                            msgbox('Start beat entered as time after end beat. Choose new values please');
+
+                            set(beats_range_1_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(1));
+                            set(beats_range_2_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(end));
+                            return
+                        end
+                        
+                        if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced')
+                            start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).Stims >= start_beat);
+                            start_indx = start_indx(1);
+                            
+                            end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).Stims >= end_beat);
+                            end_indx = end_indx(1);
+                        else
+                            start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= start_beat);
+                            start_indx = start_indx(1);
+                            
+                            end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= end_beat);
+                            end_indx = end_indx(1);
+                        end
+                        
+                        
+            
                     else
-                        end_indx = beat_num+1;
+                        beat_num = get(beat_num_ui, 'value');
+                        start_indx = beat_num;
+                        if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                            end_indx = beat_num;
+                        else
+                            end_indx = beat_num+1;
+                        end
+                    
                     end
-                    
-                    
                 end
                 
-                reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
-                reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
+                if strcmp(get(time_range_button, 'visible'), 'on')
+                    
+                    if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'spon')
+                    
+                        if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                           reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
+
+                           %if reanalyse_time_region_start - well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off > well_electrode_data(well_count).electrode_data(electrode_count).time(1)
+                              % reanalyse_time_region_start = reanalyse_time_region_start-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+
+                           %end
+
+
+
+                        else
+
+                           reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
+
+                        end
+                        reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
+                
+                    else
+                        
+                        reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).Stims(start_indx);
+
+                        reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).Stims(end_indx);
+                
+                    end
+                    
+                else
+                    %{
+                    reanalyse_time_region_start = start_beat;
+                    
+                    reanalyse_time_region_end = end_beat;
+                    %}
+                    if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'spon')
+                    
+                        if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                           reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
+
+                           %if reanalyse_time_region_start - well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off > well_electrode_data(well_count).electrode_data(electrode_count).time(1)
+                              % reanalyse_time_region_start = reanalyse_time_region_start-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+
+                           %end
+
+
+
+                        else
+
+                           reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
+
+                        end
+                        reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
+                
+                    else
+                        
+                        reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).Stims(start_indx);
+
+                        reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).Stims(end_indx);
+                
+                    end
+                end
                 
                 [well_electrode_data(well_count)] = reanalyse_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, elec_ax, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig);
  
@@ -1302,12 +1548,46 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         end_indx = end_beat+1;
                     end
                 else
-                    beat_num = get(beat_num_ui, 'value');
-                    start_indx = beat_num;
-                    if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
-                        end_indx = beat_num;
+                    if strcmp(get(time_range_button, 'visible'), 'off')
+                        start_beat = get(beats_range_1_ui, 'value');
+                        end_beat = get(beats_range_2_ui, 'value');
+                        
+                        
+                    
+                        if start_beat > end_beat
+                            msgbox('Start beat entered as time after end beat. Choose new values please');
+
+                            set(beats_range_1_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(1));
+                            set(beats_range_2_ui, 'value', well_electrode_data(well_count).electrode_data(electrode_count).time(end));
+                            return
+                        end
+                        
+                        if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'paced')
+                            start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).Stims >= start_beat);
+                            start_indx = start_indx(1);
+                            
+                            end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).Stims >= end_beat);
+                            end_indx = end_indx(1);
+                        else
+                            start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= start_beat);
+                            start_indx = start_indx(1);
+                            
+                            end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= end_beat);
+                            end_indx = end_indx(1);
+                        end
+                        
+                        
+
                     else
-                        end_indx = beat_num+1;
+                    
+                    
+                        beat_num = get(beat_num_ui, 'value');
+                        start_indx = beat_num;
+                        if beat_num == length(well_electrode_data(well_count).electrode_data(electrode_count).beat_num_array)
+                            end_indx = beat_num;
+                        else
+                            end_indx = beat_num+1;
+                        end
                     end
 
                     

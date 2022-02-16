@@ -3,6 +3,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     
     total_duration = time(end);
     
+    disp(bdt)
     
     prev_beat_indx = 1;
     beat_indx = 1;
@@ -255,7 +256,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
        end
            
-       act_point = beat_data(beat_time == activation_time);
+       act_point_indx = find(beat_data(beat_time >= activation_time));
+       act_point_indx = act_point_indx(1);
+       act_point = beat_data(act_point_indx);
+       
+       
        
        if bdt < 0
           if count > 0

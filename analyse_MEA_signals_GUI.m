@@ -612,8 +612,14 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
      end
-    [conduction_velocity, model] = calculateConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
-    
+     
+     if strcmp(spon_paced, 'spon')
+         [conduction_velocity, model] = calculateSpontaneousConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
+     
+     else
+         [conduction_velocity, model] = calculatePacedConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols);
+     
+     end
     
     well_electrode_data(num_analysed).electrode_data = electrode_data;
     well_electrode_data(num_analysed).wellID = wellID;

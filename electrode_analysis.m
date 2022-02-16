@@ -358,9 +358,13 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
     end
     
     
+    if strcmp(spon_paced, 'spon')
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculateSpontaneousConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
     
-    well_electrode_data.conduction_velocity = calculateConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
-
+    else
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
+    
+    end
     well_electrode_data.electrode_data = electrode_data;
     
     set(well_elec_fig, 'Visible', 'on');
