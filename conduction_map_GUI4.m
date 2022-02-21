@@ -1,4 +1,4 @@
-function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
+function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
     % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     close(hmap_prompt_fig)
     
@@ -38,14 +38,16 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     
     
     wait_bar = waitbar(0, 'Generating isochrome maps');
-    num_partitions = 1/num_beats;
+    num_partitions = 1/(num_beats);
     partition = num_partitions;
     max_c_lim = nan;
     min_c_lim = nan;
+    
+    dt_struct_array = [];
     for n = 1:num_beats
-        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
+        %waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
         
-        partition = partition + num_partitions;
+        %partition = partition + num_partitions;
         
         activation_times = [all_activation_times{n, :}];
         
@@ -207,6 +209,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
 
         level_diff = 10/(max_act-min_act);
 
+        %{
         if num_beats <= 5
             %disp((((fig_width/2)-10)/num_beats)*(num_beats-1))
             %act_pan = uipanel(act_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-10]);
@@ -312,9 +315,72 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
             
         end
+        %}
+        
+        
+        dt_struct.dt = dt_array;
+        dt_struct.level_diff = level_diff;
+        dt_struct.min_act = min_act;
+        dt_struct_array = [dt_struct_array; dt_struct];
 
     end
+    
+    tick_array = [];
+    for tick = min_c_lim:(max_c_lim-min_c_lim)/7:max_c_lim
 
+       tick_array = [tick_array, tick];
+    end
+
+    for n = 1:num_beats
+        
+        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
+        
+        partition = partition + num_partitions;
+        
+        min_act = dt_struct_array(n).min_act;
+        dt_array = dt_struct_array(n).dt;
+        level_diff = dt_struct_array(n).level_diff;
+        if num_beats <= 5
+
+            
+            dt_ax = uiaxes(dt_main_pan, 'Position', [(((fig_width)-10)/num_beats)*(n-1) 0 ((fig_width)-10)/num_beats screen_height-200]);
+            %heatmap(dt_pan, xlabels, ylabels, transpose(dt_array));
+            
+            contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
+            
+          
+            colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            colormap(dt_ax, hsv)
+            caxis(dt_ax, [min_c_lim max_c_lim])
+            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
+        else
+
+            n_rows = ceil(num_beats/5);
+   
+            row_num = floor(n/5);
+            
+            row_num = n_rows-row_num;
+            
+            col_num = mod(n,5);
+            if col_num == 0
+                col_num = 5;
+                row_num = row_num+1;
+            end
+            
+            
+            dt_ax = uiaxes(dt_main_pan, 'Position', [(((fig_width)-10)/5)*(col_num-1) (((screen_height-110)/n_rows))*(row_num-1) ((fig_width)-10)/5 ((screen_height-110)/n_rows)]);
+            
+            contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
+
+            colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            colormap(dt_ax, hsv)
+            caxis(dt_ax, [min_c_lim max_c_lim])
+            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
+            
+        end
+        
+        
+    end
     %caxis()
     
     %{
@@ -343,12 +409,12 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     %set(con_fig, 'Visible', 'on')
 
     %full_spectrum_button = uibutton(con_pan,'push','Text', 'Full Spectrum', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(full_spectrum_button,event) fullSpectrumPushed(full_spectrum_button, act_main_pan, dt_main_pan));
-    full_spectrum_button = uibutton(con_pan,'push','Text', 'Full Spectrum', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(full_spectrum_button,event) fullSpectrumPushed(full_spectrum_button, '', dt_main_pan));
+    full_spectrum_button = uibutton(con_pan,'push','Text', 'Full Spectrum', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(full_spectrum_button,event) fullSpectrumPushed(full_spectrum_button, '', dt_main_pan, tick_array));
     
     set(full_spectrum_button, 'Visible', 'off')
     
     %RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan));
-    RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, '', dt_main_pan));
+    RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, '', dt_main_pan, tick_array));
     
     
     con_fig.WindowState = 'maximized';
@@ -372,7 +438,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         %set(well_elec_fig, 'Visible', 'on');
     end
 
-    function RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan)
+    function RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan, tick_array)
         
         custom_map = [];
         
@@ -423,13 +489,16 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         for a = 1:length(dt_axes)
             %colormap(act_axes(a), custom_map)
             colormap(dt_axes(a), custom_map)
+            colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            caxis(dt_axes(a), [min_c_lim max_c_lim])
+            
         end
         
         
         
     end
 
-    function  fullSpectrumPushed(full_spectrum_button, act_main_pan, dt_main_pan)
+    function  fullSpectrumPushed(full_spectrum_button, act_main_pan, dt_main_pan,tick_array)
         
         set(full_spectrum_button, 'Visible', 'off')
         set(RG_colourblind_button, 'Visible', 'on')
@@ -440,6 +509,8 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         for a = 1:length(dt_axes)
             %colormap(act_axes(a), hsv)
             colormap(dt_axes(a), hsv)
+            colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            caxis(dt_axes(a), [min_c_lim max_c_lim])
         end
         
         

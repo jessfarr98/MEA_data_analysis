@@ -316,8 +316,6 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     end
 
     %caxis()
-    
-    %{
     ax_children = get(dt_main_pan, 'children');
     
     pause(10)
@@ -336,7 +334,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
         caxis(ax, [min_c_lim max_c_lim]);
         
     end
-    %}
+    
     
     close(wait_bar);
 

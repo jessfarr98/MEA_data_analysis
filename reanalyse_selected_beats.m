@@ -466,6 +466,7 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
         mid_beat = floor(num_beats/2);
         %elec_ax.XLim = [electrode_data(electrode_count).beat_start_times(mid_beat) electrode_data(electrode_count).beat_start_times(mid_beat+1)];
 
+        post_spike_subtracted = nan;
         if strcmp(spon_paced, 'paced')
             time_start = electrode_data(electrode_count).Stims(mid_beat);
             time_end = electrode_data(electrode_count).Stims(mid_beat+1);
@@ -497,7 +498,10 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
 
             end
         else
+            
+            %{
             if electrode_data(electrode_count).bdt < 0
+                post_spike_subtracted = electrode_data(electrode_count).post_spike_hold_off;
                 time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
 
             else
@@ -515,7 +519,8 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
                        postspike_tag = split_two{2};
                        split_postspike = strsplit(postspike_tag, '=');
                        re_analysed_post_spike = str2num(split_postspike{2});
-                          time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-re_analysed_post_spike;
+                       post_spike_subtracted = re_analysed_post_spike;
+                       time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-re_analysed_post_spike;
 
                     else
                         time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
@@ -534,6 +539,52 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
                 
 
             end
+            %}
+            beat_warning = electrode_data(electrode_count).warning_array{mid_beat};
+            if ~isempty(beat_warning)
+                beat_warning = beat_warning{1};
+            end
+
+            if contains(beat_warning, 'Reanalysed')
+                split_one = strsplit(beat_warning, 'BDT=');
+                split_two = strsplit(split_one{1, 2}, ',');
+                reanalysed_bdt = str2num(split_two{1});
+
+                if reanalysed_bdt < 0
+                   postspike_tag = split_two{2};
+                   split_postspike = strsplit(postspike_tag, '=');
+                   re_analysed_post_spike = str2num(split_postspike{2});
+                   post_spike_subtracted = re_analysed_post_spike;
+                   time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-re_analysed_post_spike;
+
+                else
+                    %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                    if electrode_data(electrode_count).beat_start_times(mid_beat) - electrode_data(electrode_count).post_spike_hold_off > electrode_data(electrode_count).time(1)
+
+                        time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+                    else
+
+                        time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+
+                    end 
+
+
+                end
+
+
+            else
+                %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                if electrode_data(electrode_count).beat_start_times(mid_beat) - electrode_data(electrode_count).post_spike_hold_off > electrode_data(electrode_count).time(1)
+
+                    time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+                else
+
+                    time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+
+                end 
+
+            end
+            
             %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
             time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
@@ -569,8 +620,15 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
         act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
         act_indx = act_indx(1);
         plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
-        xlim(elec_ax, [time_start time_end])
-
+        
+        %{
+        if isnan(post_spike_subtracted)
+            xlim(elec_ax, [time_start-post_spike_subtracted time_end+post_spike_subtracted])
+        else
+            xlim(elec_ax, [time_start time_end])
+            
+        end
+        %}
     else
         plot(elec_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);
 

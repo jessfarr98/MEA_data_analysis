@@ -1,4 +1,4 @@
-function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
+function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
     % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
     close(hmap_prompt_fig)
     
@@ -42,6 +42,8 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
     partition = num_partitions;
     max_c_lim = nan;
     min_c_lim = nan;
+    
+    dt_struct_array = [];
     for n = 1:num_beats
         waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
         
@@ -207,6 +209,7 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
 
         level_diff = 10/(max_act-min_act);
 
+        %{
         if num_beats <= 5
             %disp((((fig_width/2)-10)/num_beats)*(num_beats-1))
             %act_pan = uipanel(act_main_pan, 'Position', [(((fig_width/2)-10)/num_beats)*(n-1) 0 ((fig_width/2)-10)/num_beats screen_height-10]);
@@ -312,9 +315,14 @@ function conduction_map_GUI3(all_activation_times, num_electrode_rows, num_elect
             title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
             
         end
+        
+        
+        dt_struct.dt = dt_array;
+        dt_struct_array = [dt_struct_array; dt_struct];
 
     end
 
+    
     %caxis()
     
     %{

@@ -1,5 +1,5 @@
 %function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)    
+function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysisV2(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)    
     
     if post_spike_hold_off >= time(end)-time(1)
         post_spike_hold_off = time(end)-time(1)/10;
@@ -102,18 +102,13 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     [tr, tc] = size(depol_complex_time);
     
     if indx_min_depol_point < indx_max_depol_point
-        depol_complex_data = depol_complex_data(1:indx_min_depol_point);
-        depol_complex_time = depol_complex_time(1:indx_min_depol_point);
-        
-        %{
         if dc == 1
-            %filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
-            filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
+            filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
             
         else
 
             
-            %filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
+            filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
             
         end
         
@@ -124,16 +119,9 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
             depol_complex_time_filtered = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_time(indx_max_depol_point:filtration_rate:end));
         
         end
-        %}
-        filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
-        depol_complex_time_filtered = depol_complex_time(1:filtration_rate:indx_min_depol_point);
+        depol_complex_time_filtered = depol_complex_time_filtered(1:indx_min_depol_point);
+        filtered_data = filtered_data(1:indx_min_depol_point);
         
-        max_depol_point = max(filtered_data);
-        indx_max_depol_point = find(filtered_data == max_depol_point);
-        indx_max_depol_point = indx_max_depol_point(1);
-        
-        max_depol_time = depol_complex_time_filtered(indx_max_depol_point);
-    
         %depol_complex_time_filtered = depol_complex_time;
         
         %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');

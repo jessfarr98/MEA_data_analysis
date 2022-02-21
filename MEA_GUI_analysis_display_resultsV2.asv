@@ -403,6 +403,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             plot(elec_ax,well_electrode_data(well_count).electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
                         
                         else
+                            %{
                             if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
                                 time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat)-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
                             
@@ -410,6 +411,15 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                 time_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat);
                             
                             end
+                            %}
+                            if electrode_data(electrode_count).beat_start_times(mid_beat) - electrode_data(electrode_count).post_spike_hold_off > electrode_data(electrode_count).time(1)
+
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+                            else
+
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+
+                            end 
                                 
                             time_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
@@ -1263,8 +1273,12 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
             display_con_vel = sprintf('Conduction Velcoty = %f', conduction_velocity);
             
-            displya_units = 'd\mum/dt', , 'Interpreter','latex');
-            conduction_velocity_text = uieditfield(con_vel_panel,'Text', 'Value', display_con_vel, 'FontSize', 12, 'Position', [screen_width-220 150 240 50], 'Editable','off');
+            %display_units = sprintf('%im', '\mu');
+            display_units = 'dμm/dt';
+            
+            display_con_vel= strcat(display_con_vel, [' '],  display_units);
+            
+            conduction_velocity_text = uieditfield(con_vel_panel,'Text', 'Value', display_con_vel, 'FontSize', 12, 'Position', [screen_width-300 150 260 50], 'Editable','off');
     
             lin_eqn = fittype(sprintf('(1/%f)*x+b', conduction_velocity));
     

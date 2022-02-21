@@ -295,24 +295,26 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
                     warning_array{w} = strcat(warning_array{w}, {' '}, 'and Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
 
                 elseif strcmp(spon_paced, 'paced')
-                    warning_array{w} = strcat(warning_array{w}, {' '}, 'and Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')));
+                    warning_array{w} = strcat(warning_array{w}, {' '}, 'and Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')), ', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
 
 
                 elseif strcmp(spon_paced, 'paced bdt')
-                    warning_array{w} = strcat(warning_array{w}, {' '}, 'and Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')));
+                    warning_array{w} = strcat(warning_array{w}, {' '}, 'and Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')),', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
 
                 end
 
             else
                 if strcmp(spon_paced, 'spon')
-                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')));
+                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
 
                 elseif strcmp(spon_paced, 'paced')
-                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')));
+                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')), ', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
+
 
 
                 elseif strcmp(spon_paced, 'paced bdt')
-                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')));
+                    warning_array{w} = strcat('Beat Reanalysed with Parameters', {' '}, 'BDT=', num2str(get(well_bdt_ui, 'value')), ', Post-spike hold-off=', num2str(get(post_spike_ui, 'value')), ', min BP=', num2str(get(min_bp_ui, 'value')), ', max BP=', num2str(get(max_bp_ui, 'value')), ', T-wave offset=', num2str(get(t_wave_peak_offset_ui, 'value')), ', T-wave duration=', num2str(get(t_wave_duration_ui, 'value')), ', Stim-spike hold-off=', num2str(get(stim_spike_ui, 'value')), ', T-wave shape=', t_wave_shape, ', Filter intensity=', filter_intensity);
+
 
                 end
 
@@ -464,6 +466,7 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
         mid_beat = floor(num_beats/2);
         %elec_ax.XLim = [electrode_data(electrode_count).beat_start_times(mid_beat) electrode_data(electrode_count).beat_start_times(mid_beat+1)];
 
+        post_spike_subtracted = nan;
         if strcmp(spon_paced, 'paced')
             time_start = electrode_data(electrode_count).Stims(mid_beat);
             time_end = electrode_data(electrode_count).Stims(mid_beat+1);
@@ -496,6 +499,7 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
             end
         else
             if electrode_data(electrode_count).bdt < 0
+                post_spike_subtracted = 'no'; 
                 time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
 
             else
@@ -567,7 +571,9 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
         act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
         act_indx = act_indx(1);
         plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
-
+        
+        if 
+        xlim(elec_ax, [time_start time_end])
 
     else
         plot(elec_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);

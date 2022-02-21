@@ -259,6 +259,8 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                         plot(elec_ax, electrode_data(electrode_count).activation_times(mid_beat), electrode_data(electrode_count).activation_point_array(mid_beat), 'ko');
                         %}
                         mid_beat = floor(num_beats/2);
+                        
+                        post_spike_subtracted = nan;
                         if strcmp(well_electrode_data.spon_paced, 'paced')
                             time_start = electrode_data(electrode_count).Stims(mid_beat);
                             time_end = electrode_data(electrode_count).Stims(mid_beat+1);
@@ -290,13 +292,26 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
 
                             end
                         else
+                            %{
                             if electrode_data(electrode_count).bdt < 0
+                                post_spike_subtracted = electrode_data(electrode_count).post_spike_hold_off;
                                 time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
                             
                             else
                                 time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
                             
                             end
+                            %}
+                            if electrode_data(electrode_count).beat_start_times(mid_beat) - electrode_data(electrode_count).post_spike_hold_off > electrode_data(electrode_count).time(1)
+                                
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+                            else
+                                
+                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                                
+                            end 
+                            
+                            
                             %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
                             time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
@@ -333,8 +348,14 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                         act_indx = act_indx(1);
                         plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
                         xlim(elec_ax, [time_start time_end])
+                        %{
+                        if isnan(post_spike_subtracted)
+                            xlim(elec_ax, [time_start-post_spike_subtracted time_end+post_spike_subtracted])
+                        else
+                            
 
-
+                        end
+                        %}
                     else
                         plot(elec_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);
 
