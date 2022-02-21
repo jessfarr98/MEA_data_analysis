@@ -281,7 +281,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
 
                                 plot(elec_ax,electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
 
-                                plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat),electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+                                plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat), electrode_data(electrode_count).beat_start_volts(mid_beat), 'g.', 'MarkerSize', 20);
 
                             end
 
@@ -307,7 +307,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                             act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
                             act_indx = act_indx(1);
                             plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
-
+                            xlim(elec_ax, [time_start time_end])
 
                         else
                             plot(elec_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);

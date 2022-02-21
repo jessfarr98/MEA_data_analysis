@@ -419,7 +419,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             
                             plot(elec_ax,well_electrode_data(well_count). electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
                         
-                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+                            %plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat), well_electrode_data(well_count).electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+                            plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(mid_beat), well_electrode_data(well_count).electrode_data(electrode_count).beat_start_volts(mid_beat), 'g.', 'MarkerSize', 20);
 
                         end
                         
@@ -919,6 +920,27 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                         if strcmp(get(well_panel_children(well_panel_child), 'Title'), elec_id)
                             
+                            if strcmp(spon_paced, 'paced')
+                                num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).Stims);
+                            elseif strcmp(spon_paced, 'spon')
+
+                                num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                            elseif strcmp(spon_paced, 'paced bdt')
+                                %num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                                ectopic_plus_stims = [well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times well_electrode_data(well_count).electrode_data(electrode_count).Stims];
+                                ectopic_plus_stims = sort(ectopic_plus_stims);
+                                ectopic_plus_stims = uniquetol(ectopic_plus_stims);
+                                num_beats = length(ectopic_plus_stims);
+                            end
+
+                            if num_beats > 4    
+
+                                mid_beat = floor(num_beats/2);
+                                
+                            else
+                               continue; 
+                            end
+
                             electrode_panel_children = get(well_panel_children(well_panel_child), 'Children');
 
                             for elec_panel_child = 1:length(electrode_panel_children)
@@ -933,7 +955,28 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                         post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off*2;
                                     
                                     else
-                                        post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                                        beat_warning = well_electrode_data(well_count).electrode_data(electrode_count).warning_array{mid_beat};
+                                        if ~isempty(beat_warning)
+                                            beat_warning = beat_warning{1};
+                                        end
+
+                                        if contains(beat_warning, 'Reanalysed')
+                                            split_one = strsplit(beat_warning, 'BDT=');
+                                            split_two = strsplit(split_one{1, 2}, ',');
+                                            reanalysed_bdt = str2num(split_two{1});
+
+                                            if reanalysed_bdt < 0
+                                               postspike_tag = split_two{2};
+                                               split_postspike = strsplit(postspike_tag, '=');
+                                               re_analysed_post_spike = str2num(split_postspike{2});
+                                               post_spike_hold_off = 2*re_analysed_post_spike;
+                                               
+                                            else
+                                                post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                                            end
+                                        else
+                                            post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                                        end
                                     end
                                     for plot_child = 1:length(axes_children)
                                         x_data = axes_children(plot_child).XData;
@@ -1217,6 +1260,16 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
             
             conduction_velocity = well_electrode_data(well_count).conduction_velocity;
+            
+            display_con_vel = sprintf('Conduction Velcoty = %f', conduction_velocity);
+            
+            %display_units = sprintf('%im', '\mu');
+            display_units = 'dμm/dt';
+            
+            display_con_vel= strcat(display_con_vel, [' '],  display_units);
+            
+            conduction_velocity_text = uieditfield(con_vel_panel,'Text', 'Value', display_con_vel, 'FontSize', 12, 'Position', [screen_width-300 150 260 50], 'Editable','off');
+    
             lin_eqn = fittype(sprintf('(1/%f)*x+b', conduction_velocity));
     
             %model = fit(dist_array, act_array, lin_eqn)
@@ -1441,10 +1494,41 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             end_indx = end_indx(1);
                         else
                             start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= start_beat);
-                            start_indx = start_indx(1);
+                            
+                            
+                            if isempty(start_indx)
+                                if start_beat < well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(1)
+                                    start_indx = 1;
+                                else
+                                    start_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times <= start_beat);
+                                    start_indx = start_indx(1);
+                                    if isempty(start_indx)
+                                        start_indx = 1;
+                                        
+                                    end
+                                end
+                                
+                            else
+                                
+                                start_indx = start_indx(1);
+                            end
                             
                             end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times >= end_beat);
-                            end_indx = end_indx(1);
+                            
+                            if isempty(end_indx)
+                                if end_beat > well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end)
+                                    end_indx = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                                else
+                                    end_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times <= end_beat);
+                                    end_indx = end_indx(1);
+                                    if isempty(end_indx)
+                                        end_indx = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+                                        
+                                    end
+                                end
+                            else
+                                end_indx = end_indx(1);
+                            end
                         end
                         
                         
@@ -1460,7 +1544,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                     end
                 end
-                
+                negative_skip = 'n/a';
+                reanalysed_post_spike = nan;
                 if strcmp(get(time_range_button, 'visible'), 'on')
                     
                     if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'spon')
@@ -1498,20 +1583,52 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     %}
                     if strcmp(well_electrode_data(well_count).electrode_data(electrode_count).spon_paced, 'spon')
                     
+                        negative_skip = 'no';
                         if well_electrode_data(well_count).electrode_data(electrode_count).bdt < 0
+                            disp('Whole electrode negative bdt');
                            reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
 
-                           %if reanalyse_time_region_start - well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off > well_electrode_data(well_count).electrode_data(electrode_count).time(1)
-                              % reanalyse_time_region_start = reanalyse_time_region_start-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
+                           if reanalyse_time_region_start - well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off > well_electrode_data(well_count).electrode_data(electrode_count).time(1)
+                              reanalyse_time_region_start = reanalyse_time_region_start-well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off;
 
-                           %end
+                           end
 
 
 
                         else
+                            %well_electrode_data(well_count).electrode_data(electrode_count).warning_array(start_indx)
+                            first_beat_warning = well_electrode_data(well_count).electrode_data(electrode_count).warning_array{start_indx};
+                            
+                            %if ~isempty(first_beat_warning)
+                            %    first_beat_warning = first_beat_warning{1};
+                            %end
+                            reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
 
-                           reanalyse_time_region_start = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(start_indx);
-
+                           if contains(first_beat_warning, 'Reanalysed')
+                               split_one = strsplit(first_beat_warning, 'BDT=');
+                               split_two = strsplit(split_one{1, 2}, ',');
+                               reanalysed_bdt = str2num(split_two{1});
+                               
+                               if reanalysed_bdt < 0
+                                   disp('Previous reanalyses have been negative. whole electrode has been analysed with positive');
+                                   negative_skip = 'yes';
+                                   postspike_tag = split_two{2};
+                                   split_postspike = strsplit(postspike_tag, '=');
+                                   reanalysed_post_spike = str2num(split_postspike{2});
+                                   
+                                   if reanalyse_time_region_start-reanalysed_post_spike > well_electrode_data(well_count).electrode_data(electrode_count).time(1)
+                                       reanalyse_time_region_start = reanalyse_time_region_start-reanalysed_post_spike;
+                                       %disp('removed')
+                                   end
+                                   
+                               end
+                               
+                               
+                               
+                               
+                           end
+                               
+                           
                         end
                         reanalyse_time_region_end = well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times(end_indx);
                 
@@ -1524,7 +1641,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     end
                 end
                 
-                [well_electrode_data(well_count)] = reanalyse_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, elec_ax, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig);
+                [well_electrode_data(well_count)] = reanalyse_selected_beats(well_electrode_data(well_count), electrode_count, num_electrode_rows, num_electrode_cols, well_elec_fig, elec_ax, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, reanalyse_time_region_start, reanalyse_time_region_end, start_indx, end_indx, reanalyse_beat_fig, negative_skip, reanalysed_post_spike);
  
             end
             

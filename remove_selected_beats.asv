@@ -165,13 +165,33 @@ function [well_electrode_data] = remove_selected_beats(well_electrode_data, elec
 
             end
         else
-            if electrode_data(electrode_count).bdt < 0
-                time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-electrode_data(electrode_count).post_spike_hold_off;
+            beat_warning = electrode_data(electrode_count).warning_array{mid_beat};
+                if ~isempty(beat_warning)
+                    beat_warning = beat_warning{1};
+                end
+                
+                if contains(beat_warning, 'Reanalysed')
+                    split_one = strsplit(beat_warning, 'BDT=');
+                    split_two = strsplit(split_one{1, 2}, ',');
+                    reanalysed_bdt = str2num(split_two{1});
 
-            else
-                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                    if reanalysed_bdt < 0
+                       postspike_tag = split_two{2};
+                       split_postspike = strsplit(postspike_tag, '=');
+                       re_analysed_post_spike = str2num(split_postspike{2});
+                          time_start = electrode_data(electrode_count).beat_start_times(mid_beat)-re_analysed_post_spike;
 
-            end
+                    else
+                        time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                       
+                          
+                    end
+                    
+                    
+                else
+                    time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
+                    
+                end
             %time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
             time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
 
@@ -181,10 +201,9 @@ function [well_electrode_data] = remove_selected_beats(well_electrode_data, elec
 
             plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
 
-            plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat),  electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
+            plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat),  electrode_data(electrode_count).beat_start_volts(mid_beat), 'g.', 'MarkerSize', 20);
 
         end
-
 
 
         t_wave_indx = find(electrode_data(electrode_count).t_wave_peak_times >= time_start);
@@ -249,7 +268,12 @@ function [well_electrode_data] = remove_selected_beats(well_electrode_data, elec
                 
 
     well_electrode_data.electrode_data = electrode_data;
-    well_electrode_data.conduction_velocity = calculateConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
+    if strcmp(spon_paced, 'spon')
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculateSpontaneousConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
     
+    else
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols);
+    
+    end
     set(well_elec_fig, 'visible', 'on')
 end

@@ -1,5 +1,6 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_selected_spon_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, filter_intensity)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array] = extract_selected_spon_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, filter_intensity, negative_skip, reanalysed_post_spike)
 
+    disp('uh')
     if strcmpi(beat_to_beat, 'on')
         %%disp(electrode_id);
         if strcmp(analyse_all_b2b, 'time_region')
@@ -59,6 +60,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     orig_est_peak_time = est_peak_time;
     iterations = 0;
     
+    average_fpd = 0;
     average_beat_period = 0;
     while(1)
        %%%disp(t+window)
@@ -69,12 +71,15 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        warning = '';
        iterations = iterations +1;
       
+       if ~isempty(beat_periods)
+           average_beat_period = mean(average_beat_period);
+       end
        
-       %{
-       if (time(prev_beat_indx)+window) > total_duration
+       
+       if (time(prev_beat_indx)+average_beat_period) > total_duration
            break;
        end  
-       %}
+       
        
        if iterations == 1000
            break;
@@ -84,7 +89,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        %Take segments of data from each window to search for the next beat 
        if beat_indx == 1
        %if t == 0
-           wind_indx = find(time >= 0 & time <= total_duration);  
+           wind_indx = find(time >= time(1) & time <= total_duration);  
           %wind_indx = find(time >= 0 & time <= window);  
           %wind_indx = find(time >= t & time <= t+window);
        else
@@ -106,20 +111,33 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            if bdt > 0
                beat_indx = find(d_ata(pshot_indx) >= bdt);
                %beat_indx_orig = beat_indx;
-               beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset;
+               beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset-2;
            else
                beat_indx = find(d_ata(pshot_indx) <= bdt);
-               beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset;
+               
+               %{
+               if strcmp(negative_skip, 'yes')
+                   if count == 0
+                       data = data(beat_indx(1)+wind_indx(1):end);
+                       time = time(beat_indx(1)+wind_indx(1):end);
+                       count = count+1;
+                       continue
+                   end
+               end
+               %}
+               beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset-2;
+               
+               
            end
 
-           
 
        catch
            %Update the beat detection threshold
+           %beat_indx
+           
            window_duration = t_ime(end)-t_ime(1);
            
            %disp(beat_indx_orig)
-           
            bdt = bdt*0.8;
            if isalmost(bdt, 0, 1E-10)
                %%disp('end of recording')
@@ -232,19 +250,33 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        % inclde end of previous beat if BDT is negative to include upward
        % stroke of depol spike
        if bdt < 0
-           if count > 0
+           if strcmp(negative_skip, 'yes')
+               
                new_beat_start_indx = find(time >= beat_time(1)-post_spike_hold_off);
                new_beat_end_indx = find(time >= beat_time(end));
                new_beat_start_indx = new_beat_start_indx(1);
                new_beat_end_indx = new_beat_end_indx(1);
-               
+
                beat_time = time(new_beat_start_indx:new_beat_end_indx);
                beat_data = data(new_beat_start_indx:new_beat_end_indx);
-               
+
                est_peak_time = est_peak_time+post_spike_hold_off;
                post_spike_hold_off = post_spike_hold_off*2;
                
-               
+           else
+               if count > 0
+                   new_beat_start_indx = find(time >= beat_time(1)-post_spike_hold_off);
+                   new_beat_end_indx = find(time >= beat_time(end));
+                   new_beat_start_indx = new_beat_start_indx(1);
+                   new_beat_end_indx = new_beat_end_indx(1);
+
+                   beat_time = time(new_beat_start_indx:new_beat_end_indx);
+                   beat_data = data(new_beat_start_indx:new_beat_end_indx);
+
+                   est_peak_time = est_peak_time+post_spike_hold_off;
+                   post_spike_hold_off = post_spike_hold_off*2;
+               end
+
            end           
        end
        
@@ -330,11 +362,18 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        act_point = beat_data(act_point_indx);
        
        if bdt < 0
-          if count > 0
+          if strcmp(negative_skip, 'yes')
               new_beat_start_indx = find(beat_time >= beat_time(1)+(post_spike_hold_off/2));
               new_beat_start_indx = new_beat_start_indx(1);
               beat_time = beat_time(new_beat_start_indx:end);
               beat_data = beat_data(new_beat_start_indx:end);
+          else
+              if count > 0
+                  new_beat_start_indx = find(beat_time >= beat_time(1)+(post_spike_hold_off/2));
+                  new_beat_start_indx = new_beat_start_indx(1);
+                  beat_time = beat_time(new_beat_start_indx:end);
+                  beat_data = beat_data(new_beat_start_indx:end);
+              end
           end
        end
        
