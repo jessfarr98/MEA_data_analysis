@@ -86,9 +86,6 @@ function [added_wells] = MEA_GUI_select_wells(num_well_rows, num_well_cols)
     function addColPushed(add_button, col, panel)
         %set(add_button, 'Visible', 'off');
         %set(remove_button, 'Visible', 'on');
-        panel_children = get(panel, 'children');
-            
-        titles = get(panel_children, 'text');
         if strcmp(get(add_button, 'Text'), sprintf('Analyse Column %d', col))
             set(add_button, 'Text', sprintf('Remove Column %d', col));
             set(add_button, 'BackgroundColor','#B02727');
