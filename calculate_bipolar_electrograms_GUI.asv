@@ -1,12 +1,7 @@
 function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, num_electrode_cols)
     
-    %electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
-    electrode_pairs = ["1_1->4_1", "1_2->4_2", "1_3->4_3'", "2_4->2_1", "3_4->3_1", "4_4->4_1"];
-    
-    
-    %electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
-    electrodes = ["1_1", "4_1", "1_2", "4_2", "1_3", "4_3", "2_4", "2_1", "3_4", "3_1", "4_4"];
-    
+    electrode_pairs = ["1_1:1_4", "2_1:2_4", "3_1:3_4'", "4_2:1_2", "4_3:1_3", "4_4:1_4"];
+    electrodes = ["1_1", "1_4", "2_1", "2_4", "3_1", "3_4", "4_2", "1_2", "4_3", "1_3", "4_4"];
     %electrode_data = BipolarData.empty(length(electrodes), 0);
     bipolar_data = BipolarData.empty(length(electrode_pairs), 0);
 
@@ -33,8 +28,7 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
             
             
                 electrode_count = electrode_count+1;
-                %electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
-                electrode_id = strcat(num2str(e_c), '_', num2str(e_r));
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
                 yes_contains = contains(electrodes, electrode_id);
                 init_elec = electrodes(yes_contains);
                 electrodes = electrodes(~contains(electrodes, electrode_id));
@@ -60,22 +54,16 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
         for e_r = num_electrode_rows:-1:1
             for e_c = 1:num_electrode_cols
                 electrode_count = electrode_count+1;
-                %electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
-                electrode_id = strcat(num2str(e_c), '_', num2str(e_r));
+                electrode_id = strcat(num2str(e_r), '_', num2str(e_c));
                 yes_contains = contains(electrodes, electrode_id);
                 init_elec = electrodes(yes_contains);
                 if ~isempty(init_elec)
                     if e_r == init_bipolar_e_r && e_c == init_bipolar_e_c
                         continue;
                     end
+                    pair1 = strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c),':',num2str(e_r),'_',num2str(e_c));
                     
-                    %pair1 = strcat(num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c),':',num2str(e_r),'_',num2str(e_c));
-                    pair1 = strcat(num2str(init_bipolar_e_c),'_',num2str(init_bipolar_e_r),'->',num2str(e_c),'_',num2str(e_r));
-                    
-                    %pair2 = strcat(num2str(e_r),'_',num2str(e_c),':',num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c));
-                    pair2 = strcat(num2str(e_c),'_',num2str(e_r),'->',num2str(init_bipolar_e_c),'_',num2str(init_bipolar_e_r));
-                    
-                    
+                    pair2 = strcat(num2str(e_r),'_',num2str(e_c),':',num2str(init_bipolar_e_r),'_',num2str(init_bipolar_e_c));
                     
                     pair1_contains = contains(electrode_pairs, pair1);
                     pair_1_val = electrode_pairs(pair1_contains);

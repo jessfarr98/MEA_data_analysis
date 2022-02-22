@@ -77,9 +77,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     
     if num_wells/num_well_rows > 1
         % need button rows
-        num_wells
-        num_well_rows
-        num_button_rows = ceil(num_wells/num_well_cols)
+        num_button_rows = ceil(num_wells/num_well_cols);
         num_button_cols = num_well_cols;
         
     end   
