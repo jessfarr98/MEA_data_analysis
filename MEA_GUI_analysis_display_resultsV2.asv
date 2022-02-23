@@ -77,7 +77,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     
     if num_wells/num_well_rows > 1
         % need button rows
-        num_button_rows = ceil(num_wells/num_well_rows);
+        num_button_rows = ceil(num_wells/num_well_cols);
         num_button_cols = num_well_cols;
         
     end   
@@ -86,7 +86,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     button_panel_width = screen_width-200;
     
     button_width = button_panel_width/num_button_cols;
-    button_height = ((screen_height)/num_button_rows);
+    button_height = ((screen_height)/num_button_rows)-40;
     
     out_fig = uifigure;
     out_fig.Name = 'MEA Results';
@@ -120,7 +120,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
     end    
     
     
-    main_pan = uipanel(main_p, 'Title', 'Review Well Results', 'Position', [0 0 button_panel_width screen_height-40]);
+    main_pan = uipanel(main_p, 'BackgroundColor', '#e68e8e', 'Title', 'Review Well Results', 'Position', [0 0 button_panel_width screen_height-40]);
     
     %global electrode_data;
     %dropdown_array = [];
@@ -134,7 +134,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                    break;
                end
                wellID = added_wells(button_count);
-               button_panel = uipanel(main_pan, 'BackgroundColor', '#d43d3d', 'Position', [((c-1)*button_width) ((r-1)*button_height)-40 button_width button_height-40]);
+               button_panel = uipanel(main_pan, 'BackgroundColor', '#d43d3d', 'Position', [((c-1)*button_width) ((r-1)*button_height) button_width button_height]);
                
                
                
@@ -2287,6 +2287,478 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 if isempty(elec_indx)
                     continue
                 end
+                
+                electrode_count = elec_indx;
+                
+                if isempty(electrode_data(electrode_count).beat_start_times)
+                    continue;
+                end
+                if electrode_data(electrode_count).rejected == 1
+                    continue;
+                end
+                
+                sheet_count = sheet_count+1;
+                
+                %electrode_stats_header = {electrode_data(electrode_count).electrode_id, 'Beat No.', 'Beat Start Time (s)', 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Cycle Length (s)'};
+                
+                %t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                %t_wave_peak_times = 
+                %activation_times = electrode_data(electrode_count).activation_times;
+                %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                
+                start_activation_time = electrode_data(electrode_count).activation_times(2);
+                
+                if isempty(max_act_elec_id)
+                    max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    max_act_time = start_activation_time;
+                else
+                    if start_activation_time > max_act_time
+                        max_act_time = start_activation_time;
+                        max_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    end
+                end
+                if isempty(min_act_elec_id)
+                    min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    min_act_time = start_activation_time;
+                else
+                    if start_activation_time < min_act_time
+                        min_act_time = start_activation_time;
+                        min_act_elec_id = electrode_data(electrode_count).electrode_id;
+                    end
+                end
+                
+                
+                FPDs = [electrode_data(electrode_count).t_wave_peak_times - electrode_data(electrode_count).activation_times];
+
+                amps = [electrode_data(electrode_count).max_depol_point_array - electrode_data(electrode_count).min_depol_point_array];
+
+                slopes = [electrode_data(electrode_count).depol_slope_array];
+
+                bps = [electrode_data(electrode_count).beat_periods];    
+                
+                well_FPDs = [well_FPDs FPDs];
+                well_slopes = [well_slopes slopes];
+                well_amps = [well_amps amps];
+                well_bps = [well_bps bps];
+                
+                nan_FPDs = FPDs(~isnan(FPDs));
+                nan_slopes = slopes(~isnan(slopes));
+                nan_amps = amps(~isnan(amps));
+                nan_bps = bps(~isnan(bps));
+
+                mean_FPD = mean(nan_FPDs);
+                mean_slope = mean(nan_slopes);
+                mean_amp = mean(nan_amps);
+                mean_bp = mean(nan_bps);
+
+                if strcmp(analyse_all_b2b, 'all')
+                    if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detection Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape}, {electrode_data(electrode_count).filter_intensity});
+                        %mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Beat Detection Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    end
+                else
+                    if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detection Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Stim-spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+                        headings = {strcat(electrode_data(electrode_count).electrode_id, ':Mean electrode statistics'); 'Sheet'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Time Region Start (s)'; 'Time Region End (s)'; 'Beat Detection Threshold Input (V)'; 'Mininum Beat Period Input (s)'; 'Mininum Beat Period Input (s)'; 'Stim spike hold-off (s)'; 'Post-spike hold-off (s)'; 'T-wave Duration Input (s)'; 'T-wave offset Input (s)'; 'T-wave shape'; 'Filter Intensity'};
+                        mean_data = [sheet_count; mean_FPD; mean_slope; mean_amp; mean_bp; electrode_data(electrode_count).time_region_start; electrode_data(electrode_count).time_region_end; electrode_data(electrode_count).bdt; electrode_data(electrode_count).min_bp; electrode_data(electrode_count).max_bp; electrode_data(electrode_count).stim_spike_hold_off; electrode_data(electrode_count).post_spike_hold_off; electrode_data(electrode_count).t_wave_duration; electrode_data(electrode_count).t_wave_offset];
+                        mean_data = num2cell(mean_data);
+                        mean_data = vertcat({''}, mean_data);
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).t_wave_shape});
+                        mean_data = vertcat(mean_data, {electrode_data(electrode_count).filter_intensity});
+                    end
+
+                end 
+                
+                %cell%disp(mean_data);
+
+                elec_stats = horzcat(headings, mean_data);
+                
+                if isempty(average_electrodes)
+                    average_electrodes = elec_stats;
+                    
+                else
+                    
+                    average_electrodes = vertcat(average_electrodes, elec_stats);
+                end
+                
+                
+                beat_num_array = electrode_data(electrode_count).beat_num_array;
+                [br, bc] = size(beat_num_array);
+                beat_num_array = reshape(beat_num_array, [bc br]);
+                
+                beat_start_times = electrode_data(electrode_count).beat_start_times;
+                [br, bc] = size(beat_start_times);
+                beat_start_times = reshape(beat_start_times, [bc br]);
+                
+                activation_times = electrode_data(electrode_count).activation_times;
+                min_act = min(activation_times);
+                orig_activation_times = activation_times;
+                
+                [br, bc] = size(activation_times);
+                activation_times = reshape(activation_times, [bc br]);
+                
+                [br, bc] = size(amps);
+                amps = reshape(amps, [bc br]);
+                
+                [br, bc] = size(slopes);
+                slopes = reshape(slopes, [bc br]);
+                
+                
+                [br, bc] = size(FPDs);
+                FPDs = reshape(FPDs, [bc br]);
+                
+                
+                t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                [br, bc] = size(t_wave_peak_times);
+                t_wave_peak_times = reshape(t_wave_peak_times, [bc br]);
+                
+                t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
+                [br, bc] = size(t_wave_peak_array);
+                t_wave_peak_array = reshape(t_wave_peak_array, [bc br]);
+                
+                beat_periods = electrode_data(electrode_count).beat_periods;
+                [br, bc] = size(beat_periods);
+                beat_periods = reshape(beat_periods, [bc br]);
+
+                
+                cycle_length_array = electrode_data(electrode_count).cycle_length_array;
+                [br, bc] = size(cycle_length_array);
+                cycle_length_array = reshape(cycle_length_array, [bc br]);
+                
+                act_sub_min = orig_activation_times - min_act;
+                [br, bc] = size(act_sub_min);
+                act_sub_min = reshape(act_sub_min, [bc br]);
+   
+                
+                warning_array = electrode_data(electrode_count).warning_array;
+                [br, bc] = size(warning_array);
+                warning_array = reshape(warning_array, [bc br]);
+   
+                
+                electrode_stats_table = table('Size', [length(beat_num_array) 13], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Activation Time (s)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "Warnings"]));
+                
+                
+                num2cell(beat_num_array)
+                electrode_stats_table(:, 2) = num2cell(beat_num_array);
+                
+                electrode_stats_table(:, 3) = num2cell(beat_start_times);
+                
+                electrode_stats_table(:, 4) = num2cell(activation_times);
+                
+                electrode_stats_table(:, 5) = num2cell(amps);
+                
+                electrode_stats_table(:, 6) = num2cell(slopes);
+
+                electrode_stats_table(:, 7) = num2cell(t_wave_peak_times);
+
+                electrode_stats_table(:, 8) = num2cell(t_wave_peak_array);
+
+                electrode_stats_table(:, 9) = num2cell(FPDs);
+
+                electrode_stats_table(:, 10) = num2cell(beat_periods);
+
+                electrode_stats_table(:, 11) = num2cell(cycle_length_array);
+
+                electrode_stats_table(:, 12) = num2cell(act_sub_min);
+                
+                electrode_stats_table(:, 13) = warning_array;
+                
+                
+                
+                
+                
+                
+                try
+                    if sheet_count ~= 2
+                        fileattrib(output_filename, '-h +w');
+                    end
+
+                    %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                    writetable(electrode_stats_table, output_filename, 'Sheet', sheet_count);
+                    fileattrib(output_filename, '+h +w');
+                catch
+                    msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
+                    if saving_multiple == 0
+                        close(wait_bar)
+
+                        set(well_elec_fig, 'visible', 'on')
+
+                    
+                    end
+                    return
+                end
+                
+                if save_plots == 1
+                    fig = figure();
+                    set(fig, 'visible', 'off');
+                    hold('on')
+                    plot(electrode_data(electrode_count).time, electrode_data(electrode_count).data);
+
+                    t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                    t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
+                    t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
+                    t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
+                    plot(t_wave_peak_times, t_wave_peak_array, 'c.', 'MarkerSize', 20);
+                    plot(electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'r.', 'MarkerSize', 20);
+                    plot(electrode_data(electrode_count).min_depol_time_array, electrode_data(electrode_count).min_depol_point_array, 'b.', 'MarkerSize', 20);
+
+                   
+
+                    if strcmp(electrode_data(electrode_count).spon_paced, 'paced') 
+                        
+
+                        plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'm.', 'MarkerSize', 20);
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+                        plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'g.', 'MarkerSize', 20);
+                        plot(electrode_data(electrode_count).Stims, electrode_data(electrode_count).Stim_volts, 'm.', 'MarkerSize', 20);
+                        
+                    else
+                        
+                        plot(electrode_data(electrode_count).beat_start_times, electrode_data(electrode_count).beat_start_volts, 'g.', 'MarkerSize', 20);
+                        
+                    end
+                    %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
+
+                    plot(electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'k.', 'MarkerSize', 20);
+
+                    if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+                        legend('signal', 'T-wave peak', 'max depol.', 'min depol.', 'stimulus point', 'activation point', 'location', 'northeastoutside')
+
+                    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+                        legend('signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'stimulus point', 'activation point', 'location', 'northeastoutside')
+
+                    else
+                        legend('signal', 'T-wave peak', 'max depol.', 'min depol.', 'beat start', 'activation point', 'location', 'northeastoutside')
+
+                    end
+                    title({electrode_data(electrode_count).electrode_id},  'Interpreter', 'none')
+                    
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  electrode_data(electrode_count).electrode_id));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  electrode_data(electrode_count).electrode_id), 'png')
+                    hold('off')
+                    close(fig)
+                    
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    beat_num_array = electrode_data(electrode_count).beat_num_array(2:end);
+                    cycle_length_array = electrode_data(electrode_count).cycle_length_array(2:end);
+                    plot(beat_num_array, cycle_length_array, 'b.', 'MarkerSize', 20);
+                    if  ~isempty(electrode_data(electrode_count).arrhythmia_indx)
+                        hold('on')
+                        plot(beat_num_array(electrode_data(electrode_count).arrhythmia_indx), cycle_length_array(electrode_data(electrode_count).arrhythmia_indx), 'r.', 'MarkerSize', 20);
+                        legend('Stable beats', 'Arrhythmic beats', 'location', 'northeastoutside');
+                    end
+                    xlabel('Beat Number');
+                    ylabel('Cycle Length (s)');
+                    ylim([0 max(cycle_length_array)])
+                    title(strcat('Cycle Length per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_beat')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).beat_periods, 'bo');
+                    xlabel('Beat Number');
+                    ylabel('Beat Period (s)');
+                    ylim([0 max(electrode_data(electrode_count).beat_periods)])
+                    title(strcat('Beat Period per Beat', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_beat_period_per_beat')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(electrode_data(electrode_count).cycle_length_array(2:end-1), electrode_data(electrode_count).cycle_length_array(3:end), 'b.', 'MarkerSize', 20);
+                    xlabel('Cycle Length Previous Beat (s)');
+                    ylabel('Cycle Length (s)');
+                    title(strcat('Cycle Length vs Previous Beat Cycle Length', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, '_cycle_length_per_previous_cycle_length')), 'png')
+                    hold('off')
+                    close(fig)
+
+                    t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
+                    t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
+                    t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
+                    t_wave_peak_array = t_wave_peak_array(~isnan(t_wave_peak_array));
+                    activation_times = electrode_data(electrode_count).activation_times;
+                    activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                    fpd_beats = electrode_data(electrode_count).beat_num_array(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                    elec_FPDs = [t_wave_peak_times - activation_times];
+                    fig = figure();
+                    set(fig, 'Visible', 'off')
+                    plot(fpd_beats, elec_FPDs, 'bo');
+                    xlabel('Beat Number');
+                    ylabel('FPD (s)');
+                    ylim([0 max(elec_FPDs)])
+                    title(strcat('FPD per Beat Num', {' '}, electrode_data(electrode_count).electrode_id),  'Interpreter', 'none');
+                    savefig(fullfile(save_dir, strcat(well_ID, '_figures'),  strcat(electrode_data(electrode_count).electrode_id, '_FPD_per_beat_number')));
+                    saveas(fig, fullfile(save_dir, strcat(well_ID, '_images'),  strcat(electrode_data(electrode_count).electrode_id, 'FPD_per_beat_number')), 'png')
+                    hold('off')
+                    close(fig)
+                end
+            end
+        end
+        well_FPDs = well_FPDs(~isnan(well_FPDs));
+        well_slopes = well_slopes(~isnan(well_slopes));
+        well_amps = well_amps(~isnan(well_amps));
+        well_bps = well_bps(~isnan(well_bps));
+        
+        mean_FPD = mean(well_FPDs);
+        mean_slope = mean(well_slopes);
+        mean_amp = mean(well_amps);
+        mean_bp = mean(well_bps);
+        
+        headings = {strcat(well_ID, ': Well-wide statistics'); 'max start activation time (s)'; 'max start activation time electrode id';'min start activation time (s)'; 'min start activation time electrode id'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'; 'Conduction Velocity (dum/dt)'};
+        mean_data1 = [max_act_time]; 
+        mean_data2 = [mean_FPD; mean_slope; mean_amp; mean_bp; well_electrode_data(well_count).conduction_velocity];
+        mean_data1 = num2cell(mean_data1);
+        mean_data2 = num2cell(mean_data2);
+        mean_data = vertcat({''}, {max_act_time}, {max_act_elec_id}, {min_act_time}, {min_act_elec_id}, mean_data2);
+        
+        
+        well_stats = horzcat(headings, mean_data);
+        %max_act_elec_id
+        %cell%disp(well_stats);
+        well_stats = vertcat(well_stats, average_electrodes);
+        %well_stats = cellstr(well_stats)
+        
+        %cell%disp(well_stats)
+        
+        %xlswrite(output_filename, well_stats, 1);
+        fileattrib(output_filename, '-h +w');
+        writecell(well_stats, output_filename, 'Sheet', 1);
+        
+        
+        if saving_multiple == 0
+            close(wait_bar)
+            msgbox(strcat('Saved Data for', {' '}, well_ID, {' '}, 'to', {' '}, output_filename));
+        
+            set(well_elec_fig, 'visible', 'on')
+        end
+        
+        fclose('all');
+
+    end
+    %{
+    function saveB2BButtonPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, save_plots, saving_multiple)
+        %%disp('save b2b')
+        %%disp(save_dir)
+        
+        
+        disp(strcat('Saving Data for', {' '}, well_ID))
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        if exist(output_filename, 'file')
+            delete(output_filename);
+        end
+        
+        if saving_multiple == 0
+            set(well_elec_fig, 'visible', 'off')
+            wait_bar = waitbar(0, strcat('Saving Data for ', {' '}, well_ID));
+            
+        end
+        
+        if save_plots == 1
+            if ~exist(fullfile(save_dir, strcat(well_ID, '_figures')), 'dir')
+                mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
+            else
+                try
+                    rmdir(fullfile(save_dir, strcat(well_ID, '_figures')), 's')
+                    mkdir(fullfile(save_dir, strcat(well_ID, '_figures')))
+                catch
+                    msgbox(strcat('A file in', {' '}, fullfile(save_dir, strcat(well_ID, '_figures')), {' '}, 'is open. Please close and try saving again.'))
+                    if saving_multiple == 0
+                        close(wait_bar)
+                        set(well_elec_fig, 'visible', 'on')
+                    
+                    end
+                    return
+                end
+            end
+            if ~exist(fullfile(save_dir, strcat(well_ID, '_images')), 'dir')
+                mkdir(fullfile(save_dir, strcat(well_ID, '_images')))
+            else
+                try 
+                    rmdir(fullfile(save_dir, strcat(well_ID, '_images')), 's')
+                    mkdir(fullfile(save_dir, strcat(well_ID, '_images')))
+                catch
+                    msgbox(strcat('A file in', {' '}, fullfile(save_dir, strcat(well_ID, '_images')), {' '}, 'is open. Please close and try saving again.'))
+                    if saving_multiple == 0
+                        close(wait_bar)
+                        set(well_elec_fig, 'visible', 'on')
+                    
+                    end
+                    return
+                    
+                end
+            end
+        end
+        well_FPDs = [];
+        well_slopes = [];
+        well_amps = [];
+        well_bps = [];
+        
+        sheet_count = 1;
+        electrode_data = well_electrode_data(well_count).electrode_data;
+        elec_ids = [electrode_data(:).electrode_id];
+        average_electrodes = {};
+        max_act_elec_id = '';
+        max_act_time = nan;
+        min_act_elec_id = '';
+        min_act_time = nan;
+        %for elec_r = 1:num_electrode_rows
+        num_partitions = 1/(num_electrode_rows*num_electrode_cols);
+        partition = num_partitions;
+        for elec_r = num_electrode_rows:-1:1
+            for elec_c = 1:num_electrode_cols
+                if saving_multiple == 0
+                    waitbar(partition, wait_bar, strcat('Saving Data for ', {' '}, well_ID));
+                    partition = partition+num_partitions;
+                end
+                
+                %elec_id = strcat(well_ID, '_', num2str(elec_r), '_', num2str(elec_c));
+                elec_id = strcat(well_ID, '_', num2str(elec_c), '_', num2str(elec_r));
+                elec_indx = contains(elec_ids, elec_id);
+                elec_indx = find(elec_indx == 1);
+                if isempty(elec_indx)
+                    continue
+                end
                 electrode_count = elec_indx;
                 
                 if isempty(electrode_data(electrode_count).beat_start_times)
@@ -2678,6 +3150,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         fclose('all');
 
     end
+    %}
 
     function saveB2BPlotsButtonPushed(save_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols)
         %%disp('save b2b')
@@ -2911,7 +3384,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         well_bps = [];
         
         if saving_multiple == 0
-            set(well_elec_fig, 'visible', 'off')
+            %set(well_elec_fig, 'visible', 'off')
             wait_bar = waitbar(0, strcat('Saving Data for ', {' '}, well_ID));
         end
         
@@ -2967,7 +3440,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 well_bps = [well_bps bps];
                 
                 
-                
+                %{
                 activation_times = well_electrode_data(well_count).electrode_data(electrode_count).ave_activation_time;
                 [br, bc] = size(activation_times);
                 activation_times = reshape(activation_times, [bc br]);
@@ -3025,7 +3498,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 elec_id_column = elec_id_column;
                 %%disp(elec_id_column)
                 %%disp(class(elec_id_column))
+                %}
                 
+                %{
+                % Old cell array method
                 if strcmp(spon_paced, 'spon')
                         
                     time_start_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_start]);
@@ -3130,6 +3606,216 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array, warning_array);
                 
                 end
+                %}
+                
+                
+                
+                activation_times = well_electrode_data(well_count).electrode_data(electrode_count).ave_activation_time;
+                [br, bc] = size(activation_times);
+                activation_times = reshape(activation_times, [bc br]);
+                activation_times = num2cell([activation_times]);
+                %cell%disp(activation_times)
+                
+                [br, bc] = size(amps);
+                amps = reshape(amps, [bc br]);
+                amps = num2cell([amps]);
+                %cell%disp(amps)
+                
+                [br, bc] = size(slopes);
+                slopes = reshape(slopes, [bc br]);
+                slopes = num2cell([slopes]);
+
+                %cell%disp(slopes)
+                
+                t_wave_peak_times = well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time;
+                [br, bc] = size(t_wave_peak_times);
+                t_wave_peak_times = reshape(t_wave_peak_times, [bc br]);
+                t_wave_peak_times = num2cell([t_wave_peak_times]);
+                %cell%disp(t_wave_peak_times)
+                
+                %ave_t_wave_peak = electrode_data(electrode_count).average_waveform(find(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_t_wave_peak_time));
+                
+                peak_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).ave_wave_time >= well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time);
+                ave_t_wave_peak = well_electrode_data(well_count).electrode_data(electrode_count).average_waveform(peak_indx(1));
+                
+                
+                t_wave_peak_array = ave_t_wave_peak;
+                [br, bc] = size(t_wave_peak_array);
+                t_wave_peak_array = reshape(t_wave_peak_array, [bc br]);
+                t_wave_peak_array = num2cell([t_wave_peak_array]);
+                %cell%disp(t_wave_peak_array)
+                
+                [br, bc] = size(FPDs);
+                FPDs = reshape(FPDs, [bc br]);
+                FPDs = num2cell([FPDs]);
+      
+                %cell%disp(FPDs)
+                
+                [br, bc] = size(bps);
+                beat_periods = reshape(bps, [bc br]);
+                beat_periods = num2cell([beat_periods]);
+                %cell%disp(beat_periods)
+
+                if strcmp(spon_paced, 'spon')
+                    
+                    
+                        
+                    time_start_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_start]);
+                    
+                    
+                    time_end_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_end]);
+                    
+                    
+                    bdt_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).bdt]);
+                    
+                    
+                    min_bp_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).min_bp]);
+                    
+                    
+                    max_bp_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).max_bp]);
+                    
+                    
+                    post_spike_hold_off_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off]);
+                    
+                    
+                    t_wave_duration_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_duration]);
+                    
+                    
+                    t_wave_offset_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_offset]);
+                    
+                    
+                    %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
+                    t_wave_shape_array = {well_electrode_data(well_count).electrode_data(electrode_count).t_wave_shape};
+                    
+                    filter_intensity_array = {well_electrode_data(well_count).electrode_data(electrode_count).filter_intensity};
+                    
+                    warning_array = {well_electrode_data(well_count).electrode_data(electrode_count).ave_warning};
+                    
+                    
+                    
+                    electrode_stats_table = table('Size', [1, 19], 'VariableTypes', ["string", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Detection Threshold Input (V)', 'Mininum Beat Period Input (s)', 'Maximum Beat Period Input (s)', 'Post-spike hold-off (s)', 'T-wave Duration Input (s)', 'T-wave offset Input (s)', 'T-wave Shape', 'Filter Intensity', 'Warnings']));
+                    
+                    electrode_stats_table(:, 2) = activation_times;
+                    electrode_stats_table(:, 3) = amps;
+                    electrode_stats_table(:, 4) = slopes;
+                    electrode_stats_table(:, 5) = t_wave_peak_times;
+                    electrode_stats_table(:, 6) = t_wave_peak_array;
+                    electrode_stats_table(:, 7) = FPDs;
+                    electrode_stats_table(:, 8) = beat_periods;
+                    electrode_stats_table(:, 9) = time_start_array;
+                    electrode_stats_table(:, 10) = time_end_array;
+                    electrode_stats_table(:, 11) = bdt_array;
+                    electrode_stats_table(:, 12) = min_bp_array;
+                    electrode_stats_table(:, 13) = max_bp_array;
+                    electrode_stats_table(:, 14) = post_spike_hold_off_array;
+                    electrode_stats_table(:, 15) = t_wave_duration_array;
+                    electrode_stats_table(:, 16) = t_wave_offset_array;
+                    electrode_stats_table(:, 17) = t_wave_shape_array;
+                    electrode_stats_table(:, 18) = filter_intensity_array;
+                    electrode_stats_table(:, 19) = warning_array;
+                    
+                    
+                    
+                elseif strcmp(spon_paced, 'paced')
+                    time_start_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_start]);
+                    
+                    time_end_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_end]);
+                    
+                    stim_spike_hold_off_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).stim_spike_hold_off]);
+                    
+                    post_spike_hold_off_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off]);
+                    
+                    t_wave_duration_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_duration]);
+                    
+                    t_wave_offset_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_offset]);
+
+
+                    %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
+                    t_wave_shape_array = {well_electrode_data(well_count).electrode_data(electrode_count).t_wave_shape};
+                    
+                    filter_intensity_array = {well_electrode_data(well_count).electrode_data(electrode_count).filter_intensity};
+                    
+                    warning_array = {well_electrode_data(well_count).electrode_data(electrode_count).ave_warning};
+                    
+                   
+                    electrode_stats_table = table('Size', [1, 17], 'VariableTypes', ["string", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Stim-spike hold-off (s)', 'Post-spike hold-off (s)', 'T-wave Duration Input (s)', 'T-wave offset Input (s)', 'T-wave Shape', 'Filter Intensity', 'Warnings']));
+                    
+                    electrode_stats_table(:, 2) = activation_times;
+                    electrode_stats_table(:, 3) = amps;
+                    electrode_stats_table(:, 4) = slopes;
+                    electrode_stats_table(:, 5) = t_wave_peak_times;
+                    electrode_stats_table(:, 6) = t_wave_peak_array;
+                    electrode_stats_table(:, 7) = FPDs;
+                    electrode_stats_table(:, 8) = beat_periods;
+                    electrode_stats_table(:, 9) = time_start_array;
+                    electrode_stats_table(:, 10) = time_end_array;
+                    electrode_stats_table(:, 11) = stim_spike_hold_off_array;
+                    electrode_stats_table(:, 12) = post_spike_hold_off_array;
+                    electrode_stats_table(:, 13) = t_wave_duration_array;
+                    electrode_stats_table(:, 14) = t_wave_offset_array;
+                    electrode_stats_table(:, 15) = t_wave_shape_array;
+                    electrode_stats_table(:, 16) = filter_intensity_array;
+                    electrode_stats_table(:, 17) = warning_array;
+                    
+                elseif strcmp(spon_paced, 'paced bdt')
+                    time_start_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_start]);
+                    time_start_array = vertcat('Time Region Start (s)', time_start_array);
+                    
+                    time_end_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_end]);
+                    time_end_array = vertcat('Time Region End (s)', time_end_array);
+                    
+                    bdt_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).bdt]);
+                    bdt_array = vertcat('Beat Detection Threshold Input (V)', bdt_array);
+                    
+                    min_bp_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).min_bp]);
+                    min_bp_array = vertcat('Mininum Beat Period Input (s)', min_bp_array);
+                    
+                    max_bp_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).max_bp]);
+                    max_bp_array = vertcat('Maximum Beat Period Input (s)', max_bp_array);
+                    
+                    stim_spike_hold_off_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).stim_spike_hold_off]);
+                    stim_spike_hold_off_array = vertcat('Stim-spike hold-off (s)', stim_spike_hold_off_array);
+                    
+                    post_spike_hold_off_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off]);
+                    post_spike_hold_off_array = vertcat('Post-spike hold-off (s)', post_spike_hold_off_array);
+                    
+                    t_wave_duration_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_duration]);
+                    
+                    t_wave_offset_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).t_wave_offset]);
+                    
+                    %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
+                    t_wave_shape_array = {well_electrode_data(well_count).electrode_data(electrode_count).t_wave_shape};
+                    
+                    filter_intensity_array = {well_electrode_data(well_count).electrode_data(electrode_count).filter_intensity};
+                    
+                    warning_array = {well_electrode_data(well_count).electrode_data(electrode_count).ave_warning};
+                    
+                    
+                    
+                    %electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array, warning_array);
+                
+                    electrode_stats_table = table('Size', [1, 20], 'VariableTypes', ["string", "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Detection Threshold Input (V)', 'Mininum Beat Period Input (s)', 'Maximum Beat Period Input (s)', 'Stim-spike hold-off (s)', 'Post-spike hold-off (s)', 'T-wave Duration Input (s)', 'T-wave offset Input (s)', 'T-wave Shape', 'Filter Intensity', 'Warnings']));
+                    
+                    electrode_stats_table(:, 2) = activation_times;
+                    electrode_stats_table(:, 3) = amps;
+                    electrode_stats_table(:, 4) = slopes;
+                    electrode_stats_table(:, 5) = t_wave_peak_times;
+                    electrode_stats_table(:, 6) = t_wave_peak_array;
+                    electrode_stats_table(:, 7) = FPDs;
+                    electrode_stats_table(:, 8) = beat_periods;
+                    electrode_stats_table(:, 9) = time_start_array;
+                    electrode_stats_table(:, 10) = time_end_array;
+                    electrode_stats_table(:, 11) = bdt_array; 
+                    electrode_stats_table(:, 12) = min_bp_array; 
+                    electrode_stats_table(:, 13) = max_bp_array; 
+                    electrode_stats_table(:, 14) = stim_spike_hold_off_array;
+                    electrode_stats_table(:, 15) = post_spike_hold_off_array;
+                    electrode_stats_table(:, 16) = t_wave_duration_array;
+                    electrode_stats_table(:, 17) = t_wave_offset_array;
+                    electrode_stats_table(:, 18) = t_wave_shape_array;
+                    electrode_stats_table(:, 19) = filter_intensity_array;
+                    electrode_stats_table(:, 20) = warning_array;
+                end
                 
                 
                 %electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, );
@@ -3137,11 +3823,6 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
                 %electrode_stats = {electrode_stats_header;electrode_stats};
                 
-                electrode_stats = cellstr(electrode_stats);
-                
-                %cell%disp(electrode_stats)
-
-                [ec, er] = size(electrode_stats);
                 
                 
                 % all_data must be a cell array
@@ -3151,7 +3832,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         fileattrib(output_filename, '-h +w');
                     end
 
-                    writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                    %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+                    writetable(electrode_stats_table, output_filename, 'Sheet', sheet_count);
                     fileattrib(output_filename, '+h +w');
                 catch
                     msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));

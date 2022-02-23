@@ -1044,14 +1044,14 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         wait_bar = waitbar(0, 'Saving GE Data');
         
         
-        %set(ge_results_fig, 'visible', 'off')
+        set(ge_results_fig, 'visible', 'off')
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
-        if ~exist(fullfile(save_dir, 'GE_figures'), 'dir')
-            mkdir(fullfile(save_dir, 'GE_figures'))
+        if ~exist(fullfile(save_dir, '_figures'), 'dir')
+            mkdir(fullfile(save_dir, '_figures'))
         else
             try
-                rmdir(fullfile(save_dir, 'GE_figures'), 's')
-                mkdir(fullfile(save_dir, 'GE_figures'))
+                rmdir(fullfile(save_dir, '_figures'), 's')
+                mkdir(fullfile(save_dir, '_figures'))
             catch
                 msgbox(strcat('A file in', {' '}, fullfile(save_dir, '_figures'), {' '}, 'is open. Please close and try saving again.'))
                 close(wait_bar)
@@ -1059,12 +1059,12 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 return
             end
         end
-        if ~exist(fullfile(save_dir, 'GE_images'), 'dir')
-            mkdir(fullfile(save_dir, 'GE_images'))
+        if ~exist(fullfile(save_dir, '_images'), 'dir')
+            mkdir(fullfile(save_dir, '_images'))
         else
             try
-                rmdir(fullfile(save_dir, 'GE_images'), 's')
-                mkdir(fullfile(save_dir, 'GE_images'))
+                rmdir(fullfile(save_dir, '_images'), 's')
+                mkdir(fullfile(save_dir, '_images'))
             catch
                 msgbox(strcat('A file in', {' '}, fullfile(save_dir, '_images'), {' '}, 'is open. Please close and try saving again.'))
                 close(wait_bar)
@@ -1262,14 +1262,16 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
                 t_wave_duration_array = num2cell([electrode_data(min_electrode_beat_stdev_indx).t_wave_duration]);
 
+
                 t_wave_offset_array = num2cell([electrode_data(min_electrode_beat_stdev_indx).t_wave_offset]);
+                t_wave_offset_array = vertcat('T-wave offset Input (s)', t_wave_offset_array);
 
                 %t_wave_shape_array = num2cell([electrode_data(electrode_count).t_wave_shape]);
-                t_wave_shape_array = {electrode_data(min_electrode_beat_stdev_indx).t_wave_shape};
+                t_wave_shape_array = vertcat('T-wave Shape', {electrode_data(min_electrode_beat_stdev_indx).t_wave_shape});
                 
-                filter_intensity_array = {electrode_data(min_electrode_beat_stdev_indx).filter_intensity};
+                filter_intensity_array = vertcat('Filter Intensity', {electrode_data(min_electrode_beat_stdev_indx).filter_intensity});
 
-                warning_array = {electrode_data(min_electrode_beat_stdev_indx).ave_warning};
+                warning_array = vertcat('Warnings', {electrode_data(min_electrode_beat_stdev_indx).ave_warning});
 
                 
                 %electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array, warning_array);
@@ -1302,28 +1304,16 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             %electrode_stats = {[elec_id_column] [beat_num_array] [beat_start_times] [activation_times] [amps] [slopes] [t_wave_peak_times] [t_wave_peak_array] [FPDs] [beat_periods] [cycle_length_array]};
             %electrode_stats = {electrode_stats_header;electrode_stats};
 
+            electrode_stats = cellstr(electrode_stats);
 
             % all_data must be a cell array
             %xlswrite(output_filename, electrode_stats, sheet_count);
             
-            
-            %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
-            
-            %try 
-                if sheet_count ~= 2
-                    fileattrib(output_filename, '-h +w');
-                end
-                
-                writetable(electrode_stats_table, output_filename, 'Sheet', sheet_count);
-                fileattrib(output_filename, '+h +w');
-                
-            %catch
-             %   msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
-             %   close(wait_bar)
-
-             %   set(ge_results_fig, 'visible', 'on')
-             %   return
-           % end
+            if sheet_count ~= 2
+                fileattrib(output_filename, '-h +w');
+            end
+            writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
+            fileattrib(output_filename, '+h +w');
             
             fig = figure();
             set(fig, 'visible', 'off');
@@ -1341,8 +1331,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
             legend('signal', 'max depol', 'min depol', 'act. time', 'repol. recovery', 'location', 'northeastoutside')
             title({electrode_data(min_electrode_beat_stdev_indx).electrode_id},  'Interpreter', 'none')
-            savefig(fullfile(save_dir, 'GE_figures',  electrode_data(min_electrode_beat_stdev_indx).electrode_id));
-            saveas(fig, fullfile(save_dir, 'GE_images',  electrode_data(min_electrode_beat_stdev_indx).electrode_id), 'png')
+            savefig(fullfile(save_dir, 'figures',  electrode_data(min_electrode_beat_stdev_indx).electrode_id));
+            saveas(fig, fullfile(save_dir, 'images',  electrode_data(min_electrode_beat_stdev_indx).electrode_id), 'png')
             hold('off')
             close(fig)
         end

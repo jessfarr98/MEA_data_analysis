@@ -1006,7 +1006,6 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
         
     %end
     %%disp(window);
-    
     [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, electrode_data(electrode_count).ave_warning] = rate_analysis(artificial_time_space, average_waveform, post_spike_hold_off, stim_spike_hold_off, spon_paced, artificial_time_space(1), electrode_id, filter_intensity, '');
     activation_time_indx = find(artificial_time_space >=max_act_offset);
     activation_time = artificial_time_space(activation_time_indx(1));
