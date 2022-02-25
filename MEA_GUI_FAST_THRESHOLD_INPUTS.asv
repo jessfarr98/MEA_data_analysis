@@ -269,10 +269,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
                 im = uiimage(input_thresh_pan, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 2
-                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [40 250 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
-                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [40 250 im_width, im_height]);
     
 
             end

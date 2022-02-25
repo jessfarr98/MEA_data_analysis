@@ -100,6 +100,10 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
+   instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
+   
+   
+   
    run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
    set(run_button, 'Visible', 'off')
    
@@ -111,6 +115,26 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
    
    start_fig.WindowState = 'maximized';
    
+   function instructionsButtonPushed(instructions_button, start_fig)
+       set(start_fig, 'visible', 'off');
+       
+       instructions_fig = uifigure;
+       movegui(instructions_fig,'center')
+       instructions_fig.WindowState = 'maximized';
+       
+       instr_pan = uipanel(instructions_fig, 'BackgroundColor','#B02727', 'Position', [0 0 screen_width screen_height]);
+       close_instructions_button = uibutton(instr_pan,'push','Text', 'Back', 'Position',[screen_width-120, 100, 100, 60], 'ButtonPushedFcn', @(close_instructions_button,event) closeInstructionsButtonPushed());
+   
+       
+       textarea = uitextarea(instr_pan, 'Position', [0 0 screen_width-150 screen_height-100], 'Value',{'It is recommended to look at recordings via the Preview Data button to select wells via the Choose Custom Wells button that require similar analysis inputs to allow quicker analyses to be performed. Changing the Plate/Well Thresholding dropdown to Plate will allow each of these wells to be combined in the next input menu to quickly choose analysis inputs that work for each of the selected wells. If Custom wells is not selected then the entire plate will be analysed. To engage in more curated analyses, keeping the Plate/Well Thresholding drowdown at the Well option will allow each well to be individually inspected and have unique inputs designated for its analysis.', ' ', 'When the Beat2Beat option is set to on, this will determine the fiducial points of each beat in the entire recording for each electrode. The output file will contain statistics reported for each detected beat for each electrode as well as average statistics for each electrode and the well. To focus on particular time ranges of the recording the Beat2Beat Options drop down can be set to time region.', ' ', 'If the Beat2Beat Option is set to off then the menu will display a new dropdown that allows users to choose if they want to base their analyses off the golden electrode, which is the averaged waveform from the elctrode that has the most stable set of consecutive beats within a selected time window. The number of waveforms to investigate are extracted by dividing the entered time window by the average beat period of the recording. The stdev of te BPs are then compared and the electrode with the lowest stdev is selected as the golden electrode. If the user opts for the average waveform analysis then they will be required to enter a time range in the analysis input menu. The output will then be an average waveform for each electrode that is calculated by averaging the detected beats between the selected time range.'});
+       %textarea.Scrollable = 'on';
+       
+       function closeInstructionsButtonPushed()
+           close(instructions_fig)
+           set(start_fig, 'visible', 'on');
+           
+       end
+   end
    function b2bdropdown_menu_Callback(b2bdropdown,beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown) 
       beat_to_beat = b2bdropdown.Value;
       if beat_to_beat == 1

@@ -133,7 +133,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           movegui(well_fig,'center');
           well_fig.WindowState = 'maximized';
           
-          well_fig.Name = strcat(wellID, {''}, 'BDT GUI');
+          well_fig.Name = strcat(wellID, {' '}, 'BDT GUI');
           well_p = uipanel(well_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
           
           well_ax = uiaxes(well_p, 'BackgroundColor','#f2c2c2', 'Position', [10 100 screen_width-300 screen_height-200]);
@@ -228,6 +228,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'Position', [120 60 100 40], 'Editable','off');
           t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 10 100 40]);
           t_wave_up_down_dropdown.ItemsData = [1 2 3];
+          
+          help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
+     
           
           t_wave_peak_offset_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Repol. Time Offset (s)', 'Position', [240 60 100 40], 'Editable','off');
           t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'BackgroundColor','#e68e8e', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
@@ -408,6 +411,65 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    function returnInputMenuPushed()
         %MEA_GUI(raw_file, save_dir)
         MEA_GUI_Return(RawData, Stims, save_dir, 0)
+   end
+
+   function HelpButtonPushed(t_wave_up_down_dropdown)
+        help_fig = uifigure;
+        movegui(help_fig,'center');
+        help_fig.WindowState = 'maximized';
+        
+        help_p = uipanel(help_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
+        
+        close_help_button = uibutton(help_p, 'push', 'Text', 'close', 'Position',[screen_width-250 50 60 60], 'ButtonPushedFcn', @(close_help_button,event) closeHelpButtonPushed());
+     
+        if screen_height <= 1200
+            im_height = screen_height-80;
+            
+        else
+            
+            im_height = 1200;
+            
+        end
+        
+        if screen_width <= 800
+            im_width = screen_width -300;
+        else
+            
+            im_width = 800;
+        end
+          
+        
+        
+        if strcmp(spon_paced, 'spon')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            end
+        elseif strcmp(spon_paced, 'paced')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [20 20 im_width im_height]);
+    
+            end
+            
+        end
+        
+       function closeHelpButtonPushed()
+          close(help_fig); 
+       end
+       
+        
    end
 
    function skipWellButtonPushed(skip_well_button, wellID, well_fig)

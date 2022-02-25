@@ -1309,7 +1309,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             
             %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
             
-            %try 
+            try 
                 if sheet_count ~= 2
                     fileattrib(output_filename, '-h +w');
                 end
@@ -1317,13 +1317,13 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 writetable(electrode_stats_table, output_filename, 'Sheet', sheet_count);
                 fileattrib(output_filename, '+h +w');
                 
-            %catch
-             %   msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
-             %   close(wait_bar)
+            catch
+                msgbox(strcat(output_filename, {' '}, 'is open and cannot be written to. Please close it and try saving again.'));
+                close(wait_bar)
 
-             %   set(ge_results_fig, 'visible', 'on')
-             %   return
-           % end
+                set(ge_results_fig, 'visible', 'on')
+                return
+            end
             
             fig = figure();
             set(fig, 'visible', 'off');
