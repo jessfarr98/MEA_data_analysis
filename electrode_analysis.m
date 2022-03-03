@@ -58,6 +58,8 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                 t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8, 'Position', [120 10 100 40]);
                 t_wave_up_down_dropdown.ItemsData = [1 2 3];
 
+                help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
+     
                 t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Repol. Time Offset (s)', 'FontSize', 8, 'Position', [240 60 100 40], 'Editable','off');
                 t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time', 'BackgroundColor','#e68e8e', 'Position', [240 10 100 40], 'FontSize', 12, 'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, electrode_data(electrode_count).time(end), spon_paced, electrode_data(electrode_count).Stims, well_ax, min_voltage, max_voltage));
           
@@ -232,8 +234,8 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                             %elec_ax.XLim = [electrode_data(electrode_count).beat_start_times(mid_beat) electrode_data(electrode_count).beat_start_times(mid_beat+1)];
 
                             if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
-                                time_start = ectopic_plus_stims(mid_beat);
-                                time_end = ectopic_plus_stims(mid_beat+1);
+                                time_start = electrode_data(electrode_count).Stims(mid_beat);
+                                time_end = electrode_data(electrode_count).Stims(mid_beat+1);
 
                                 time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
                                 time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
@@ -246,8 +248,8 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                                 plot(elec_ax, electrode_data(electrode_count).Stims(mid_beat), electrode_data(electrode_count).Stim_volts(mid_beat), 'm.', 'MarkerSize', 20);
 
                             elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
-                                time_start = electrode_data(electrode_count).beat_start_times(mid_beat);
-                                time_end = electrode_data(electrode_count).beat_start_times(mid_beat+1);
+                                time_start = ectopic_plus_stims(mid_beat);
+                                time_end = ectopic_plus_stims(mid_beat+1);
 
                                 time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
                                 time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
@@ -451,6 +453,78 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
 
            end
         end
+    end
+
+    function HelpButtonPushed(t_wave_up_down_dropdown)
+        help_fig = uifigure;
+        movegui(help_fig,'center');
+        help_fig.WindowState = 'maximized';
+        
+        help_p = uipanel(help_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
+        
+        close_help_button = uibutton(help_p, 'push', 'Text', 'close', 'Position',[screen_width-250 50 60 60], 'ButtonPushedFcn', @(close_help_button,event) closeHelpButtonPushed());
+     
+        if screen_height <= 1200
+            im_height = screen_height-80;
+            
+        else
+            
+            im_height = 1200;
+            
+        end
+        
+        if screen_width <= 800
+            im_width = screen_width -300;
+            
+        else
+            
+            im_width = 800;
+        end
+        im_horz_offset = (screen_width/2)-(im_width/2);
+        
+        
+        if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            end
+        elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            end
+            
+        elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic downwards png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic upwards png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic polynomial.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            end
+            
+        end
+        
+       function closeHelpButtonPushed()
+          close(help_fig); 
+       end
+       
+        
     end
   
     

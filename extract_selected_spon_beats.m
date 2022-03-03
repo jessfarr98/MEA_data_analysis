@@ -114,7 +114,12 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
        try 
           
-           post_spike_hold_off_time = t_ime(1)+min_beat_period;
+           if min_beat_period <= post_spike_hold_off
+               hold_off_period = post_spike_hold_off*2;
+           else
+               hold_off_period = min_beat_period;
+           end
+           post_spike_hold_off_time = t_ime(1)+hold_off_period;
            
            pshot_indx = find(t_ime >= post_spike_hold_off_time);
            pshot_indx_offset = pshot_indx(1);
@@ -170,6 +175,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        
        beat_time = time(prev_beat_indx:beat_indx);
        beat_data = data(prev_beat_indx:beat_indx);
+       
        
        % Trim and then scale and set back to time zero for each beat
        % Start small degrees of freedom [1-100], polyfits keep trying and do a survey of error plots, do the optimisation curve thing minimised error analysis 

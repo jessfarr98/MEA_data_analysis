@@ -13,6 +13,9 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             if isempty(elec_id)
                 continue
             end
+            if electrode_data(electrode_count).rejected == 1
+                continue
+            end
             act_array = [act_array; electrode_data(electrode_count).activation_times(2)];
             electrode_ids = [electrode_ids; elec_id];
             electrode_count = electrode_count + 1;
@@ -33,6 +36,10 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             elec_id = electrode_data(electrode_count).electrode_id;
             
             if isempty(elec_id)
+                continue
+            end
+            
+            if electrode_data(electrode_count).rejected == 1
                 continue
             end
             

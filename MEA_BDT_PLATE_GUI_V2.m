@@ -225,8 +225,7 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    xlabel(well_ax, 'Seconds (s)');
    ylabel(well_ax, 'Milivolts (mV)');
    
-   help_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
-          
+       
    
    return_input_menu_button = uibutton(well_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Return to Main Menu', 'Position',[screen_width-250 360 200 60], 'ButtonPushedFcn', @(return_input_menu_button,event) returnInputMenuPushed());
           
@@ -243,6 +242,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    t_wave_up_down_dropdown = uidropdown(well_p, 'FontSize', 8, 'Items', {'minimum', 'maximum', 'inflection'}, 'Position', [120 10 100 40]);
    t_wave_up_down_dropdown.ItemsData = [1 2 3];
 
+   help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
+     
    t_wave_peak_offset_text = uieditfield(well_p,'Text', 'FontSize', 8, 'Value', 'Repol. Time Offset (s)', 'Position', [240 60 100 40], 'Editable','off');
    t_wave_peak_offset_ui = uieditfield(well_p, 'numeric', 'Tag', 'T-Wave Time','BackgroundColor','#e68e8e', 'Position', [240 10 100 40],  'ValueChangedFcn',@(t_wave_peak_offset_ui,event) changeTWaveTime(t_wave_peak_offset_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end), spon_paced, Stims, well_ax, min_voltage, max_voltage));
 
@@ -472,31 +473,44 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
             
             im_width = 800;
         end
+        im_horz_offset = (screen_width/2)-(im_width/2);
           
         
         
         if strcmp(spon_paced, 'spon')
             if get(t_wave_up_down_dropdown, 'Value') == 1
-                im = uiimage(help_p, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 2
-                im = uiimage(help_p, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
-                im = uiimage(help_p, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             end
         elseif strcmp(spon_paced, 'paced')
             if get(t_wave_up_down_dropdown, 'Value') == 1
-                im = uiimage(help_p, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 2
-                im = uiimage(help_p, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
-                im = uiimage(help_p, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [20 20 im_width im_height]);
+                im = uiimage(help_p, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [im_horz_offset 20 im_width im_height]);
     
             end
+        elseif strcmp(spon_paced, 'paced bdt')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic downwards png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic upwards png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(help_p, 'ImageSource', 'paced ectopic polynomial png.png', 'Position', [im_horz_offset 20 im_width im_height]);
+    
+            end
+         
             
         end
         

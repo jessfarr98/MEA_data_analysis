@@ -3,8 +3,6 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     
     total_duration = time(end);
     
-    disp(bdt)
-    
     prev_beat_indx = 1;
     beat_indx = 1;
     
@@ -166,16 +164,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            end
            disp('bdt has been increased due to beat period being too short')
            
-           disp(bdt)
-           disp(fail_beat_detection)
 
            if prev_beat_indx ~= 1
                beat_indx = prev_beat_indx;
                bdt = bdt*1.5;
                
-               disp(beat_time(end))
-               disp(window)
-               disp(total_duration)
                if beat_time(end)+window > total_duration
                    break;
                end
@@ -256,7 +249,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
        end
            
-       act_point_indx = find(beat_data(beat_time >= activation_time));
+       act_point_indx = find(beat_time >= activation_time);
        act_point_indx = act_point_indx(1);
        act_point = beat_data(act_point_indx);
        

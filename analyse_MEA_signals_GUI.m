@@ -606,7 +606,10 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
                 
             end
             %elecrode_count = electrode_count+1;
-            waitbar(partition, wait_bar, strcat('Analysing', {' ' }, wellID))
+            %wait_title = sprintf('Analysing %s', wellID)
+ 
+            %waitbar(partition, wait_bar, 'Analysing Data')
+            waitbar(partition, wait_bar)
             partition = partition+num_partitions;
             [electrode_data(electrode_count).arrhythmia_indx, electrode_data(electrode_count).warning_array] = arrhythmia_analysis(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).warning_array);
         end

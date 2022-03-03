@@ -333,7 +333,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
 
     for n = 1:num_beats
         
-        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
+        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat)));
         
         partition = partition + num_partitions;
         
@@ -352,7 +352,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
             colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
             colormap(dt_ax, hsv)
             caxis(dt_ax, [min_c_lim max_c_lim])
-            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
+            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
         else
 
             n_rows = ceil(num_beats/5);

@@ -1044,7 +1044,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         wait_bar = waitbar(0, 'Saving GE Data');
         
         
-        %set(ge_results_fig, 'visible', 'off')
+        set(ge_results_fig, 'visible', 'off')
         output_filename = fullfile(save_dir, strcat('golden_electrode_results.xls'));
         if ~exist(fullfile(save_dir, 'GE_figures'), 'dir')
             mkdir(fullfile(save_dir, 'GE_figures'))
@@ -1157,10 +1157,12 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
             [br, bc] = size(FPDs);
             FPDs = reshape(FPDs, [bc br]);
+            FPD_num = FPDs;
             FPDs = num2cell([FPDs]);
 
             [br, bc] = size(bps);
             beat_periods = reshape(bps, [bc br]);
+            bp_num = beat_periods;
             beat_periods = num2cell([beat_periods]);
             
             
@@ -1186,9 +1188,12 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 filter_intensity_array = {electrode_data(min_electrode_beat_stdev_indx).filter_intensity};
                 
                 warning_array = {electrode_data(min_electrode_beat_stdev_indx).ave_warning};
+                
+                FPDc_fridericia = FPD_num/((bp_num)^(1/3));
+                FPDc_bazzet = FPD_num/((bp_num)^(1/2));
 
                 %electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, stable_duration_array, bdt_array, min_bp_array, max_bp_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array, warning_array);
-                electrode_stats_table = table('Size', [1, 18], 'VariableTypes', ["string", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "string"], 'VariableNames', cellstr([electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Stable Beats Duration (s)', 'Beat Detection Threshold Input (V)', 'Mininum Beat Period Input (s)', 'Maximum Beat Period Input (s)', 'Post-spike hold-off (s)', 'T-wave Duration Input (s)', 'T-wave offset Input (s)', 'T-wave Shape', 'Filter Intensity', 'Warnings']));
+                electrode_stats_table = table('Size', [1, 20], 'VariableTypes', ["string", "double",  "double", "double",  "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "string"], 'VariableNames', cellstr([electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'FPDc Fridericia (s)', 'FPDc Bazzet (s)', 'Beat Period (s)', 'Stable Beats Duration (s)', 'Beat Detection Threshold Input (V)', 'Mininum Beat Period Input (s)', 'Maximum Beat Period Input (s)', 'Post-spike hold-off (s)', 'T-wave Duration Input (s)', 'T-wave offset Input (s)', 'T-wave Shape', 'Filter Intensity', 'Warnings']));
                     
                 electrode_stats_table(:, 2) = activation_times;
                 electrode_stats_table(:, 3) = amps;
@@ -1196,18 +1201,19 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 electrode_stats_table(:, 5) = t_wave_peak_times;
                 electrode_stats_table(:, 6) = t_wave_peak_array;
                 electrode_stats_table(:, 7) = FPDs;
-                electrode_stats_table(:, 8) = beat_periods;
-                electrode_stats_table(:, 9) = stable_duration_array;
-                electrode_stats_table(:, 10) = bdt_array;
-                electrode_stats_table(:, 11) = min_bp_array;
-                electrode_stats_table(:, 12) = max_bp_array;
-                electrode_stats_table(:, 13) = post_spike_hold_off_array;
-                electrode_stats_table(:, 14) = t_wave_duration_array;
-                electrode_stats_table(:, 15) = t_wave_offset_array;
-                electrode_stats_table(:, 16) = t_wave_shape_array;
-                electrode_stats_table(:, 17) = filter_intensity_array;
-                electrode_stats_table(:, 18) = warning_array;
-
+                electrode_stats_table(:, 8) = num2cell(FPDc_fridericia);
+                electrode_stats_table(:, 9) = num2cell(FPDc_bazzet);
+                electrode_stats_table(:, 10) = beat_periods;
+                electrode_stats_table(:, 11) = stable_duration_array;
+                electrode_stats_table(:, 12) = bdt_array;
+                electrode_stats_table(:, 13) = min_bp_array;
+                electrode_stats_table(:, 14) = max_bp_array;
+                electrode_stats_table(:, 15) = post_spike_hold_off_array;
+                electrode_stats_table(:, 16) = t_wave_duration_array;
+                electrode_stats_table(:, 17) = t_wave_offset_array;
+                electrode_stats_table(:, 18) = t_wave_shape_array;
+                electrode_stats_table(:, 19) = filter_intensity_array;
+                electrode_stats_table(:, 20) = warning_array;
                 
             elseif strcmp(spon_paced, 'paced')
                 stable_duration_array = num2cell([electrode_data(min_electrode_beat_stdev_indx).stable_beats_duration]);
@@ -1310,9 +1316,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
             
             try 
-                if sheet_count ~= 2
+                %if sheet_count ~= 2
                     fileattrib(output_filename, '-h +w');
-                end
+                %end
                 
                 writetable(electrode_stats_table, output_filename, 'Sheet', sheet_count);
                 fileattrib(output_filename, '+h +w');
@@ -1357,8 +1363,20 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         mean_amp = mean(well_amps);
         mean_bp = mean(well_bps);
         
-        headings = {'Analysis Wide Statistics'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
-        mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
+        if strcmp(well_electrode_data(w).spon_paced, 'spon')
+            FPDc_fridericia = mean_FPD/((mean_bp)^(1/3));
+            FPDc_bazzet = mean_FPD/((mean_bp)^(1/2));
+            
+            headings = {'Analysis Wide Statistics'; 'mean FPD (s)'; 'FPDc Fridericia (s)'; 'FPDc Bazzet (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+            mean_data = [mean_FPD; FPDc_fridericia; FPDc_bazzet; mean_slope; mean_amp; mean_bp];
+            
+        else
+        
+            headings = {'Analysis Wide Statistics'; 'mean FPD (s)'; 'mean Depolarisation Slope'; 'mean Depolarisation amplitude (V)'; 'mean Beat Period (s)'};
+            mean_data = [mean_FPD; mean_slope; mean_amp; mean_bp];
+            
+        end
+        
         mean_data = num2cell(mean_data);
         mean_data = vertcat({''}, mean_data);
         %cell%disp(mean_data);

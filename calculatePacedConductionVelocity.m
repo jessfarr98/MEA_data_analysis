@@ -12,6 +12,10 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(electr
                 continue
             end
             
+            if electrode_data(electrode_count).rejected == 1
+                continue
+            end
+            
             %origin electrode = 4,1
             %{
             if ec == 4

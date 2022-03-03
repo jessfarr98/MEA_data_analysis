@@ -29,7 +29,9 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
             disp('depol end')
             disp(depol_complex_time(end))
             %}
-            if length(depol_complex_time) < 1
+            
+            % make it require at least 40 elements so strong filtering can be applied if opted for
+            if length(depol_complex_time) < 40
                 depol_complex_time = time;
                 depol_complex_data = data;
             end
@@ -38,7 +40,8 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
             depol_complex_time = time(1:pshot_indx_offset);
             depol_complex_data = data(1:pshot_indx_offset);
             %disp(length(depol_complex_time))
-            if length(depol_complex_time) < 1
+            % make it require at least 40 elements so strong filtering can be applied if opted for
+            if length(depol_complex_time) < 40
                 %disp('all')
                 depol_complex_time = time;
                 depol_complex_data = data;
@@ -47,6 +50,9 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         
     end
     
+    
+    
+
     %depol_complex_data_derivative = gradient(depol_complex_data_derivative);
     
     %activation_time_indx = find(depol_complex_data_derivative == min(depol_complex_data_derivative));
@@ -102,8 +108,8 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     [tr, tc] = size(depol_complex_time);
     
     if indx_min_depol_point < indx_max_depol_point
-        depol_complex_data = depol_complex_data(1:indx_min_depol_point);
-        depol_complex_time = depol_complex_time(1:indx_min_depol_point);
+        
+        
         
         %{
         if dc == 1
@@ -125,20 +131,60 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         
         end
         %}
-        filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
-        depol_complex_time_filtered = depol_complex_time(1:filtration_rate:indx_min_depol_point);
         
-        max_depol_point = max(filtered_data);
-        indx_max_depol_point = find(filtered_data == max_depol_point);
-        indx_max_depol_point = indx_max_depol_point(1);
-        
-        max_depol_time = depol_complex_time_filtered(indx_max_depol_point);
-    
-        %depol_complex_time_filtered = depol_complex_time;
-        
-        %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
-        
-        depol_complex_data_derivative = gradient(filtered_data);
+        %depol_complex_data = depol_complex_data(1:indx_min_depol_point);
+        %depol_complex_time = depol_complex_time(1:indx_min_depol_point);
+        filtered_data_test = depol_complex_data(1:filtration_rate:indx_min_depol_point);
+        if length(filtered_data_test) > 5
+            filtered_data = filtered_data_test;
+            depol_complex_time_filtered = depol_complex_time(1:filtration_rate:indx_min_depol_point);
+
+            max_depol_point = max(filtered_data);
+            indx_max_depol_point = find(filtered_data == max_depol_point);
+            indx_max_depol_point = indx_max_depol_point(1);
+
+            max_depol_time = depol_complex_time_filtered(indx_max_depol_point);
+
+            %depol_complex_time_filtered = depol_complex_time;
+
+            %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
+
+            depol_complex_data_derivative = gradient(filtered_data);
+
+            if strcmp(warning, '')
+                warning = strcat(warning, 'Possibly no upwards depol stroke');
+            else
+                warning = strcat(warning, {' '}, 'and possibly no upwards depol stroke');
+            end
+        else
+            if strcmp(spon_paced, 'paced')||strcmp(spon_paced, 'paced bdt')
+                if strcmp(warning, '')
+                    warning = strcat(warning, 'Stimulated point possibly not producing a beat');
+                else
+                    warning = strcat(warning, {' '}, 'and stimulated point possibly not producing a beat');
+                end
+                
+            end
+            if dc == 1
+                filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
+                %filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
+
+            else
+
+
+                filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_data(indx_max_depol_point:filtration_rate:end));
+
+            end
+
+            if tc == 1
+                depol_complex_time_filtered = vertcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_time(indx_max_depol_point:filtration_rate:end));
+
+            else
+                depol_complex_time_filtered = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1), depol_complex_time(indx_max_depol_point:filtration_rate:end));
+
+            end
+            depol_complex_data_derivative = gradient(filtered_data);
+        end
     else
         if dc == 1
             filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1), depol_complex_data(indx_min_depol_point:filtration_rate:end));
@@ -257,6 +303,12 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
         
         
     end
+    
+    %if isalmost(time(1), 80.40808, 10^-3)
+
+    
+        
+    
     
     %disp(activation_time)
     

@@ -27,8 +27,9 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
             %RawWellData = RawData{w_r, w_c, :, :};
             count = count + 1;
             wellID = strcat(well_dictionary(w_r), '0', string(w_c));
-            sub_p = uipanel(p, 'BackgroundColor','#d43d3d', 'Title', wellID, 'FontSize', 10,'Position', [((w_c-1)*((screen_width-200)/num_well_cols)) ((w_r-1)*(screen_height/num_well_rows)) (screen_width-200)/num_well_cols screen_height/num_well_rows]);
-            view_button = uibutton(sub_p, 'push', 'BackgroundColor','#e68e8e', 'Text', 'View Data', 'Position',[2 15 ((screen_width-200)/num_well_cols)-10 (screen_height/num_well_rows)-19], 'ButtonPushedFcn', @(view_button,event) viewWellPushed(view_button, wellID, w_r, w_c, screen_width, screen_height, num_electrode_rows, num_electrode_cols));
+            %sub_p = uipanel(p, 'BackgroundColor','#d43d3d', 'Title', wellID, 'FontSize', 10,'Position', [((w_c-1)*((screen_width-200)/num_well_cols)) ((w_r-1)*(screen_height/num_well_rows)) (screen_width-200)/num_well_cols screen_height/num_well_rows]);
+            
+            view_button = uibutton(p, 'push', 'BackgroundColor','#e68e8e', 'Text', sprintf('View %s Data', wellID), 'Position',[((w_c-1)*((screen_width-200)/num_well_cols)) ((w_r-1)*(screen_height/num_well_rows)) (screen_width-200)/num_well_cols screen_height/num_well_rows], 'ButtonPushedFcn', @(view_button,event) viewWellPushed(view_button, wellID, w_r, w_c, screen_width, screen_height, num_electrode_rows, num_electrode_cols));
             
             
         end

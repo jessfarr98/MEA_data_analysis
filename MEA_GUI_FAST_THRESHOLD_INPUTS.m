@@ -38,7 +38,9 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
        end
     end
     %}
-    require_time = 0;
+    %require_time = 0;
+    require_time = 1;
+    found_waveform = 0;
     if strcmp(beat_to_beat, 'on')
         if strcmp(analyse_all_b2b, 'time_region')
             min_end_time = nan;
@@ -51,6 +53,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
         end
     end
     
+    min_end_time = nan;
     if require_time == 1
         for w_r = 1:num_well_rows
            for w_c = 1:num_well_cols
@@ -61,6 +64,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
                          for e_c = 1:num_electrode_cols
                             RawWellData = RawData{w_r, w_c, e_c, e_r};
                             if (strcmp(class(RawWellData),'Waveform'))
+                                found_waveform = 1;
                                 %if ~empty(WellRawData)
                                 %disp(num_well_rows*num_well_cols)
                                 %disp(count)
@@ -87,6 +91,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
                             %if ~empty(WellRawData)
                             %disp(num_well_rows*num_well_cols)
                             %disp(count)
+                            found_waveform = 1;
                             [time, ~] = RawWellData.GetTimeVoltageVector;
                             if isnan(min_end_time)
                                 min_end_time = time(end);
@@ -106,6 +111,12 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
         end
 
     end
+    
+    if found_waveform == 0
+        close(input_thresh_fig)
+        MEA_GUI_Return(RawData, Stims, save_dir, 0)
+        return;
+    end
    
     input_thresh_pan = uipanel(input_thresh_fig, 'BackgroundColor','#d43d3d', 'Position', [0 0 screen_width screen_height]);
     %input_thresh_pan = uipanel(input_thresh_fig, 'Position', [0 0 screen_width screen_height]);
@@ -113,24 +124,27 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     
     if screen_height <= 1200
         im_height = screen_height-300;
-
+        %im_vert_offset = (screen_height/2)-(im_height/2);
     else
-
         im_height = 1200;
-
+        %im_vert_offset = (screen_height/2)-(im_height/2);
     end
 
     if screen_width <= 800
         im_width = screen_width -300;
+        im_horz_offset = 40;
     else
-
+        
         im_width = 800;
+        im_horz_offset = (screen_width/2)-(im_width/2);
     end
     if strcmp(spon_paced, 'spon')
-        im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
-    else
-        im = uiimage(input_thresh_pan, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+        im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
+    elseif strcmp(spon_paced, 'paced')
+        im = uiimage(input_thresh_pan, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
         
+    elseif strcmp(spon_paced, 'paced bdt')
+        im = uiimage(input_thresh_pan, 'ImageSource', 'paced ectopic downwards png.png', 'Position', [im_horz_offset 220 im_width im_height]);
     end
     
     %submit_in_well_button = uibutton(input_thresh_pan,'push','Text', 'Submit Input Estimates', 'Position',[screen_width-250 120 200 60], 'ButtonPushedFcn', @(submit_in_well_button,event) submitButtonPushed(submit_in_well_button, input_thresh_fig));
@@ -177,7 +191,7 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
         max_bp_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Max BP', 'BackgroundColor','#e68e8e', 'Position', [840 100 100 40], 'ValueChangedFcn', @(max_bp_ui,event) zeroInputChanged(max_bp_ui, 0));
       
         stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)',  'Position', [960 150 100 40], 'Editable','off');
-        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [960 100 100 40]);
+        stim_spike_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'Stim spike', 'Position', [960 100 100 40], 'Value', 0.002);
       
     elseif strcmp(spon_paced, 'paced') 
         stim_spike_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Stim. Spike hold-off (s)', 'Position', [720 150 100 40], 'Editable','off');
@@ -251,30 +265,41 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     end
 
     function TWaveChanged(t_wave_up_down_dropdown)
-        
+        delete(im)
         if strcmp(spon_paced, 'spon')
             if get(t_wave_up_down_dropdown, 'Value') == 1
-                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous downwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 2
-                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous upwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
-                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'spontaneous polynomial t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
 
             end
         elseif strcmp(spon_paced, 'paced')
             if get(t_wave_up_down_dropdown, 'Value') == 1
-                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data downwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 2
-                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data upwards t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
-                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [40 220 im_width, im_height]);
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced data polynomial t-wave png.png', 'Position', [im_horz_offset 220 im_width, im_height]);
     
 
+            end
+        elseif strcmp(spon_paced, 'paced bdt')
+            if get(t_wave_up_down_dropdown, 'Value') == 1
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced ectopic downwards png.png', 'Position', [im_horz_offset 220 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 2
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced ectopic upwards png.png', 'Position', [im_horz_offset 220 im_width im_height]);
+    
+            elseif get(t_wave_up_down_dropdown, 'Value') == 3
+                im = uiimage(input_thresh_pan, 'ImageSource', 'paced ectopic polynomial.png', 'Position', [im_horz_offset 220 im_width im_height]);
+    
             end
             
         end

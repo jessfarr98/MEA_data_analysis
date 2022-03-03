@@ -123,10 +123,16 @@ function [well_electrode_data] = remove_selected_beats(well_electrode_data, elec
     hold(elec_ax, 'on')
 
     if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
-        num_beats = length(replot_stims);
-    else
+        num_beats = length(electrode_data(electrode_count).Stims);
+    elseif strcmp(electrode_data(electrode_count).spon_paced, 'spon')
 
         num_beats = length(electrode_data(electrode_count).beat_start_times);
+    elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+        %num_beats = length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times);
+        ectopic_plus_stims = [electrode_data(electrode_count).beat_start_times electrode_data(electrode_count).Stims];
+        ectopic_plus_stims = sort(ectopic_plus_stims);
+        ectopic_plus_stims = uniquetol(ectopic_plus_stims);
+        num_beats = length(ectopic_plus_stims);
     end
 
     if num_beats > 4    
@@ -151,16 +157,23 @@ function [well_electrode_data] = remove_selected_beats(well_electrode_data, elec
             time_start = ectopic_plus_stims(mid_beat);
             time_end = ectopic_plus_stims(mid_beat+1);
 
-            time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
-            time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
-
-
-            plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
-
             if ismember(electrode_data(electrode_count).beat_start_times , time_start)
+                if electrode_data(electrode_count).bdt < 0
+                    time_start = time_start - electrode_data(electrode_count).post_spike_hold_off;
+                end
+                time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
+                time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
+
+                plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+
                 plot(elec_ax, ectopic_plus_stims(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'g.', 'MarkerSize', 20);
 
             else
+                time_reg_start_indx = find(electrode_data(electrode_count).time >= time_start);
+                time_reg_end_indx = find(electrode_data(electrode_count).time >= time_end);
+
+                plot(elec_ax, electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
+
                 plot(elec_ax, ectopic_plus_stims(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'm.', 'MarkerSize', 20);
 
             end
