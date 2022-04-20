@@ -239,8 +239,8 @@ function MEA_BDT_PLATE_GUI_V2(RawData, Stims, beat_to_beat, spon_paced, analyse_
    end
 
    t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8,'Value', 'T-wave Peak Analysis', 'Position', [120 60 100 40], 'Editable','off');
-   t_wave_up_down_dropdown = uidropdown(well_p, 'FontSize', 8, 'Items', {'minimum', 'maximum', 'inflection'}, 'Position', [120 10 100 40]);
-   t_wave_up_down_dropdown.ItemsData = [1 2 3];
+   t_wave_up_down_dropdown = uidropdown(well_p, 'FontSize', 8, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'Position', [120 10 100 40]);
+   t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
 
    help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
      

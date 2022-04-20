@@ -44,7 +44,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     activation_point_array = [];
     depol_slope_array = [];
     warning_array = [];
-    
+    if ~strcmp(filter_intensity, 'none')
+        filtered_time = [];
+        filtered_data  = [];
+        
+    end
    
     
     count = 0;
@@ -205,16 +209,39 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        
        if strcmp(spon_paced, 'paced bdt')
            if count == 1
-               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
+               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
            
            else
-               [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id, filter_intensity, warning);
+               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id, filter_intensity, warning);
            
                
            end
        else
-           [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning);
+           [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning);
        
+       end
+       if ~strcmp(filter_intensity, 'none')
+           if strcmp(filter_intensity, 'low')
+              filtration_rate = 5;
+          elseif strcmp(filter_intensity, 'medium')
+              filtration_rate = 10;
+          else
+              filtration_rate = 20;
+           end
+          
+           if indx_min_depol_point < indx_max_depol_point
+                filtered_time = [filtered_time beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset)];
+                filtered_data  = [filtered_data beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset)];
+           
+           else
+               filtered_time = [filtered_time beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset)];
+               filtered_data  = [filtered_data beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset)];
+           
+               
+           end
+           
+          
+        
        end
        if strcmp(beat_to_beat, 'on')
            [t_wave_peak_time, t_wave_peak, FPD, warning] = t_wave_complex_analysis(beat_time, beat_data, beat_to_beat, activation_time, count, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd, electrode_id, filter_intensity, warning);
@@ -265,6 +292,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        count = count + 1;
        t = t + window;
     end
+    
+    figure()
+    plot(filtered_time, filtered_data)
+    
+    
     %%%disp(strcat('Total Duration = ', {' '}, string(total_duration)))
     %%%disp(count);
     

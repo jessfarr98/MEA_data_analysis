@@ -46,7 +46,7 @@ function [electrode_data] = electrode_time_region_analysis(electrode_data, num_e
                 
 
                 t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', 'T-wave shape', 'FontSize', 8,'Position', [120 60 100 40], 'Editable','off');
-                t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 10 100 40]);
+                t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 8,'Position', [120 10 100 40]);
                 t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
 
                 t_wave_peak_offset_text = uieditfield(well_p,'Text', 'Value', 'Repol. Time Offset (s)', 'FontSize', 8, 'Position', [240 60 100 40], 'Editable','off');
@@ -104,11 +104,11 @@ function [electrode_data] = electrode_time_region_analysis(electrode_data, num_e
 
                 end
                 
-                electrode_data(electrode_count).post_spike_hold_off = get(post_spike_ui, 'Value');
-                electrode_data(electrode_count).t_wave_offset = get(t_wave_peak_offset_ui, 'Value');
-                electrode_data(electrode_count).t_wave_duration = get(t_wave_duration_ui, 'Value');
-                electrode_data(electrode_count).t_wave_shape = t_wave_shape;
-                electrode_data(electrode_count).filter_intensity = filter_intensity;
+                electrode_data(electrode_count).ave_wave_post_spike_hold_off = get(post_spike_ui, 'Value');
+                electrode_data(electrode_count).ave_wave_t_wave_offset = get(t_wave_peak_offset_ui, 'Value');
+                electrode_data(electrode_count).ave_wave_t_wave_duration = get(t_wave_duration_ui, 'Value');
+                electrode_data(electrode_count).ave_wave_t_wave_shape = t_wave_shape;
+                electrode_data(electrode_count).ave_wave_filter_intensity = filter_intensity;
 
                 %{
                 if strcmp(spon_paced, 'spon')
@@ -121,17 +121,126 @@ function [electrode_data] = electrode_time_region_analysis(electrode_data, num_e
                 %}
                 if strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt') 
                     stim_spike_ho = get(stim_spike_ui, 'Value');
-                    electrode_data(electrode_count).stim_spike_hold_off = stim_spike_ho;
+                    electrode_data(electrode_count).ave_wave_stim_spike_hold_off = stim_spike_ho;
                     
                 else
                     stim_spike_ho = NaN;
                 end
                  %disp(get(post_spike_ui, 'Value'))
-                [electrode_data(electrode_count).ave_activation_time, ~, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, electrode_data(electrode_count).ave_depol_slope, electrode_data(electrode_count).ave_warning] = rate_analysis(electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform, get(post_spike_ui, 'Value'),stim_spike_ho, spon_paced, NaN, electrode_data(electrode_count).electrode_id, filter_intensity, '');
-                [electrode_data(electrode_count).ave_t_wave_peak_time, ~, ~, electrode_data(electrode_count).ave_warning] = t_wave_complex_analysis( electrode_data(electrode_count).ave_wave_time,  electrode_data(electrode_count).average_waveform, beat_to_beat,  electrode_data(electrode_count).ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data(electrode_count).electrode_id, filter_intensity, electrode_data(electrode_count).ave_warning);
-    
+                [electrode_data(electrode_count).ave_activation_time, ~, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, indx_max_depol_point, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, indx_min_depol_point, electrode_data(electrode_count).ave_depol_slope, electrode_data(electrode_count).ave_warning, pshot_indx_offset] = rate_analysis(electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform, get(post_spike_ui, 'Value'),stim_spike_ho, spon_paced, NaN, electrode_data(electrode_count).electrode_id, filter_intensity, '');
+                [electrode_data(electrode_count).ave_t_wave_peak_time, electrode_data(electrode_count).ave_t_wave_peak, ~, electrode_data(electrode_count).ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial,  electrode_data(electrode_count).ave_t_wave_wavelet, electrode_data(electrode_count).ave_t_wave_polynomial_degree] = t_wave_complex_analysis( electrode_data(electrode_count).ave_wave_time,  electrode_data(electrode_count).average_waveform, beat_to_beat,  electrode_data(electrode_count).ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data(electrode_count).electrode_id, filter_intensity, electrode_data(electrode_count).ave_warning);
+                act_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_activation_time);
+                act_indx = act_indx(1);
+                electrode_data(electrode_count).ave_activation_point = electrode_data(electrode_count).average_waveform(act_indx);
                 
-                
+                if ~strcmp(filter_intensity, 'none')
+                   if strcmp(filter_intensity, 'low')
+                      filtration_rate = 5;
+                  elseif strcmp(filter_intensity, 'medium')
+                      filtration_rate = 10;
+                  else
+                      filtration_rate = 20;
+                   end
+
+                   [dr, dc] = size(electrode_data(electrode_count).average_waveform);
+                   [tr, tc] = size(electrode_data(electrode_count).ave_wave_time);
+                   
+                   [ptr, ptc] = size(polynomial_time);
+                   [pr, pc] = size(polynomial);
+
+                   if indx_min_depol_point < indx_max_depol_point
+
+
+                       if tc == 1
+                           if ptr == 1
+                               polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_ave_wave_time = [ electrode_data(electrode_count).ave_wave_time(1:filtration_rate:indx_min_depol_point);  electrode_data(electrode_count).ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data(electrode_count).ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+
+                       else
+                           if ptc == 1
+                               polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_ave_wave_time = [ electrode_data(electrode_count).ave_wave_time(1:filtration_rate:indx_min_depol_point)  electrode_data(electrode_count).ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data(electrode_count).ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+
+                       end 
+
+
+                       if dc == 1
+                            if pr == 1
+                               polynomial = reshape(polynomial, [pc, pr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_average_waveform  = [electrode_data(electrode_count).average_waveform(1:filtration_rate:indx_min_depol_point); electrode_data(electrode_count).average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data(electrode_count).average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+
+                       else
+                           if pc == 1
+                               polynomial = reshape(polynomial, [pc, pr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_average_waveform  = [electrode_data(electrode_count).average_waveform(1:filtration_rate:indx_min_depol_point) electrode_data(electrode_count).average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data(electrode_count).average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+
+                       end
+
+                   else
+                       if tc == 1
+                           if ptr == 1
+                               polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_ave_wave_time = [electrode_data(electrode_count).ave_wave_time(1:filtration_rate:indx_max_depol_point); electrode_data(electrode_count).ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data(electrode_count).ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial_time];
+
+                       else
+                           if ptc == 1
+                               polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_ave_wave_time = [electrode_data(electrode_count).ave_wave_time(1:filtration_rate:indx_max_depol_point) electrode_data(electrode_count).ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data(electrode_count).ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+
+                       end
+
+                       if dc == 1
+                           if pr == 1
+                               polynomial = reshape(polynomial, [pc, pr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_average_waveform  = [electrode_data(electrode_count).average_waveform(1:filtration_rate:indx_max_depol_point); electrode_data(electrode_count).average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data(electrode_count).average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial];
+                       else
+                           if pc == 1
+                               polynomial = reshape(polynomial, [pc, pr]);
+
+                           end
+                           electrode_data(electrode_count).filtered_average_waveform  = [electrode_data(electrode_count).average_waveform(1:filtration_rate:indx_max_depol_point) electrode_data(electrode_count).average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data(electrode_count).average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+
+                       end
+
+
+                   end
+               else
+                   [dr, dc] = size(electrode_data(electrode_count).average_waveform);
+                   [tr, tc] = size(electrode_data(electrode_count).ave_wave_time);
+
+
+                   if tc == 1
+                       electrode_data(electrode_count).filtered_ave_wave_time = polynomial_time;
+
+                   else
+                       electrode_data(electrode_count).filtered_ave_wave_time = polynomial_time;
+
+                   end 
+
+                   if dc == 1
+                       electrode_data(electrode_count).filtered_average_waveform  = polynomial;
+
+                   else
+                       electrode_data(electrode_count).filtered_average_waveform  = polynomial;
+
+                   end
+
+
+               end
                 
                 %disp(electrode_data(electrode_count).activation_times(2))
                 elec_pans = get(well_pan, 'Children');
@@ -150,16 +259,14 @@ function [electrode_data] = electrode_time_region_analysis(electrode_data, num_e
                         
                         cla(elec_ax);
                         hold(elec_ax,'on')
-                        plot(elec_ax, electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform)
+                        plot(elec_ax, electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform);
+                        plot(elec_ax, electrode_data(electrode_count).filtered_ave_wave_time, electrode_data(electrode_count).filtered_average_waveform);
                         plot(elec_ax, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, 'r.', 'MarkerSize', 20);
                         plot(elec_ax, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, 'b.', 'MarkerSize', 20);
-                        plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).average_waveform(electrode_data(electrode_count).ave_wave_time == electrode_data(electrode_count).ave_activation_time), 'k.', 'MarkerSize', 20);
+                        plot(elec_ax, electrode_data(electrode_count).ave_activation_time, electrode_data(electrode_count).ave_activation_point, 'k.', 'MarkerSize', 20);
 
                         if electrode_data(electrode_count).ave_t_wave_peak_time ~= 0 
-                            peak_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_t_wave_peak_time);
-                            peak_indx = peak_indx(1);
-                            t_wave_peak = electrode_data(electrode_count).average_waveform(peak_indx);
-                            plot(elec_ax, electrode_data(electrode_count).ave_t_wave_peak_time, t_wave_peak, 'c.', 'MarkerSize', 20);
+                            plot(elec_ax, electrode_data(electrode_count).ave_t_wave_peak_time, electrode_data(electrode_count).ave_t_wave_peak, 'c.', 'MarkerSize', 20);
                         end
                         %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
                         %plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');

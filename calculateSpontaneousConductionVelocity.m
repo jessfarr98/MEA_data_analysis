@@ -1,6 +1,5 @@
-function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols)
-
-    conduction_velocity = 0;
+function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity)
+    
     electrode_count = 1;
     dist_array = [];
     %act_array = one(num_electrode_rows*num_electrode_cols);
@@ -11,9 +10,11 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             elec_id = electrode_data(electrode_count).electrode_id;
             
             if isempty(elec_id)
+                electrode_count = electrode_count + 1;
                 continue
             end
             if electrode_data(electrode_count).rejected == 1
+                electrode_count = electrode_count + 1;
                 continue
             end
             act_array = [act_array; electrode_data(electrode_count).activation_times(2)];
@@ -36,10 +37,11 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             elec_id = electrode_data(electrode_count).electrode_id;
             
             if isempty(elec_id)
+                electrode_count = electrode_count + 1;
                 continue
             end
-            
             if electrode_data(electrode_count).rejected == 1
+                electrode_count = electrode_count + 1;
                 continue
             end
             
@@ -67,6 +69,7 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             
                 
             if length(electrode_data(electrode_count).activation_times) < 2
+                electrode_count = electrode_count + 1;
                 continue
             end
             dist_array = [dist_array; dist];
@@ -82,10 +85,19 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
         model = nan;
         return
     end
-    lin_eqn = fittype('m*x+b');
     
-    model = fit(dist_array, act_array, lin_eqn);
-    
-    conduction_velocity = 1/model.m;
+    if isnan(conduction_velocity)
+        lin_eqn = fittype('m*x+b');
+
+        model = fit(dist_array, act_array, lin_eqn);
+
+        conduction_velocity = 1/model.m;
+    else
+        % only set when reanalysing saved data
+        lin_eqn = fittype(sprintf('(1/%f)*x+b', conduction_velocity));
+
+        model = fit(dist_array, act_array, lin_eqn);
+        
+    end
     
 end

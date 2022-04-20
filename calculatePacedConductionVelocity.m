@@ -1,18 +1,18 @@
-function [conduction_velocity, model] =  calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols)
+function [conduction_velocity, model] =  calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity)
 
-    conduction_velocity = 0;
     electrode_count = 1;
     dist_array = [];
     act_array =[];
     for er = num_electrode_rows:-1:1
-        for ec = num_electrode_cols:-1:1
+        for ec = num_electrode_cols:-1:1 % Change this and subtract 1 
             elec_id = electrode_data(electrode_count).electrode_id;
-            
             if isempty(elec_id)
+                electrode_count = electrode_count + 1;
                 continue
             end
             
             if electrode_data(electrode_count).rejected == 1
+                electrode_count = electrode_count + 1;
                 continue
             end
             
@@ -30,10 +30,11 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(electr
             %}
             
             %%x = y = 350um
-            dist = sqrt(((350*ec)^2)+((350*er)^2));
+            dist = sqrt(((350*(ec-1))^2)+((350*(er-1))^2));
             
                 
             if length(electrode_data(electrode_count).activation_times) < 2
+                electrode_count = electrode_count + 1;
                 continue
             end
             dist_array = [dist_array; dist];
@@ -49,10 +50,20 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(electr
         model = nan;
         return
     end
-    lin_eqn = fittype('m*x+b');
     
-    model = fit(dist_array, act_array, lin_eqn);
-    
-    conduction_velocity = 1/model.m;
+    if isnan(conduction_velocity)
+        lin_eqn = fittype('m*x+b');
+
+        model = fit(dist_array, act_array, lin_eqn);
+
+        conduction_velocity = 1/model.m;
+    else
+        % only set when reanalysing saved data
+        lin_eqn = fittype(sprintf('(1/%f)*x+b', conduction_velocity));
+
+        model = fit(dist_array, act_array, lin_eqn);
+
+        
+    end
     
 end

@@ -16,11 +16,8 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
     %end
     %}
     %t_wave_search_duration = (time(end)-time(1))*t_wave_search_ratio;
-    
-    polynomial = [];
+    polynomail = [];
     time_filtered = [];
-    wavelet_family = '';
-    best_p_degree = nan;
     
     
     if est_peak_time >= time(end)-time(1)
@@ -113,8 +110,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
             best_rsq = nan;
             best_p_degree = nan;
-            
-            %{
             for p_degree = 3:2:21
                 pfit = polyfit(poly_time,filtered_data,p_degree);
                 polynomial = polyval(pfit, poly_time);
@@ -131,8 +126,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                 end
 
             end
-            %}
-            best_p_degree = 21;
 
             pfit = polyfit(poly_time,filtered_data,best_p_degree);
             polynomial = polyval(pfit, poly_time);
@@ -206,7 +199,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
             best_rsq = nan;
             best_p_degree = nan;
-            %{
             for p_degree = 3:2:21
                
                 pfit = polyfit(poly_time,filtered_data,p_degree);
@@ -224,8 +216,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                 end
 
             end
-            %}
-            best_p_degree = 21;
 
             pfit = polyfit(poly_time,filtered_data,best_p_degree);
             polynomial = polyval(pfit, poly_time);
@@ -494,7 +484,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
                 best_rsq = nan;
                 best_p_degree = nan;
-                %{
                 for p_degree = 3:2:21
                     pfit = polyfit(poly_time,filtered_data,p_degree);
                     polynomial = polyval(pfit, poly_time);
@@ -511,8 +500,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                     end
                     
                 end
-                %}
-                best_p_degree = 21;
                 
                 pfit = polyfit(poly_time,filtered_data,best_p_degree);
                 polynomial = polyval(pfit, poly_time);
@@ -590,7 +577,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
                 best_rsq = nan;
                 best_p_degree = nan;
-                %{
                 for p_degree = 3:2:21
                     pfit = polyfit(poly_time,filtered_data,p_degree);
                     polynomial = polyval(pfit, poly_time);
@@ -607,8 +593,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                     end
                     
                 end
-                %}
-                best_p_degree = 21;
                 
                 pfit = polyfit(poly_time,filtered_data,best_p_degree);
                 polynomial = polyval(pfit, poly_time);
@@ -801,7 +785,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
                 best_rsq = nan;
                 best_p_degree = nan;
-                %{
                 for p_degree = 3:2:21
                     pfit = polyfit(poly_time,filtered_data,p_degree);
                     polynomial = polyval(pfit, poly_time);
@@ -818,8 +801,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                     end
                     
                 end
-                %}
-                best_p_degree = 21;
                 
                 pfit = polyfit(poly_time,filtered_data,best_p_degree);
                 polynomial = polyval(pfit, poly_time);
@@ -954,7 +935,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
 
                 best_rsq = nan;
                 best_p_degree = nan;
-                %{
                 for p_degree = 3:2:21
                     pfit = polyfit(poly_time,filtered_data,p_degree);
                     polynomial = polyval(pfit, poly_time);
@@ -971,8 +951,6 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
                     end
                     
                 end
-                %}
-                best_p_degree = 21;
                 
                 pfit = polyfit(poly_time,filtered_data,best_p_degree);
                 polynomial = polyval(pfit, poly_time);

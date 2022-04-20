@@ -1,5 +1,5 @@
 %function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)
-function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol_time, min_depol_point, slope, warning] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)    
+function [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(time, data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning)    
     
     if post_spike_hold_off >= time(end)-time(1)
         post_spike_hold_off = time(end)-time(1)/10;
@@ -90,7 +90,6 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     indx_min_depol_point = indx_min_depol_point(1);
     min_depol_time = depol_complex_time(indx_min_depol_point);
-    
     
     size_depol = length(depol_complex_data);
 
@@ -306,8 +305,7 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, min_depol
     
     %if isalmost(time(1), 80.40808, 10^-3)
 
-    
-        
+
     
     
     %disp(activation_time)

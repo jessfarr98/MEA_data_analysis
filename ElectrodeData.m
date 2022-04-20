@@ -3,6 +3,10 @@ classdef ElectrodeData
         min_stdev;
         average_waveform;
         ave_wave_time;
+        filtered_ave_wave_time;
+        filtered_average_waveform;
+        filtered_time;
+        filtered_data;
         time;
         data;
         electrode_id;
@@ -18,6 +22,8 @@ classdef ElectrodeData
         beat_periods;
         t_wave_peak_times;
         t_wave_peak_array;
+        t_wave_wavelet_array;
+        t_wave_polynomial_degree_array;
         max_depol_time_array;
         min_depol_time_array;
         max_depol_point_array;
@@ -31,8 +37,12 @@ classdef ElectrodeData
         ave_max_depol_point;
         ave_min_depol_point;
         ave_activation_time;
+        ave_activation_point;
         ave_t_wave_peak_time;
+        ave_t_wave_peak;
         ave_depol_slope;
+        ave_t_wave_wavelet;
+        ave_t_wave_polynomial_degree;
         ave_warning;
         GE_electrode_indx;
         %inputs
@@ -52,7 +62,19 @@ classdef ElectrodeData
         filter_intensity;
         rejected;
         save_fig;
-        spon_paced
+        spon_paced;
+        %ave_wave_bdt;
+        %ave_wave_min_bp;
+        %ave_wave_max_bp;
+        ave_wave_post_spike_hold_off;
+        ave_wave_t_wave_offset;
+        ave_wave_t_wave_duration;
+        ave_wave_t_wave_shape;
+        ave_wave_stim_spike_hold_off;
+        ave_wave_time_region_start;
+        ave_wave_time_region_end;
+        ave_wave_stable_beats_duration;
+        ave_wave_filter_intensity;
         
         
         

@@ -69,7 +69,6 @@ function [arrhythmia_indx, warning_array] = arrhythmia_analysis(beat_num_array, 
         for w = 1:length(warning_array)
             
             if ismember(w, arrhythmia_indx)
-            
                 if isempty(warning_array{w})
                      warning_array{w} = 'Beat detected as a member of an arrhytmic episode';
                 else

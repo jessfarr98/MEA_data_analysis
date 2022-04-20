@@ -35,6 +35,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
         end
     end
     
+    %{
     while(1)
         pause(0.001);
         if end_well_view == 1
@@ -43,6 +44,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
             return
         end
     end
+    %}
     
     
     
@@ -63,6 +65,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
         
         close_well_button = uibutton(well_p,'push','Text', 'Close', 'Position',[screen_width-190 10 80 40], 'ButtonPushedFcn', @(close_well_button,event) closeWellButtonPushed(well_fig));
 
+        
         well_ax = uiaxes(well_p, 'BackgroundColor','#d43d3d', 'Position', [10 100 screen_width-300 screen_height-200]);
         hold(well_ax, 'on');
 
@@ -71,10 +74,13 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
         time_offset = 0;
         max_voltage = NaN;
         min_voltage = NaN;
+        
+        electrode_ids = ['all'];
         for e_r = 1:num_electrode_rows
            for e_c = 1:num_electrode_cols
               RawWellData = RawData{w_r, w_c, e_r, e_c};
-
+              electrode_id = strcat(wellID, '_', num2str(e_r), '_', num2str(e_c));
+              electrode_ids = [electrode_ids electrode_id];
               if (strcmp(class(RawWellData),'Waveform'))
                   %if ~empty(WellRawData)
                   %disp(num_well_rows*num_well_cols)
@@ -101,7 +107,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
                           min_voltage = min(data);
                       end
                   end
-                  plot(well_ax,time(1:20:end),data(1:20:end));
+                  plot(well_ax,time,data);
                   %hold on;
                   %title(sub_ax, wellID);
                   %pause(10)
@@ -116,7 +122,13 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
            xlabel(well_ax, 'Seconds (s)')
            ylabel(well_ax, 'milivolts (mV)')
         end
+        legend(well_ax, 'all')
         
+        choose_elec_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', 'View Electrode', 'Position', [screen_width-190 250 100 40], 'Editable','off');
+        choose_elec_dropdown = uidropdown(well_p, 'Items', electrode_ids, 'FontSize', 8,'Position', [screen_width-190 200 100 40],'ValueChangedFcn', @(choose_elec_dropdown,event) chooseElectrodeChanged(choose_elec_dropdown, well_ax));
+        %choose_elec_dropdown.ItemsData = [1 2 3 4];
+        
+        %{
         while(1)
             pause(0.001);
             if end_view == 1
@@ -125,10 +137,72 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
                 return
             end
         end
-         
-        
+        %}
+        function chooseElectrodeChanged(choose_elec_dropdown, well_ax)
+            option = get(choose_elec_dropdown, 'Value');
+            if ~strcmp(option, 'all')
+                
+                cla(well_ax)
+                
+                str_parts = strsplit(option, '_');
+                
+                er = str2num(str_parts{2});
+                
+                ec = str2num(str_parts{3});
+                
+                
+                
+                ElecData = RawData{w_r, w_c, er, ec};
+                
+                if (strcmp(class(ElecData),'Waveform'))
+
+                   [time, data] = ElecData.GetTimeVoltageVector;
+
+                   data = data*1000;
+                  
+                   plot(well_ax,time,data);
+
+                   legend(well_ax, option)
+                end
+                
+            else
+                cla(well_ax)
+                
+                for er = 1:num_electrode_rows
+                   for ec = 1:num_electrode_cols
+                      RawWellData = RawData{w_r, w_c, er, ec};
+                      if (strcmp(class(RawWellData),'Waveform'))
+                          %if ~empty(WellRawData)
+                          %disp(num_well_rows*num_well_cols)
+                          %disp(count)
+                          %electrode_id = strcat(wellID, '_', string(e_r), '_', string(e_c));
+                          [time, data] = RawWellData.GetTimeVoltageVector;
+
+                          time = time + time_offset;
+
+                          data = data*1000;
+                          %plot(time, data);
+                          plot(well_ax,time,data);
+                          %hold on;
+                          %title(sub_ax, wellID);
+                          %pause(10)
+                          %plot(time, data);
+                          time_offset = time_offset+0.015;
+
+                      else
+                          %disp(wellID)
+                          %disp('no data');
+                      end
+                   end
+                end
+                legend(well_ax, option)
+                
+            end
+            
+        end
         function closeWellButtonPushed(well_fig)
             %set(well_fig, 'Visible', 'off')
+            close(well_fig);
             end_view = 1;
         end 
      end
@@ -147,7 +221,7 @@ function MEA_GUI_Preview_Data(num_well_rows, num_well_cols, num_electrode_rows, 
     function closeButtonPushed()
         %set(preview_wells_fig, 'Visible', 'off');
         end_well_view = 1;
-        
+        close(preview_wells_fig);
     end
 
 

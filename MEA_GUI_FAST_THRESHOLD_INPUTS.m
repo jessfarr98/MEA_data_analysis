@@ -60,11 +60,13 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
               wellID = strcat(well_dictionary(w_r), '0', string(w_c));
               if ~contains(added_wells, 'all')
                   if ismember(wellID, added_wells)
+                      found_well_waveform = 0;
                       for e_r = num_electrode_rows:-1:1
                          for e_c = 1:num_electrode_cols
                             RawWellData = RawData{w_r, w_c, e_c, e_r};
                             if (strcmp(class(RawWellData),'Waveform'))
                                 found_waveform = 1;
+                                found_well_waveform = 1;
                                 %if ~empty(WellRawData)
                                 %disp(num_well_rows*num_well_cols)
                                 %disp(count)
@@ -81,6 +83,10 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
                                 end
                             end 
                          end 
+                      end
+                      if found_well_waveform == 0
+                          added_wells = setdiff(added_wells, wellID);
+                          
                       end
                   end
               else
@@ -156,8 +162,8 @@ function MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced,
     end
 
     t_wave_up_down_text = uieditfield(input_thresh_pan, 'Text', 'FontSize', 8, 'Value', 'T-wave Peak Analysis', 'Position', [120 150 100 40], 'Editable','off');
-    t_wave_up_down_dropdown = uidropdown(input_thresh_pan, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 100 100 40],'ValueChangedFcn', @(t_wave_up_down_dropdown,event) TWaveChanged(t_wave_up_down_dropdown));
-    t_wave_up_down_dropdown.ItemsData = [1 2 3];
+    t_wave_up_down_dropdown = uidropdown(input_thresh_pan, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 8,'Position', [120 100 100 40],'ValueChangedFcn', @(t_wave_up_down_dropdown,event) TWaveChanged(t_wave_up_down_dropdown));
+    t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
 
     t_wave_peak_offset_text = uieditfield(input_thresh_pan,'Text', 'FontSize', 8, 'Value', 'Repol. Time Offset (s)', 'Position', [240 150 100 40], 'Editable','off');
     t_wave_peak_offset_ui = uieditfield(input_thresh_pan, 'numeric', 'Tag', 'T-Wave Time', 'Position', [240 100 100 40], 'FontSize', 12, 'Value', 0.33);

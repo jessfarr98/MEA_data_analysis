@@ -226,8 +226,8 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           end
           
           t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'Position', [120 60 100 40], 'Editable','off');
-          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8,'Position', [120 10 100 40]);
-          t_wave_up_down_dropdown.ItemsData = [1 2 3];
+          t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 8,'Position', [120 10 100 40]);
+          t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
           
           help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
      
@@ -472,7 +472,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
     
             elseif get(t_wave_up_down_dropdown, 'Value') == 3
                 im = uiimage(help_p, 'ImageSource', 'paced ectopic polynomial png.png', 'Position', [im_horz_offset 20 im_width im_height]);
-    
+                
             end
          
             
