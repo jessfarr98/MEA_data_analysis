@@ -129,12 +129,12 @@ function calculate_bipolar_electrograms_GUI(electrode_data, num_electrode_rows, 
                         
                         if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
                             % extract paced 
-                            %[beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_beats_V2(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, filter_intensity);     
+                            [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_beats_V2(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, time_region1, time_region2, stable_ave_analysis, time_region1, time_region2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, min_bp, max_bp, post_spike_hold_off, est_peak_time, est_fpd, filter_intensity);     
                     
-                            disp('tbi')
+                    
                         else
                             
-                            disp('tbi')
+                            
                             
                         end
                         

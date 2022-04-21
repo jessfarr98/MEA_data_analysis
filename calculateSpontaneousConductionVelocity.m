@@ -17,6 +17,11 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
                 electrode_count = electrode_count + 1;
                 continue
             end
+            
+            if length(electrode_data(electrode_count).activation_times) < 2
+                electrode_count = electrode_count + 1;
+                continue
+            end
             act_array = [act_array; electrode_data(electrode_count).activation_times(2)];
             electrode_ids = [electrode_ids; elec_id];
             electrode_count = electrode_count + 1;
@@ -72,7 +77,11 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
                 electrode_count = electrode_count + 1;
                 continue
             end
+            
+            
             dist_array = [dist_array; dist];
+            
+            
             
             act_array =[act_array; electrode_data(electrode_count).activation_times(2)];
             electrode_count = electrode_count + 1;
