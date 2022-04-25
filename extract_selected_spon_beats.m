@@ -341,15 +341,15 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        
        if strcmp(spon_paced, 'paced bdt')
            if count == 1
-               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
+               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
            
            else
-               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id, filter_intensity, warning);
+               [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'spon', stim_time, electrode_id, filter_intensity, warning);
            
                
            end
        else
-           [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning);
+           [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, spon_paced, stim_time, electrode_id, filter_intensity, warning);
        
        end
        
@@ -381,7 +381,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
        end
        
-       if ~strcmp(filter_intensity, 'none')
+       %if ~strcmp(filter_intensity, 'none')
            if strcmp(filter_intensity, 'low')
               filtration_rate = 5;
           elseif strcmp(filter_intensity, 'medium')
@@ -405,7 +405,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                    end
                    
-                   filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   %filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
                
                else
                    if ptc == 1
@@ -413,7 +414,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                    end
                    
-                   filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   %filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
                
                end 
                
@@ -423,14 +425,16 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
                
                else
                    if pc == 1
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
                
                end
            
@@ -440,14 +444,16 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_max_depol_point); beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   %filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_max_depol_point); beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
                
                else
                    if ptc == 1
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   %filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
                
                end
                
@@ -456,20 +462,23 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
                
                else
                    if pc == 1
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
                
                    
                end
            
                
            end
+       %{
        else
            [dr, dc] = size(beat_data);
            [tr, tc] = size(beat_time);
@@ -509,6 +518,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
 
        end
+       %}
        t_wave_wavelet_array = [t_wave_wavelet_array {wavelet_family}];
        t_wave_polynomial_degree_array = [t_wave_polynomial_degree_array poly_degree];
        

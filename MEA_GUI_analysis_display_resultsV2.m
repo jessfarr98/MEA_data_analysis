@@ -593,6 +593,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                            continue 
                         end
                         
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).ave_wave_time)
+                           continue 
+                        end
+                        
                         elec_pan = uipanel(well_pan, 'Title', well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
                     
                         undo_elec_pan = uipanel(well_pan, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
@@ -2743,7 +2747,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         disp(strcat('Saving Data for', {' '}, well_ID))
         output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
         if exist(output_filename, 'file')
-            delete(output_filename);
+            try
+                delete(output_filename);
+            catch
+                msgbox(strcat(output_filename, {' '}, 'is open. Please close and try saving again.'))
+                %close(wait_bar)
+                %set(ge_results_fig, 'visible', 'on')
+                return
+            end
         end
         
         if saving_multiple == 0
@@ -2823,9 +2834,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 if isempty(electrode_data(electrode_count).beat_start_times)
                     continue;
                 end
-                if electrode_data(electrode_count).rejected == 1
-                    continue;
-                end
+                
                 
                 sheet_count = sheet_count+1;
                 
@@ -2835,6 +2844,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 %t_wave_peak_times = 
                 %activation_times = electrode_data(electrode_count).activation_times;
                 %activation_times = activation_times(~isnan(electrode_data(electrode_count).t_wave_peak_times));
+                
+                
+                
                 
                 start_activation_time = electrode_data(electrode_count).activation_times(2);
                 
@@ -3054,52 +3066,95 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                     electrode_stats_table = table('Size', [length(beat_num_array) 22], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double", "double", "double", "double", "double", "double", "double", "string", "string", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Beat Start Volts (V)", "Activation Time (s)", "Activation Time Volts (V)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "Paced/Ectopic", "T-wave Denoising Wavelet Family", "T-wave Polynomial Degree", "Warnings"]));
 
-                    electrode_stats_table(:, 2) = num2cell(beat_num_array);
+                    if electrode_data(electrode_count).rejected == 0
+                        electrode_stats_table(:, 2) = num2cell(beat_num_array);
 
-                    electrode_stats_table(:, 3) = num2cell(beat_start_times);
+                        electrode_stats_table(:, 3) = num2cell(beat_start_times);
+
+                        electrode_stats_table(:, 4) = num2cell(beat_start_volts);
+
+                        electrode_stats_table(:, 5) = num2cell(activation_times);
+
+                        electrode_stats_table(:, 6) = num2cell(activation_points);
+
+                        electrode_stats_table(:, 7) = num2cell(min_depol_time_array);
+
+                        electrode_stats_table(:, 8) = num2cell(min_depol_point_array);
+
+                        electrode_stats_table(:, 9) = num2cell(max_depol_time_array);
+
+                        electrode_stats_table(:, 10) = num2cell(max_depol_point_array);
+
+                        electrode_stats_table(:, 11) = num2cell(amps);
+
+                        electrode_stats_table(:, 12) = num2cell(slopes);
+
+                        electrode_stats_table(:, 13) = num2cell(t_wave_peak_times);
+
+                        electrode_stats_table(:, 14) = num2cell(t_wave_peak_array);
+
+                        electrode_stats_table(:, 15) = num2cell(FPDs);
+
+                        electrode_stats_table(:, 16) = num2cell(beat_periods);
+
+                        electrode_stats_table(:, 17) = num2cell(cycle_length_array);
+
+                        electrode_stats_table(:, 18) = num2cell(act_sub_min);
+
+                        electrode_stats_table(:, 19) = paced_ectopic_labels;
+
+                        electrode_stats_table(:, 20) = wavelet_families;
+
+                        electrode_stats_table(:, 21) = num2cell(polynomial_degrees);
+
+                        electrode_stats_table(:, 22) = warning_array;
+                    else
+                        electrode_stats_table(:, 2) = {};
+
+                        electrode_stats_table(:, 3) = {};
+
+                        electrode_stats_table(:, 4) = {};
+
+                        electrode_stats_table(:, 5) = {};
+
+                        electrode_stats_table(:, 6) = {};
+
+                        electrode_stats_table(:, 7) = {};
+
+                        electrode_stats_table(:, 8) = {};
+
+                        electrode_stats_table(:, 9) = {};
+
+                        electrode_stats_table(:, 10) = {};
+
+                        electrode_stats_table(:, 11) = {};
+
+                        electrode_stats_table(:, 12) = {};
+
+                        electrode_stats_table(:, 13) = {};
+
+                        electrode_stats_table(:, 14) = {};
+
+                        electrode_stats_table(:, 15) = {};
+
+                        electrode_stats_table(:, 16) = {};
+
+                        electrode_stats_table(:, 17) = {};
+
+                        electrode_stats_table(:, 18) = {};
+
+                        electrode_stats_table(:, 19) = {};
+
+                        electrode_stats_table(:, 20) = {};
+
+                        electrode_stats_table(:, 21) = {};
+
+                        electrode_stats_table(:, 22) = {};
+                    end
                     
-                    electrode_stats_table(:, 4) = num2cell(beat_start_volts);
-
-                    electrode_stats_table(:, 5) = num2cell(activation_times);
-                    
-                    electrode_stats_table(:, 6) = num2cell(activation_points);
-
-                    electrode_stats_table(:, 7) = num2cell(min_depol_time_array);
-                    
-                    electrode_stats_table(:, 8) = num2cell(min_depol_point_array);
-                    
-                    electrode_stats_table(:, 9) = num2cell(max_depol_time_array);
-                    
-                    electrode_stats_table(:, 10) = num2cell(max_depol_point_array);
-        
-                    electrode_stats_table(:, 11) = num2cell(amps);
-
-                    electrode_stats_table(:, 12) = num2cell(slopes);
-
-                    electrode_stats_table(:, 13) = num2cell(t_wave_peak_times);
-
-                    electrode_stats_table(:, 14) = num2cell(t_wave_peak_array);
-
-                    electrode_stats_table(:, 15) = num2cell(FPDs);
-
-                    electrode_stats_table(:, 16) = num2cell(beat_periods);
-
-                    electrode_stats_table(:, 17) = num2cell(cycle_length_array);
-
-                    electrode_stats_table(:, 18) = num2cell(act_sub_min);
-
-                    electrode_stats_table(:, 19) = paced_ectopic_labels;
-                    
-                    electrode_stats_table(:, 20) = wavelet_families;
-                    
-                    electrode_stats_table(:, 21) = num2cell(polynomial_degrees);
-
-                    electrode_stats_table(:, 22) = warning_array;
                     
                 else
-                    electrode_stats_table = table('Size', [length(beat_num_array) 21], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double","double","double","double","double", "string", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Beat Start Volts (V)", "Activation Time (s)", "Activation Time Volts (V)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "T-wave Denoising Wavelet Family", "T-wave Polynomial Degree", "Warnings"]));
-
-                    electrode_stats_table(:, 2) = num2cell(beat_num_array);
+                    
 
                     
                     
@@ -3121,42 +3176,94 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         electrode_stats_table(:, 4) = num2cell(beat_start_volts);
                     end
                     %}
-                    electrode_stats_table(:, 3) = num2cell(beat_start_times);
-                    electrode_stats_table(:, 4) = num2cell(beat_start_volts);
                     
-                    electrode_stats_table(:, 5) = num2cell(activation_times);
-                    
-                    electrode_stats_table(:, 6) = num2cell(activation_points);
+                    if electrode_data(electrode_count).rejected == 0
+                        electrode_stats_table = table('Size', [length(beat_num_array) 21], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double","double","double","double","double", "string", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Beat Start Volts (V)", "Activation Time (s)", "Activation Time Volts (V)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "T-wave Denoising Wavelet Family", "T-wave Polynomial Degree", "Warnings"]));
 
-                    electrode_stats_table(:, 7) = num2cell(min_depol_time_array);
-                    
-                    electrode_stats_table(:, 8) = num2cell(min_depol_point_array);
-                    
-                    electrode_stats_table(:, 9) = num2cell(max_depol_time_array);
-                    
-                    electrode_stats_table(:, 10) = num2cell(max_depol_point_array);
-        
-                    electrode_stats_table(:, 11) = num2cell(amps);
+                        electrode_stats_table(:, 2) = num2cell(beat_num_array);
+                        
+                        electrode_stats_table(:, 3) = num2cell(beat_start_times);
+                        
+                        electrode_stats_table(:, 4) = num2cell(beat_start_volts);
 
-                    electrode_stats_table(:, 12) = num2cell(slopes);
+                        electrode_stats_table(:, 5) = num2cell(activation_times);
 
-                    electrode_stats_table(:, 13) = num2cell(t_wave_peak_times);
+                        electrode_stats_table(:, 6) = num2cell(activation_points);
 
-                    electrode_stats_table(:, 14) = num2cell(t_wave_peak_array);
+                        electrode_stats_table(:, 7) = num2cell(min_depol_time_array);
 
-                    electrode_stats_table(:, 15) = num2cell(FPDs);
+                        electrode_stats_table(:, 8) = num2cell(min_depol_point_array);
 
-                    electrode_stats_table(:, 16) = num2cell(beat_periods);
+                        electrode_stats_table(:, 9) = num2cell(max_depol_time_array);
 
-                    electrode_stats_table(:, 17) = num2cell(cycle_length_array);
+                        electrode_stats_table(:, 10) = num2cell(max_depol_point_array);
 
-                    electrode_stats_table(:, 18) = num2cell(act_sub_min);
-                    
-                    electrode_stats_table(:, 19) = wavelet_families;
-                    
-                    electrode_stats_table(:, 20) = num2cell(polynomial_degrees);
+                        electrode_stats_table(:, 11) = num2cell(amps);
 
-                    electrode_stats_table(:, 21) = warning_array;
+                        electrode_stats_table(:, 12) = num2cell(slopes);
+
+                        electrode_stats_table(:, 13) = num2cell(t_wave_peak_times);
+
+                        electrode_stats_table(:, 14) = num2cell(t_wave_peak_array);
+
+                        electrode_stats_table(:, 15) = num2cell(FPDs);
+
+                        electrode_stats_table(:, 16) = num2cell(beat_periods);
+
+                        electrode_stats_table(:, 17) = num2cell(cycle_length_array);
+
+                        electrode_stats_table(:, 18) = num2cell(act_sub_min);
+
+                        electrode_stats_table(:, 19) = wavelet_families;
+
+                        electrode_stats_table(:, 20) = num2cell(polynomial_degrees);
+
+                        electrode_stats_table(:, 21) = warning_array;
+                    else
+                        electrode_stats_table = table('Size', [0 21], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double","double","double","double","double", "string", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Beat Start Volts (V)", "Activation Time (s)", "Activation Time Volts (V)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "T-wave Denoising Wavelet Family", "T-wave Polynomial Degree", "Warnings"]));
+
+                        %{
+                        electrode_stats_table(:, 2) = {};
+                        
+                        electrode_stats_table(:, 3) = {};
+                        
+                        electrode_stats_table(:, 4) = {};
+
+                        electrode_stats_table(:, 5) = {};
+
+                        electrode_stats_table(:, 6) = {};
+
+                        electrode_stats_table(:, 7) = {};
+
+                        electrode_stats_table(:, 8) = {};
+
+                        electrode_stats_table(:, 9) = {};
+
+                        electrode_stats_table(:, 10) = {};
+
+                        electrode_stats_table(:, 11) = {};
+
+                        electrode_stats_table(:, 12) = {};
+
+                        electrode_stats_table(:, 13) = {};
+
+                        electrode_stats_table(:, 14) = {};
+
+                        electrode_stats_table(:, 15) = {};
+
+                        electrode_stats_table(:, 16) = {};
+
+                        electrode_stats_table(:, 17) = {};
+
+                        electrode_stats_table(:, 18) = {};
+
+                        electrode_stats_table(:, 19) = {};
+
+                        electrode_stats_table(:, 20) = {};
+
+                        electrode_stats_table(:, 21) = {};
+                        %}
+                    end
                     
                 end
                     
@@ -3555,7 +3662,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         disp(strcat('Saving Data for', {' '}, well_ID))
         output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
         if exist(output_filename, 'file')
-            delete(output_filename);
+            try
+                delete(output_filename);
+            catch
+                msgbox(strcat(output_filename, {' '}, 'is open. Please close and try saving again.'))
+                %set(ge_results_fig, 'visible', 'on')
+                return
+            end
         end
         
         if save_plots == 1
@@ -3620,9 +3733,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     continue;
                 end
                 
-                if well_electrode_data(well_count).electrode_data(electrode_count).rejected == 1
-                    continue;
-                end
+                
                 
                 sheet_count = sheet_count+1;
                 
@@ -3778,43 +3889,52 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     FPDc_fridericia = FPD_num/((bp_num)^(1/3));
                     FPDc_bazzet = FPD_num/((bp_num)^(1/2));
                     
-                    electrode_stats_table = table('Size', [1, 33], 'VariableTypes', ["string", "double", "double", "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double", "double",  "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'FPDc Fridericia (s)', 'FPDc Bazzet (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave T-wave Denoising Wavelet Family", "Ave T-wave Polynomial Degree", 'Warnings']));
                     
-                    electrode_stats_table(:, 2) = activation_times;
-                    electrode_stats_table(:, 3) = activation_point;
-                    electrode_stats_table(:, 4) = min_depol_time;
-                    electrode_stats_table(:, 5) = min_depol_point;
-                    electrode_stats_table(:, 6) = max_depol_time;
-                    electrode_stats_table(:, 7) = max_depol_point;
-                    electrode_stats_table(:, 8) = amps;
-                    electrode_stats_table(:, 9) = slopes;
-                    electrode_stats_table(:, 10) = t_wave_peak_times;
-                    electrode_stats_table(:, 11) = t_wave_peak_array;
+                    if well_electrode_data(well_count).electrode_data(electrode_count).rejected == 0
+                        electrode_stats_table = table('Size', [1, 33], 'VariableTypes', ["string", "double", "double", "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double", "double",  "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'FPDc Fridericia (s)', 'FPDc Bazzet (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave T-wave Denoising Wavelet Family", "Ave T-wave Polynomial Degree", 'Warnings']));
                     
-                    electrode_stats_table(:, 12) = FPDs;
-                    electrode_stats_table(:, 13) = num2cell(FPDc_fridericia);
-                    electrode_stats_table(:, 14) = num2cell(FPDc_bazzet);
-                    electrode_stats_table(:, 15) = beat_periods;
-                    electrode_stats_table(:, 16) = time_start_array;
-                    electrode_stats_table(:, 17) = time_end_array;
-                    electrode_stats_table(:, 18) = bdt_array;
-                    electrode_stats_table(:, 19) = min_bp_array;
-                    electrode_stats_table(:, 20) = max_bp_array;
-                    electrode_stats_table(:, 21) = post_spike_hold_off_array;
-                    electrode_stats_table(:, 22) = t_wave_duration_array;
-                    electrode_stats_table(:, 23) = t_wave_offset_array;
-                    electrode_stats_table(:, 24) = t_wave_shape_array;
-                    electrode_stats_table(:, 25) = filter_intensity_array;
+                        electrode_stats_table(:, 2) = activation_times;
+                        electrode_stats_table(:, 3) = activation_point;
+                        electrode_stats_table(:, 4) = min_depol_time;
+                        electrode_stats_table(:, 5) = min_depol_point;
+                        electrode_stats_table(:, 6) = max_depol_time;
+                        electrode_stats_table(:, 7) = max_depol_point;
+                        electrode_stats_table(:, 8) = amps;
+                        electrode_stats_table(:, 9) = slopes;
+                        electrode_stats_table(:, 10) = t_wave_peak_times;
+                        electrode_stats_table(:, 11) = t_wave_peak_array;
+
+                        electrode_stats_table(:, 12) = FPDs;
+                        electrode_stats_table(:, 13) = num2cell(FPDc_fridericia);
+                        electrode_stats_table(:, 14) = num2cell(FPDc_bazzet);
+                        electrode_stats_table(:, 15) = beat_periods;
+                        electrode_stats_table(:, 16) = time_start_array;
+                        electrode_stats_table(:, 17) = time_end_array;
+                        electrode_stats_table(:, 18) = bdt_array;
+                        electrode_stats_table(:, 19) = min_bp_array;
+                        electrode_stats_table(:, 20) = max_bp_array;
+                        electrode_stats_table(:, 21) = post_spike_hold_off_array;
+                        electrode_stats_table(:, 22) = t_wave_duration_array;
+                        electrode_stats_table(:, 23) = t_wave_offset_array;
+                        electrode_stats_table(:, 24) = t_wave_shape_array;
+                        electrode_stats_table(:, 25) = filter_intensity_array;
+
+                        electrode_stats_table(:, 26) = ave_wave_post_spike_hold_off_array;
+                        electrode_stats_table(:, 27) = ave_wave_t_wave_duration_array;
+                        electrode_stats_table(:, 28) = ave_wave_t_wave_offset_array;
+                        electrode_stats_table(:, 29) = ave_wave_t_wave_shape_array;
+                        electrode_stats_table(:, 30) = ave_wave_filter_intensity_array;
+
+                        electrode_stats_table(:, 31) = wavelet_family;
+                        electrode_stats_table(:, 32) = polynomial_degree;
+                        electrode_stats_table(:, 33) = warning_array;
+                        
+                        
+                    else
+                        electrode_stats_table = table('Size', [0, 33], 'VariableTypes', ["string", "double", "double", "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double", "double",  "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'FPDc Fridericia (s)', 'FPDc Bazzet (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave T-wave Denoising Wavelet Family", "Ave T-wave Polynomial Degree", 'Warnings']));
                     
-                    electrode_stats_table(:, 26) = ave_wave_post_spike_hold_off_array;
-                    electrode_stats_table(:, 27) = ave_wave_t_wave_duration_array;
-                    electrode_stats_table(:, 28) = ave_wave_t_wave_offset_array;
-                    electrode_stats_table(:, 29) = ave_wave_t_wave_shape_array;
-                    electrode_stats_table(:, 30) = ave_wave_filter_intensity_array;
+                    end
                     
-                    electrode_stats_table(:, 31) = wavelet_family;
-                    electrode_stats_table(:, 32) = polynomial_degree;
-                    electrode_stats_table(:, 33) = warning_array;
                     
                     
                     
@@ -3861,40 +3981,46 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                     warning_array = {well_electrode_data(well_count).electrode_data(electrode_count).ave_warning};
                     
-                   
-                    electrode_stats_table = table('Size', [1, 30], 'VariableTypes', ["string", "double", "double", "double", "double",  "double", "double", "double",  "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double",  "double", "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
-                    
-                    electrode_stats_table(:, 2) = activation_times;
-                    electrode_stats_table(:, 3) = activation_point;
-                    electrode_stats_table(:, 4) = min_depol_time;
-                    electrode_stats_table(:, 5) = min_depol_point;
-                    electrode_stats_table(:, 6) = max_depol_time;
-                    electrode_stats_table(:, 7) = max_depol_point;
-                    electrode_stats_table(:, 8) = amps;
-                    electrode_stats_table(:, 8) = slopes;
-                    electrode_stats_table(:, 10) = t_wave_peak_times;
-                    electrode_stats_table(:, 11) = t_wave_peak_array;
-                    electrode_stats_table(:, 12) = FPDs;
-                    electrode_stats_table(:, 13) = beat_periods;
-                    electrode_stats_table(:, 14) = time_start_array;
-                    electrode_stats_table(:, 15) = time_end_array;
-                    electrode_stats_table(:, 16) = stim_spike_hold_off_array;
-                    electrode_stats_table(:, 17) = post_spike_hold_off_array;
-                    electrode_stats_table(:, 18) = t_wave_duration_array;
-                    electrode_stats_table(:, 19) = t_wave_offset_array;
-                    electrode_stats_table(:, 20) = t_wave_shape_array;
-                    electrode_stats_table(:, 21) = filter_intensity_array;
-                    
-                    electrode_stats_table(:, 22) = ave_wave_stim_spike_hold_off_array;
-                    electrode_stats_table(:, 23) = ave_wave_post_spike_hold_off_array;
-                    electrode_stats_table(:, 24) = ave_wave_t_wave_duration_array;
-                    electrode_stats_table(:, 25) = ave_wave_t_wave_offset_array;
-                    electrode_stats_table(:, 26) = ave_wave_t_wave_shape_array;
-                    electrode_stats_table(:, 27) = ave_wave_filter_intensity_array;
-                    
-                    electrode_stats_table(:, 28) = wavelet_family;
-                    electrode_stats_table(:, 29) = polynomial_degree;
-                    electrode_stats_table(:, 30) = warning_array;
+                    if well_electrode_data(well_count).electrode_data(electrode_count).rejected == 0
+                        electrode_stats_table = table('Size', [1, 30], 'VariableTypes', ["string", "double", "double", "double", "double",  "double", "double", "double",  "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double",  "double", "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
+
+                        electrode_stats_table(:, 2) = activation_times;
+                        electrode_stats_table(:, 3) = activation_point;
+                        electrode_stats_table(:, 4) = min_depol_time;
+                        electrode_stats_table(:, 5) = min_depol_point;
+                        electrode_stats_table(:, 6) = max_depol_time;
+                        electrode_stats_table(:, 7) = max_depol_point;
+                        electrode_stats_table(:, 8) = amps;
+                        electrode_stats_table(:, 8) = slopes;
+                        electrode_stats_table(:, 10) = t_wave_peak_times;
+                        electrode_stats_table(:, 11) = t_wave_peak_array;
+                        electrode_stats_table(:, 12) = FPDs;
+                        electrode_stats_table(:, 13) = beat_periods;
+                        electrode_stats_table(:, 14) = time_start_array;
+                        electrode_stats_table(:, 15) = time_end_array;
+                        electrode_stats_table(:, 16) = stim_spike_hold_off_array;
+                        electrode_stats_table(:, 17) = post_spike_hold_off_array;
+                        electrode_stats_table(:, 18) = t_wave_duration_array;
+                        electrode_stats_table(:, 19) = t_wave_offset_array;
+                        electrode_stats_table(:, 20) = t_wave_shape_array;
+                        electrode_stats_table(:, 21) = filter_intensity_array;
+
+                        electrode_stats_table(:, 22) = ave_wave_stim_spike_hold_off_array;
+                        electrode_stats_table(:, 23) = ave_wave_post_spike_hold_off_array;
+                        electrode_stats_table(:, 24) = ave_wave_t_wave_duration_array;
+                        electrode_stats_table(:, 25) = ave_wave_t_wave_offset_array;
+                        electrode_stats_table(:, 26) = ave_wave_t_wave_shape_array;
+                        electrode_stats_table(:, 27) = ave_wave_filter_intensity_array;
+
+                        electrode_stats_table(:, 28) = wavelet_family;
+                        electrode_stats_table(:, 29) = polynomial_degree;
+                        electrode_stats_table(:, 30) = warning_array;
+                   else
+                       electrode_stats_table = table('Size', [0, 30], 'VariableTypes', ["string", "double", "double", "double", "double",  "double", "double", "double",  "double",  "double",  "double",  "double", "double",  "double",  "double",  "double",  "double",  "double", "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
+
+                       
+                       
+                   end
                     
                 elseif strcmp(spon_paced, 'paced bdt')
                     time_start_array = num2cell([well_electrode_data(well_count).electrode_data(electrode_count).time_region_start]);
@@ -3950,43 +4076,50 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                     %electrode_stats = horzcat(elec_id_column, activation_times, amps, slopes, t_wave_peak_times, t_wave_peak_array, FPDs, beat_periods, time_start_array, time_end_array, bdt_array, min_bp_array, max_bp_array, stim_spike_hold_off_array, post_spike_hold_off_array, t_wave_duration_array, t_wave_offset_array, t_wave_shape_array, filter_intensity_array, warning_array);
                 
-                    
-                    electrode_stats_table = table('Size', [1, 33], 'VariableTypes', ["string", "double", "double", "double", "double",  "double",  "double",  "double",  "double", "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
-                    
-                    electrode_stats_table(:, 2) = activation_times;
-                    electrode_stats_table(:, 3) = activation_point;
-                    electrode_stats_table(:, 4) = min_depol_time;
-                    electrode_stats_table(:, 5) = min_depol_point;
-                    electrode_stats_table(:, 6) = max_depol_time;
-                    electrode_stats_table(:, 7) = max_depol_point;
-                    electrode_stats_table(:, 8) = amps;
-                    electrode_stats_table(:, 9) = slopes;
-                    electrode_stats_table(:, 10) = t_wave_peak_times;
-                    electrode_stats_table(:, 11) = t_wave_peak_array;
-                    electrode_stats_table(:, 12) = FPDs;
-                    electrode_stats_table(:, 13) = beat_periods;
-                    electrode_stats_table(:, 14) = time_start_array;
-                    electrode_stats_table(:, 15) = time_end_array;
-                    electrode_stats_table(:, 16) = bdt_array; 
-                    electrode_stats_table(:, 17) = min_bp_array; 
-                    electrode_stats_table(:, 18) = max_bp_array; 
-                    electrode_stats_table(:, 19) = stim_spike_hold_off_array;
-                    electrode_stats_table(:, 20) = post_spike_hold_off_array;
-                    electrode_stats_table(:, 21) = t_wave_duration_array;
-                    electrode_stats_table(:, 22) = t_wave_offset_array;
-                    electrode_stats_table(:, 23) = t_wave_shape_array;
-                    electrode_stats_table(:, 24) = filter_intensity_array;
-                   
-                    electrode_stats_table(:, 25) = ave_wave_stim_spike_hold_off_array;
-                    electrode_stats_table(:, 26) = ave_wave_post_spike_hold_off_array;
-                    electrode_stats_table(:, 27) = ave_wave_t_wave_duration_array;
-                    electrode_stats_table(:, 28) = ave_wave_t_wave_offset_array;
-                    electrode_stats_table(:, 29) = ave_wave_t_wave_shape_array;
-                    electrode_stats_table(:, 30) = ave_wave_filter_intensity_array;
-                    
-                    electrode_stats_table(:, 31) = wavelet_family;
-                    electrode_stats_table(:, 32) = polynomial_degree;
-                    electrode_stats_table(:, 33) = warning_array;
+                    if well_electrode_data(well_count).electrode_data(electrode_count).rejected == 0
+                        electrode_stats_table = table('Size', [1, 33], 'VariableTypes', ["string", "double", "double", "double", "double",  "double",  "double",  "double",  "double", "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
+
+                        electrode_stats_table(:, 2) = activation_times;
+                        electrode_stats_table(:, 3) = activation_point;
+                        electrode_stats_table(:, 4) = min_depol_time;
+                        electrode_stats_table(:, 5) = min_depol_point;
+                        electrode_stats_table(:, 6) = max_depol_time;
+                        electrode_stats_table(:, 7) = max_depol_point;
+                        electrode_stats_table(:, 8) = amps;
+                        electrode_stats_table(:, 9) = slopes;
+                        electrode_stats_table(:, 10) = t_wave_peak_times;
+                        electrode_stats_table(:, 11) = t_wave_peak_array;
+                        electrode_stats_table(:, 12) = FPDs;
+                        electrode_stats_table(:, 13) = beat_periods;
+                        electrode_stats_table(:, 14) = time_start_array;
+                        electrode_stats_table(:, 15) = time_end_array;
+                        electrode_stats_table(:, 16) = bdt_array; 
+                        electrode_stats_table(:, 17) = min_bp_array; 
+                        electrode_stats_table(:, 18) = max_bp_array; 
+                        electrode_stats_table(:, 19) = stim_spike_hold_off_array;
+                        electrode_stats_table(:, 20) = post_spike_hold_off_array;
+                        electrode_stats_table(:, 21) = t_wave_duration_array;
+                        electrode_stats_table(:, 22) = t_wave_offset_array;
+                        electrode_stats_table(:, 23) = t_wave_shape_array;
+                        electrode_stats_table(:, 24) = filter_intensity_array;
+
+                        electrode_stats_table(:, 25) = ave_wave_stim_spike_hold_off_array;
+                        electrode_stats_table(:, 26) = ave_wave_post_spike_hold_off_array;
+                        electrode_stats_table(:, 27) = ave_wave_t_wave_duration_array;
+                        electrode_stats_table(:, 28) = ave_wave_t_wave_offset_array;
+                        electrode_stats_table(:, 29) = ave_wave_t_wave_shape_array;
+                        electrode_stats_table(:, 30) = ave_wave_filter_intensity_array;
+
+                        electrode_stats_table(:, 31) = wavelet_family;
+                        electrode_stats_table(:, 32) = polynomial_degree;
+                        electrode_stats_table(:, 33) = warning_array;
+                    else
+                        electrode_stats_table = table('Size', [0, 33], 'VariableTypes', ["string", "double", "double", "double", "double",  "double",  "double",  "double",  "double", "double", "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double",  "double", "string", "string", "double", "double", "double", "double", "string", "string", "string", "double", "string"], 'VariableNames', cellstr([well_electrode_data(well_count).electrode_data(electrode_count).electrode_id, 'Activation Time (s)', 'Activation Point (V)', "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Time Region Start (s)', 'Time Region End (s)', 'Beat Wide Beat Detection Threshold Input (V)', 'Beat Wide Mininum Beat Period Input (s)', 'Beat Wide Maximum Beat Period Input (s)', 'Beat Wide Stim-spike hold-off (s)', 'Beat Wide Post-spike hold-off (s)', 'Beat Wide T-wave Duration Input (s)', 'Beat Wide T-wave offset Input (s)', 'Beat Wide T-wave Shape', 'Beat Wide Filter Intensity', 'Ave Beat Stim-spike hold-off (s)', 'Ave Beat Post-spike hold-off (s)', 'Ave Beat T-wave Duration Input (s)', 'Ave Beat T-wave offset Input (s)', 'Ave Beat T-wave Shape', 'Ave Beat Filter Intensity', "Ave Beat T-wave Denoising Wavelet Family", "Ave Beat T-wave Polynomial Degree", 'Warnings']));
+
+                        
+                        
+                        
+                    end
                 end
                 
                 

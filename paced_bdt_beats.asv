@@ -277,7 +277,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
-                        filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
+                        filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
 
                    else
                        if ptc == 1
@@ -285,7 +285,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
-                        filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
+                        filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
 
                    end 
 
@@ -296,7 +296,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
-                       filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
+                       filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
 
                    else
                        if pc == 1
@@ -304,7 +304,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
-                       filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
+                       filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
 
                    end
 
@@ -315,7 +315,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_max_depol_point); beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
-                       filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
+                       filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_max_depol_point); beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
 
                    else
                        if ptc == 1
@@ -323,7 +323,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
-                       filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
+                       filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
 
                    end
 
@@ -333,7 +333,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
-                       filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
+                       filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
 
                    else
                        if pc == 1
@@ -341,7 +341,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
                        end
                        %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
-                       filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
+                       filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
 
                    end
 

@@ -180,17 +180,18 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 end
             end
                       
-            
+            electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
+            electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
+            electrode_data(electrode_count).electrode_id = electrode_id;
 
             if etr >= 1
                 electrode_data(electrode_count).rejected = 0;
             else
                 electrode_data(electrode_count).rejected = 1;
+                continue
             end
             
-            electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
-            electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
-            electrode_data(electrode_count).electrode_id = electrode_id;
+            
             
             if strcmp(stable_ave_analysis, 'time_region')
                 %{
@@ -255,9 +256,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     
                     electrode_data(electrode_count).ave_wave_stim_spike_hold_off = str2num(string(electrode_table{1, 22}));
                     electrode_data(electrode_count).ave_wave_post_spike_hold_off =  str2num(string(electrode_table{1, 23}));
-                    electrode_data(electrode_count).ave_wave_t_wave_duration =  str2num(string(electrode_table{1, 25}));
-                    electrode_data(electrode_count).ave_wave_t_wave_offset =  str2num(string(electrode_table{1, 24}));
-                    
+                    electrode_data(electrode_count).ave_wave_t_wave_duration =  str2num(string(electrode_table{1, 24}));
+                    electrode_data(electrode_count).ave_wave_t_wave_offset =  str2num(string(electrode_table{1, 25}));
                     electrode_data(electrode_count).ave_wave_t_wave_shape =  (string(electrode_table{1, 26}));
                     electrode_data(electrode_count).ave_wave_filter_intensity =  (string(electrode_table{1, 27}));
                     
@@ -285,8 +285,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     
                     electrode_data(electrode_count).ave_wave_stim_spike_hold_off = str2num(string(electrode_table{1, 25}));
                     electrode_data(electrode_count).ave_wave_post_spike_hold_off =  str2num(string(electrode_table{1, 26}));
-                    electrode_data(electrode_count).ave_wave_t_wave_offset =  str2num(string(electrode_table{1, 27}));
-                    electrode_data(electrode_count).ave_wave_t_wave_duration =  str2num(string(electrode_table{1, 28}));
+                    electrode_data(electrode_count).ave_wave_t_wave_duration =  str2num(string(electrode_table{1, 27}));
+                    electrode_data(electrode_count).ave_wave_t_wave_offset =  str2num(string(electrode_table{1, 28}));
                     electrode_data(electrode_count).ave_wave_t_wave_shape =  (string(electrode_table{1, 29}));
                     electrode_data(electrode_count).ave_wave_filter_intensity =  (string(electrode_table{1, 30}));
                     
@@ -895,7 +895,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
             lower = beat_time(1)+post_spike_hold_off;
         end
         
-        
+        %This failed for seaky
         t_wave_indx = find(beat_time >= lower & beat_time <= upper);
 
         t_wave_time = beat_time(t_wave_indx);

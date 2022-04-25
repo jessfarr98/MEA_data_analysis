@@ -147,6 +147,16 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 if etr == 1
                     beat_to_beat = 'off';
                     stable_ave_analysis = 'time_region';
+                elseif etr == 0
+                    
+                    electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
+                    electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
+                    electrode_data(electrode_count).electrode_id = electrode_id;
+                    
+                    electrode_data(electrode_count).rejected = 1;
+                    sheet_count = sheet_count+1;
+                    continue
+
                 else
                     beat_to_beat = 'on';
                     
@@ -180,19 +190,23 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 end
             end
                       
-            
+            electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
+            electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
+            electrode_data(electrode_count).electrode_id = electrode_id;
 
+           
             if etr >= 1
                 electrode_data(electrode_count).rejected = 0;
             else
                 electrode_data(electrode_count).rejected = 1;
+                sheet_count = sheet_count+1;
+                continue
             end
             
-            electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
-            electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
-            electrode_data(electrode_count).electrode_id = electrode_id;
+            
             
             if strcmp(stable_ave_analysis, 'time_region')
+
                 %{
                     electrode_data(electrode_count).bdt = NaN;
                     electrode_data(electrode_count).min_bp = NaN;
@@ -894,7 +908,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
             lower = beat_time(1)+post_spike_hold_off;
         end
         
-        
+        %This failed for seaky
         t_wave_indx = find(beat_time >= lower & beat_time <= upper);
 
         t_wave_time = beat_time(t_wave_indx);

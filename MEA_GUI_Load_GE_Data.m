@@ -42,6 +42,14 @@ function MEA_GUI_Load_GE_Data(raw_data_file, results_file)
         electrode_count = 0;
         electrode_table = readtable(results_file, 'Sheet', sheet_count);
         
+        [etr, etc] = size(electrode_table);
+        if etr < 1
+            well_electrode_data(w-1).rejected_well = 1;
+            sheet_count = sheet_count+1;
+            continue;
+        end
+
+        
         %wellID = electrode_table{1, 1}
         
         
@@ -62,6 +70,17 @@ function MEA_GUI_Load_GE_Data(raw_data_file, results_file)
         wellID_row = find(strcmp(well_dictionary, wellID_row));    
         
         min_stdev = nan;
+        
+        added_wells = [added_wells; string(wellID)];
+
+        bipolar = 'on';
+
+        
+        
+        well_electrode_data(w-1).wellID = wellID;
+        well_electrode_data(w-1).rejected_well = 0;
+
+        
         %continue
         
         electrode_data = ElectrodeData.empty(num_electrode_cols*num_electrode_rows, 0);
@@ -155,7 +174,7 @@ function MEA_GUI_Load_GE_Data(raw_data_file, results_file)
                     well_electrode_data(w-1).GE_electrode_indx = electrode_count;
                 end
                 %}
-                [etr, etc] = size(electrode_table);
+                
                 if strcmp(spon_paced, 'paced')
                     if etc == 25
                         electrode_data(electrode_count).spon_paced = 'paced bdt';
@@ -163,11 +182,15 @@ function MEA_GUI_Load_GE_Data(raw_data_file, results_file)
                        change_all_data_type = 0;
                     end
                 end
+                
+                
 
                 electrode_data(electrode_count).time = Data{wellID_row,wellID_col,e_c,e_r}.GetTimeVector;
                 electrode_data(electrode_count).data = Data{wellID_row,wellID_col,e_c,e_r}.GetVoltageVector;
                 electrode_data(electrode_count).electrode_id = electrode_id;
-
+                
+                
+                
                 if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
 
                     electrode_data(electrode_count).stable_beats_duration = str2num(string(electrode_table{1, 16}));
@@ -297,20 +320,12 @@ function MEA_GUI_Load_GE_Data(raw_data_file, results_file)
         electrode_data(min_stdev_indx).ave_t_wave_peak_time = str2num(string(electrode_table{1, 10}));
         electrode_data(min_stdev_indx).ave_t_wave_peak = str2num(string(electrode_table{1, 11}));
 
-        
-
+        well_electrode_data(w-1).electrode_data = electrode_data;
+        well_electrode_data(w-1).GE_electrode_indx = min_stdev_indx;
+        well_electrode_data(w-1).spon_paced = spon_paced;
 
         %wellID_str = strcat(well_dictionary(wellID_row), '0', num2str(wellID_col));
-        added_wells = [added_wells; string(wellID)];
-
-        bipolar = 'on';
-
-        well_electrode_data(w-1).GE_electrode_indx = min_stdev_indx;
-        well_electrode_data(w-1).electrode_data = electrode_data;
-        well_electrode_data(w-1).wellID = wellID;
-        well_electrode_data(w-1).rejected_well = 0;
-
-        well_electrode_data(w-1).spon_paced = spon_paced;
+        
         sheet_count = sheet_count+1;
     end
 

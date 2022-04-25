@@ -233,8 +233,12 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
     filtered_ave_wave_time = [];
     filtered_average_waveform = [];
     
+    if isempty(artificial_time_space)
+       return 
+    end
+    [activation_time, amplitude, max_depol_time, max_depol_point,indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, electrode_data(electrode_count).ave_warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(artificial_time_space, average_waveform, post_spike_hold_off, stim_spike_hold_off, spon_paced, artificial_time_space(1), electrode_id, filter_intensity, '');
+    %[activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, electrode_data(electrode_count).ave_warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(artificial_time_space, average_waveform, post_spike_hold_off, stim_spike_hold_off, spon_paced, artificial_time_space(1), electrode_id, filter_intensity, '');
     
-    [activation_time, amplitude, max_depol_time, max_depol_point,indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, electrode_data(electrode_count).ave_warning, pshot_indx_offset] = rate_analysis(artificial_time_space, average_waveform, post_spike_hold_off, stim_spike_hold_off, spon_paced, artificial_time_space(1), electrode_id, filter_intensity, '');
     activation_time_indx = find(artificial_time_space >=activation_time);
     activation_time = artificial_time_space(activation_time_indx(1));
     act_point = average_waveform(activation_time_indx(1));
@@ -242,7 +246,7 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
     [t_wave_peak_time, t_wave_peak, FPD, electrode_data(electrode_count).ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial, wavelet_family, best_p_degree] = t_wave_complex_analysis(artificial_time_space, average_waveform, beat_to_beat, activation_time, 0, spon_paced, t_wave_shape, NaN, t_wave_duration, post_spike_hold_off, est_peak_time, est_fpd, electrode_id, filter_intensity, electrode_data(electrode_count).ave_warning);
     
     
-    if ~strcmp(filter_intensity, 'none')
+    %if ~strcmp(filter_intensity, 'none')
        if strcmp(filter_intensity, 'low')
           filtration_rate = 5;
        elseif strcmp(filter_intensity, 'medium')
@@ -253,46 +257,93 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
 
        [dr, dc] = size(average_waveform);
        [tr, tc] = size(artificial_time_space);
-       if indx_min_depol_point < indx_max_depol_point
+       
+       
+       [ptr, ptc] = size(polynomial_time);
+       [pr, pc] = size(polynomial);
+       [pdr, pdc] = size(depol_polynomial);
 
+       if indx_min_depol_point < indx_max_depol_point
+            
 
            if tc == 1
-               filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_min_depol_point); artificial_time_space(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); artificial_time_space(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+               if ptr == 1
+                   polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+               end
+               %filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_min_depol_point); artificial_time_space(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); artificial_time_space(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+               filtered_ave_wave_time = [depol_filtered_time; nan; polynomial_time];
 
            else
-               filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_min_depol_point) artificial_time_space(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) artificial_time_space(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+               if ptc == 1
+                   polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+               end
+               %filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_min_depol_point) artificial_time_space(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) artificial_time_space(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                filtered_ave_wave_time = [depol_filtered_time nan polynomial_time];
 
            end 
 
 
            if dc == 1
-               filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_min_depol_point); average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+               if pr == 1
+                   polynomial = reshape(polynomial, [pc, pr]);
+
+               end
+               %filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_min_depol_point); average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                filtered_average_waveform  = [depol_polynomial; nan; polynomial];
 
            else
-               filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_min_depol_point) average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+               if pc == 1
+                   polynomial = reshape(polynomial, [pc, pr]);
+
+               end
+               %filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_min_depol_point) average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                filtered_average_waveform  = [depol_polynomial nan polynomial];
 
            end
 
        else
            if tc == 1
-               filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_max_depol_point); artificial_time_space(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); artificial_time_space(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+               if ptr == 1
+                   polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+               end
+               %filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_max_depol_point); artificial_time_space(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); artificial_time_space(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+               filtered_ave_wave_time = [depol_filtered_time; nan; polynomial_time];
 
            else
-               filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_max_depol_point) artificial_time_space(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) artificial_time_space(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+               if ptc == 1
+                   polynomial_time = reshape(polynomial_time, [ptc, ptr]);
+
+               end
+               %filtered_ave_wave_time = [artificial_time_space(1:filtration_rate:indx_max_depol_point) artificial_time_space(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) artificial_time_space(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                filtered_ave_wave_time = [depol_filtered_time nan polynomial_time];
 
            end
 
            if dc == 1
-               filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_max_depol_point); average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+               if pr == 1
+                   polynomial = reshape(polynomial, [pc, pr]);
+
+               end
+               %filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_max_depol_point); average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+               filtered_average_waveform  = [depol_polynomial; nan; polynomial];
 
            else
-               filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_max_depol_point) average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+               if pc == 1
+                   polynomial = reshape(polynomial, [pc, pr]);
+
+               end
+               %filtered_average_waveform  = [average_waveform(1:filtration_rate:indx_max_depol_point) average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+               filtered_average_waveform  = [depol_polynomial nan polynomial];
 
 
            end
 
 
        end
+   %{
    else
        [dr, dc] = size(average_waveform);
        [tr, tc] = size(artificial_time_space);
@@ -315,6 +366,8 @@ function [average_waveform, electrode_data] = compute_average_time_region_wavefo
 
 
     end
+    %}
+   
     
     
     electrode_data(electrode_count).min_stdev = NaN;

@@ -147,7 +147,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                     else
                         stim_spike_ho = NaN;
                     end
-                    [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, indx_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, indx_min_depol_point, electrode_data.ave_depol_slope, electrode_data.ave_warning, pshot_indx_offset] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id, filter_intensity, '');
+                    [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, indx_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, indx_min_depol_point, electrode_data.ave_depol_slope, electrode_data.ave_warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id, filter_intensity, '');
                     [electrode_data.ave_t_wave_peak_time, ~, ~, electrode_data.ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial,  electrode_data.ave_t_wave_wavelet, electrode_data.ave_t_wave_polynomial_degree] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data.electrode_id, filter_intensity, electrode_data.ave_warning);
 
         
@@ -155,7 +155,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                     %electrode_data.average_waveform
                     
                     
-                    if ~strcmp(filter_intensity, 'none')
+                    %if ~strcmp(filter_intensity, 'none')
                        if strcmp(filter_intensity, 'low')
                           filtration_rate = 5;
                       elseif strcmp(filter_intensity, 'medium')
@@ -178,14 +178,16 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                                    polynomial_time = reshape(polynomial_time, [ptc, ptr]);
                                    
                                end
-                               electrode_data.filtered_ave_wave_time = [ electrode_data.ave_wave_time(1:filtration_rate:indx_min_depol_point);  electrode_data.ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data.ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                               %electrode_data.filtered_ave_wave_time = [ electrode_data.ave_wave_time(1:filtration_rate:indx_min_depol_point);  electrode_data.ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data.ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                               electrode_data.filtered_ave_wave_time = [depol_filtered_time; nan; polynomial_time];
 
                            else
                                if ptc == 1
                                    polynomial_time = reshape(polynomial_time, [ptc, ptr]);
                                    
                                end
-                               electrode_data(electrode_count).filtered_ave_wave_time = [ electrode_data.ave_wave_time(1:filtration_rate:indx_min_depol_point)  electrode_data.ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data.ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                               %electrode_data(electrode_count).filtered_ave_wave_time = [ electrode_data.ave_wave_time(1:filtration_rate:indx_min_depol_point)  electrode_data.ave_wave_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data.ave_wave_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                               electrode_data(electrode_count).filtered_ave_wave_time = [depol_filtered_time nan polynomial_time];
 
                            end 
 
@@ -195,14 +197,16 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                                    polynomial = reshape(polynomial, [pc, pr]);
                                    
                                end
-                               electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_min_depol_point); electrode_data.average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data.average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                               %electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_min_depol_point); electrode_data.average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); electrode_data.average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                               electrode_data.filtered_average_waveform  = [depol_polynomial; nan; polynomial];
 
                            else
                                if pc == 1
                                    polynomial = reshape(polynomial, [pc, pr]);
                                    
                                end
-                               electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_min_depol_point) electrode_data.average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data.average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                               %electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_min_depol_point) electrode_data.average_waveform(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) electrode_data.average_waveform(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                               electrode_data.filtered_average_waveform  = [depol_polynomial nan polynomial];
 
                            end
 
@@ -215,14 +219,16 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                                    polynomial_time = reshape(polynomial_time, [ptc, ptr]);
                                    
                                end
-                               electrode_data.filtered_ave_wave_time = [electrode_data.ave_wave_time(1:filtration_rate:indx_max_depol_point); electrode_data.ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data.ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial_time];
+                               %electrode_data.filtered_ave_wave_time = [electrode_data.ave_wave_time(1:filtration_rate:indx_max_depol_point); electrode_data.ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data.ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial_time];
+                               electrode_data.filtered_ave_wave_time = [depol_filtered_time; nan; polynomial_time];
 
                            else
                                if ptc == 1
                                    polynomial_time = reshape(polynomial_time, [ptc, ptr]);
                                    
                                end
-                               electrode_data.filtered_ave_wave_time = [electrode_data.ave_wave_time(1:filtration_rate:indx_max_depol_point) electrode_data.ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data.ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                               %electrode_data.filtered_ave_wave_time = [electrode_data.ave_wave_time(1:filtration_rate:indx_max_depol_point) electrode_data.ave_wave_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data.ave_wave_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                               electrode_data.filtered_ave_wave_time = [depol_filtered_time nan polynomial_time];
 
                            end
 
@@ -231,18 +237,22 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                                    polynomial = reshape(polynomial, [pc, pr]);
                                    
                                end
-                               electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_max_depol_point); electrode_data.average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data.average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial];
+                               %electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_max_depol_point); electrode_data.average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); electrode_data.average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset);  nan; polynomial];
+                               electrode_data.filtered_average_waveform  = [depol_polynomial; nan; polynomial];
+                           
                            else
                                if pc == 1
                                    polynomial = reshape(polynomial, [pc, pr]);
                                    
                                end
-                               electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_max_depol_point) electrode_data.average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data.average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                               %electrode_data.filtered_average_waveform  = [electrode_data.average_waveform(1:filtration_rate:indx_max_depol_point) electrode_data.average_waveform(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) electrode_data.average_waveform(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                               electrode_data.filtered_average_waveform  = [depol_polynomial nan polynomial];
 
                            end
 
 
                        end
+                   %{
                    else
                        [dr, dc] = size(electrode_data.average_waveform);
                        [tr, tc] = size(electrode_data.ave_wave_time);
@@ -266,6 +276,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
 
 
                    end
+                   %}
 
                     %%disp(electrode_data.activation_times(2))
                     
