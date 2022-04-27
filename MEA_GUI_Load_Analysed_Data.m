@@ -197,15 +197,20 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
            
             if etr >= 1
                 electrode_data(electrode_count).rejected = 0;
-            else
-                electrode_data(electrode_count).rejected = 1;
-                sheet_count = sheet_count+1;
-                continue
+            %else
+                %electrode_data(electrode_count).rejected = 1;
+                %sheet_count = sheet_count+1;
+                %continue
             end
             
             
             
             if strcmp(stable_ave_analysis, 'time_region')
+                if etr < 1
+                    electrode_data(electrode_count).rejected = 1;
+                    sheet_count = sheet_count+1;
+                    continue
+                end
 
                 %{
                     electrode_data(electrode_count).bdt = NaN;
@@ -335,7 +340,11 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 
                   
             else
-                
+                if etr < 1
+                    electrode_data(electrode_count).rejected = 1;
+                    %sheet_count = sheet_count+1;
+                    %continue
+                end
                 if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
                     if strcmp(analyse_all_b2b, 'time_region')
                         conduction_velocity = electrode_stats_table{12, 2};
@@ -861,7 +870,149 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         min_depol_point = min(depol_complex_data);
         indx_min_depol_point = find(depol_complex_data == min_depol_point);
         
+        [dr, dc] = size(depol_complex_data);
+        [tr, tc] = size(depol_complex_time);
         
+        if strcmp(filter_intensity, 'none')
+            filtration_rate = 1;
+        elseif strcmp(filter_intensity, 'low')
+            filtration_rate = 5;
+        elseif strcmp(filter_intensity, 'medium')
+            filtration_rate = 10;
+        else
+            filtration_rate = 20;
+        end
+    
+        if indx_min_depol_point < indx_max_depol_point
+        
+            
+            activation_filtration_rate  = filtration_rate;
+            activation_filter_intensity = filter_intensity;
+            
+            while(1)
+                if (length(depol_complex_data(indx_min_depol_point:indx_max_depol_point))/activation_filtration_rate) >= 5
+                    break
+                else
+                    if strcmp(activation_filter_intensity, 'none')
+                        break;
+                    elseif strcmp(activation_filter_intensity, 'low')
+                        %filtration_rate = 5;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'none';
+                    elseif strcmp(activation_filter_intensity, 'medium')
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 5;
+                        activation_filter_intensity = 'low';
+                    else
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'medium';
+                    end
+
+                end
+            end
+            
+       
+            if dc == 1
+                depol_filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:filtration_rate:end));
+                %filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
+
+            else
+
+
+                depol_filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:filtration_rate:end));
+
+            end
+
+            if tc == 1
+                depol_filtered_time = vertcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:filtration_rate:end));
+
+            else
+                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:filtration_rate:end));
+
+            end
+
+
+
+
+            %{
+            poly_time = depol_complex_time_filtered - depol_complex_time_filtered(1);
+            best_p_degree = 21;
+
+            pfit = polyfit(poly_time,filtered_data,best_p_degree);
+            filtered_data = polyval(pfit, poly_time);
+            %}
+
+        else
+
+            activation_filtration_rate  = filtration_rate;
+            activation_filter_intensity = filter_intensity;
+            
+            while(1)
+                if (length(depol_complex_data(indx_max_depol_point:indx_min_depol_point))/activation_filtration_rate) >= 5
+                    break
+                else
+                    if strcmp(activation_filter_intensity, 'none')
+                        break;
+                    elseif strcmp(activation_filter_intensity, 'low')
+                        %filtration_rate = 5;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'none';
+                    elseif strcmp(activation_filter_intensity, 'medium')
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 5;
+                        activation_filter_intensity = 'low';
+                    else
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'medium';
+                    end
+
+                end
+            end
+            
+            if dc == 1
+                depol_filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:filtration_rate:end));
+
+            else
+
+                depol_filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:filtration_rate:end));
+
+            end
+
+            if tc == 1
+                depol_filtered_time = vertcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:filtration_rate:end));
+
+            else
+
+                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:filtration_rate:end));
+
+            end
+
+            %depol_complex_time_filtered = depol_complex_time;
+
+            %filtered_data = wdenoise(depol_complex_data,'Wavelet', 'sym8', 'DenoisingMethod', 'Bayes', 'ThresholdRule', 'Soft', 'NoiseEstimate', 'LevelDependent');
+
+
+
+ 
+
+
+
+            %{
+
+            poly_time = depol_complex_time_filtered - depol_complex_time_filtered(1);
+            best_p_degree = 21;
+
+            pfit = polyfit(poly_time,filtered_data,best_p_degree);
+            filtered_data = polyval(pfit, poly_time);
+            %}
+
+
+
+        end
+        
+        depol_polynomial = depol_filtered_data;
         %T-wave filtration
         
         wavelet_family = wavelet_families{b};
@@ -986,7 +1137,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         polynomial_time = t_wave_time_filtered;
 
         
-        if ~strcmp(filter_intensity, 'none')
+        %if ~strcmp(filter_intensity, 'none')
            if strcmp(filter_intensity, 'low')
               filtration_rate = 5;
           elseif strcmp(filter_intensity, 'medium')
@@ -1000,9 +1151,8 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
            [ptr, ptc] = size(polynomial_time);
            [pr, pc] = size(polynomial);
+           [pdr, pdc] = size(depol_polynomial);
 
-           
-           
            if indx_min_depol_point < indx_max_depol_point
 
 
@@ -1011,14 +1161,15 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   %filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_min_depol_point); beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                    filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
 
                else
                    if ptc == 1
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_min_depol_point) beat_time(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_time(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
 
                end 
 
@@ -1028,14 +1179,16 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_min_depol_point); beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1); beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                    filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
 
                else
                    if pc == 1
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_min_depol_point) beat_data(indx_min_depol_point+1:filtration_rate:indx_max_depol_point-1) beat_data(indx_max_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                    filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
 
                end
 
@@ -1045,14 +1198,14 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time; nan; beat_time(1:filtration_rate:indx_max_depol_point); beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial_time];
+                   filtered_time = [filtered_time; nan; depol_filtered_time; nan; polynomial_time];
 
                else
                    if ptc == 1
                        polynomial_time = reshape(polynomial_time, [ptc, ptr]);
 
                    end
-                   filtered_time = [filtered_time nan beat_time(1:filtration_rate:indx_max_depol_point) beat_time(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_time(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial_time];
+                   filtered_time = [filtered_time nan depol_filtered_time nan polynomial_time];
 
                end
 
@@ -1061,20 +1214,24 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                   %filtered_data  = [filtered_data; nan; beat_data(1:filtration_rate:indx_max_depol_point); beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1); beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset); nan; polynomial];
+                    filtered_data  = [filtered_data; nan; depol_polynomial; nan; polynomial];
 
                else
                    if pc == 1
                        polynomial = reshape(polynomial, [pc, pr]);
 
                    end
-                   filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                   %filtered_data  = [filtered_data nan beat_data(1:filtration_rate:indx_max_depol_point) beat_data(indx_max_depol_point+1:filtration_rate:indx_min_depol_point-1) beat_data(indx_min_depol_point:filtration_rate:pshot_indx_offset) nan polynomial];
+                    filtered_data  = [filtered_data nan depol_polynomial nan polynomial];
 
 
                end
 
 
            end
+
+        %{
        else
            [dr, dc] = size(beat_data);
            [tr, tc] = size(beat_time);
@@ -1114,6 +1271,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
 
         end
+        %}
         
     end
 

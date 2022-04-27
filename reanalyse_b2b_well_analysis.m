@@ -1,4 +1,4 @@
-function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID)
+function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, reanalyse_electrodes)
     
     screen_size = get(groot, 'ScreenSize');
     screen_width = screen_size(3);
@@ -22,6 +22,11 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
     for elec_r = num_electrode_rows:-1:1
         for elec_c = 1:num_electrode_cols
             electrode_count = electrode_count+1;
+            if ~contains(reanalyse_electrodes, 'all')
+                if ~contains(reanalyse_electrodes, electrode_data(electrode_count).electrode_id)
+                    continue;
+                end
+            end
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
             end
@@ -161,7 +166,16 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
         for elec_c = 1:num_electrode_cols
             electrode_count = electrode_count+1;
             partition = partition+num_partitions;
-            waitbar(partition, wait_bar, strcat('Reanalysing', {' '}, well_ID))
+            w = waitbar(partition, wait_bar, strcat('Reanalysing', {' '}, electrode_data(electrode_count).electrode_id));
+            myString = findall(w,'String',strcat('Reanalysing', {' '}, electrode_data(electrode_count).electrode_id));
+            set(myString,'Interpreter','none');
+            
+            if ~contains(reanalyse_electrodes, 'all')
+                if ~contains(reanalyse_electrodes, electrode_data(electrode_count).electrode_id)
+                    continue;
+                end
+            end
+            
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
             end

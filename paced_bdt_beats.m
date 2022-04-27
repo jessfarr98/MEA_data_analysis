@@ -253,7 +253,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            t_wave_peak_times = [t_wave_peak_times t_wave_peak_time];
            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
            
-           if ~strcmp(filter_intensity, 'none')
+           %if ~strcmp(filter_intensity, 'none')
                if strcmp(filter_intensity, 'low')
                   filtration_rate = 5;
               elseif strcmp(filter_intensity, 'medium')
@@ -346,6 +346,8 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                    end
 
                end
+               
+           %{
            else
                [dr, dc] = size(beat_data);
                [tr, tc] = size(beat_time);
@@ -384,6 +386,7 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                end
 
             end
+            %}
             t_wave_wavelet_array = [t_wave_wavelet_array {wavelet_family}];
             t_wave_polynomial_degree_array = [t_wave_polynomial_degree_array poly_degree];
       

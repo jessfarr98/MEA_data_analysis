@@ -268,11 +268,12 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
 
 
             end
+               %}
             t_wave_wavelet_array = [t_wave_wavelet_array {wavelet_family}];
             t_wave_polynomial_degree_array = [t_wave_polynomial_degree_array poly_degree];
             
         end
-        %}
+        
         
         
         %pause(10)

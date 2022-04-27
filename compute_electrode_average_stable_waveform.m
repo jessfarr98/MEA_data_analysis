@@ -60,6 +60,7 @@ function [average_waveform_duration, average_waveform, min_stdev, artificial_tim
             end
         end
     end
+    
     std_devs_forward = [];
     std_devs_reverse = [];
     index_start_array = [];
