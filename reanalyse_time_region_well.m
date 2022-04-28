@@ -1,4 +1,4 @@
-function [electrode_data] = reanalyse_time_region_well(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID)
+function [electrode_data] = reanalyse_time_region_well(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, reanalyse_electrodes)
     screen_size = get(groot, 'ScreenSize');
     screen_width = screen_size(3);
     screen_height = screen_size(4);
@@ -23,6 +23,14 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
             electrode_count = electrode_count+1;
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
+            end
+            if electrode_data(electrode_count).rejected == 1
+                continue;
+            end
+            if ~contains(reanalyse_electrodes, 'all')
+                if ~contains(reanalyse_electrodes, electrode_data(electrode_count).electrode_id)
+                    continue;
+                end
             end
             electrode_id = electrode_data(electrode_count).electrode_id;
 
@@ -117,6 +125,14 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
             if isempty(electrode_data(electrode_count).electrode_id)
                 continue;
             end
+            if ~contains(reanalyse_electrodes, 'all')
+                if ~contains(reanalyse_electrodes, electrode_data(electrode_count).electrode_id)
+                    continue;
+                end
+            end
+            if electrode_data(electrode_count).rejected == 1
+                continue;
+            end
             electrode_id = electrode_data(electrode_count).electrode_id;
             
             %disp(get(post_spike_ui, 'Value'))
@@ -135,7 +151,9 @@ function [electrode_data] = reanalyse_time_region_well(electrode_data, num_elect
             if strcmp(spon_paced, 'paced')|| strcmp(spon_paced, 'paced bdt')
                 electrode_data(electrode_count).ave_wave_stim_spike_hold_off = get(stim_spike_ui, 'Value');
             end 
-            
+            if isempty(electrode_data(electrode_count).ave_wave_time)
+                continue
+            end 
             [electrode_data(electrode_count).ave_activation_time, ~, electrode_data(electrode_count).ave_max_depol_time, electrode_data(electrode_count).ave_max_depol_point, indx_max_depol_point, electrode_data(electrode_count).ave_min_depol_time, electrode_data(electrode_count).ave_min_depol_point, indx_min_depol_point, electrode_data(electrode_count).ave_depol_slope, electrode_data(electrode_count).ave_warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform, get(post_spike_ui, 'Value'),stim_spike_ho, spon_paced, NaN, electrode_data(electrode_count).electrode_id, filter_intensity, '');
             [electrode_data(electrode_count).ave_t_wave_peak_time, electrode_data(electrode_count).ave_t_wave_peak, ~, electrode_data(electrode_count).ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial, electrode_data(electrode_count).ave_t_wave_wavelet, electrode_data(electrode_count).ave_t_wave_polynomial_degree] = t_wave_complex_analysis( electrode_data(electrode_count).ave_wave_time,  electrode_data(electrode_count).average_waveform, beat_to_beat,  electrode_data(electrode_count).ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data(electrode_count).electrode_id, filter_intensity, electrode_data(electrode_count).ave_warning);
             act_indx = find(electrode_data(electrode_count).ave_wave_time >= electrode_data(electrode_count).ave_activation_time);
