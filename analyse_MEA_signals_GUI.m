@@ -649,6 +649,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
                         
                         [average_waveform_duration, average_waveform, elec_min_stdev, artificial_time_space, electrode_data] = compute_electrode_average_stable_waveform(beat_num_array, cycle_length_array, activation_time_array, beat_start_times, beat_periods, time, data, well_stable_dur_array(well_count), electrode_data, electrode_count, electrode_id, plot_ave_dir, wellID, post_spike_hold_off, stim_spike_hold_off, spon_paced, beat_to_beat, t_wave_shape, t_wave_duration, est_peak_time, est_fpd, filter_intensity);
                         
+                        
                         %{
                         electrode_data(electrode_count).min_stdev = min_stdev;
                         electrode_data(electrode_count).average_waveform = average_waveform;
@@ -702,6 +703,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
     if strcmpi(beat_to_beat, 'off')
         if strcmp(stable_ave_analysis, 'stable')
             well_electrode_data(num_analysed).GE_electrode_indx = min_stdev_indx;
+            well_electrode_data(num_analysed).min_stdev = min_stdev;
         end
     end
     

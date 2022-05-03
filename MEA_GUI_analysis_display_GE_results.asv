@@ -343,21 +343,15 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             end
         end
         
-        function closeStableGUIsPushed(close_button, well_elec_fig, out_fig)
-            close(well_elec_fig)
-            open_figs = findall(groot,'Type','figure');
-            for o = 1:length(open_figs)
-                if contains(get(open_figs(o), 'name'), 'Background Beats')
-                    close(open_figs(o))
-                end
-            end
+        function closeStableGUIsPushed()
+            
             
             
         end
         
         function expandAllTimeRegionDataButtonPushed(expand_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, well_count, electrode_count, GE_ax, GE_pan, change_GE_dropdown)
             expand_elec_fig = uifigure;
-            expand_elec_fig.Name = 'Background Beats_'+well_electrode_data(well_count).electrode_data(electrode_count).electrode_id;
+            expand_elec_fig.Name = well_electrode_data(well_count).electrode_data(electrode_count).electrode_id;
             movegui(expand_elec_fig,'center')
             expand_elec_fig.WindowState = 'maximized';
             expand_elec_panel = uipanel(expand_elec_fig, 'Position', [0 0 screen_width screen_height]);

@@ -1418,8 +1418,14 @@ function [t_wave_peak_time, t_wave_peak, FPD, warning, t_wave_indx_start, t_wave
         FPD = nan;
     end
     
-    t_wave_indx_start = t_wave_indx(1);
-    t_wave_indx_end = t_wave_indx(end);
+    if ~isempty(t_wave_indx)
+        t_wave_indx_start = t_wave_indx(1);
+        t_wave_indx_end = t_wave_indx(end);
+    else
+        t_wave_indx_start = nan;
+        t_wave_indx_end = nan;
+        
+    end
     %FPD = 1;
 
 
