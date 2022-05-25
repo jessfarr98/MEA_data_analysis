@@ -282,6 +282,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                   time_end_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'B2B Time region end time (s)',  'Position', [1200 60 100 40], 'Editable','off');
                   time_end_ui = uieditfield(well_p, 'numeric', 'Tag', 'End Time', 'BackgroundColor','#e68e8e', 'Position', [1200 10 100 40],  'ValueChangedFcn',@(time_end_ui,event) changeEndTime(time_end_ui, well_ax, min_voltage, max_voltage, time(end), spon_paced));
                   set(time_end_ui, 'Value', time(end))
+                  
                   time_region_plot_data = linspace(min_voltage, max_voltage);
                   start_data = ones(length(time_region_plot_data), 1);
                   start_data(:,1) = 0;

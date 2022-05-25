@@ -249,7 +249,6 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
             
             reanalyse_selected_electrodes_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Selected Electrodes', 'Position', [screen_width-180 100 170 50], 'ButtonPushedFcn', @(reanalyse_selected_electrodes_button,event) reanalyseSelectedElectrodesButtonPushed(reanalyse_selected_electrodes_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
-  
             
             assess_conduction_velocity_model_button = uibutton(main_well_pan,'push','Text', 'Assess Conduction Velocity Model', 'Position', [screen_width-220 500 200 50], 'ButtonPushedFcn', @(assess_conduction_velocity_model_button,event) assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count));
         
@@ -266,15 +265,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 save_alldata_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveAveTimeRegionPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
             
                 %set(display_final_button, 'Visible', 'off')
-                reanalyse_selected_electrodes_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Selected Electrodes', 'Position', [screen_width-180 100 170 50], 'ButtonPushedFcn', @(reanalyse_selected_electrodes_button,event) reanalyseSelectedElectrodesButtonPushed(reanalyse_selected_electrodes_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
-  
+                reanalyse_background_beats_button = uibutton(main_well_pan,'push','Text', 'Re-analyse All Background Traces', 'Position', [screen_width-250 150 200 50], 'ButtonPushedFcn', @(reanalyse_background_beats_button,event) reanalyseWellButtonPushed(reanalyse_background_beats_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+        
                 
+                
+                reanalyse_selected_electrodes_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Selected Electrode Ave Waves', 'Position', [screen_width-250 100 200 50], 'ButtonPushedFcn', @(reanalyse_selected_electrodes_button,event) reanalyseSelectedElectrodesButtonPushed(reanalyse_selected_electrodes_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+  
+                reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse All Ave Waves', 'Position', [screen_width-240 50 180 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseTimeRegionWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+        
                 %auto_t_wave_button = uibutton(main_well_pan,'push','Text', 'Auto T-Wave Peak Search', 'Position', [screen_width-220 400 120 50], 'ButtonPushedFcn', @(auto_t_wave_button,event) autoTwavePeakButtonPushed(auto_t_wave_button, out_fig, well_elec_fig, well_button));
                 
                 overlaid_plots_button = uibutton(main_well_pan,'push',  'Text', 'View Overlaid Plots', 'Position', [screen_width-220 200 120 50], 'ButtonPushedFcn', @(overlaid_plots_button,event) viewOverlaidPlotsPushed(overlaid_plots_button, well_count));
             
-                reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Well', 'Position', [screen_width-300 100 120 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseTimeRegionWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
-        
+                
                 
             end
         end
@@ -1157,6 +1160,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         continue
                         
                     end
+                    
+                    if strcmp(beat_to_beat, 'on')
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).time)
+                        
+                            continue
+                        end
+                    else
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).average_waveform)
+                        
+                            continue
+                        end
+                        
+                    end
 
                     for well_panel_child = 1:length(well_panel_children)
                         
@@ -1227,7 +1243,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                     end
                                     %}
                                     
-                                    if strcmp(beat_to_beat_, 'on')
+                                    if strcmp(beat_to_beat, 'on')
                                         beat_warning = well_electrode_data(well_count).electrode_data(electrode_count).warning_array{mid_beat};
                                         %{
                                         if ~isempty(beat_warning)
@@ -1312,12 +1328,28 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         
                        continue 
                     end
+                    
+                    
                     %electrode_count = electrode_count+1;
 
                     if isempty(well_electrode_data(well_count).electrode_data(electrode_count))
                         continue
                         
                     end
+                    
+                    if strcmp(beat_to_beat, 'on')
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).time)
+                        
+                            continue
+                        end
+                    else
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).average_waveform)
+                        
+                            continue
+                        end
+                        
+                    end
+                    
 
                     for well_panel_child = 1:length(well_panel_children)
                         
@@ -1413,6 +1445,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                     if isempty(well_electrode_data(well_count).electrode_data(electrode_count))
                         continue
+                        
+                    end
+                    
+                    if strcmp(beat_to_beat, 'on')
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).time)
+                        
+                            continue
+                        end
+                    else
+                        if isempty(well_electrode_data(well_count).electrode_data(electrode_count).average_waveform)
+                        
+                            continue
+                        end
                         
                     end
 
@@ -1620,14 +1665,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         function reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
             set(well_elec_fig, 'Visible', 'off')
             %[well_electrode_data(well_count, :)] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
-            [well_electrode_data(well_count)] = reanalyse_b2b_well_analysis(well_electrode_data(well_count), num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, ['all']);
+            [well_electrode_data(well_count)] = reanalyse_b2b_well_analysis(well_electrode_data(well_count), num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, [], [], [], spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, ['all']);
             
             %electrode_data = well_electrode_data(well_count).electrode_data;
         end
         
         function reanalyseTimeRegionWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis)
             set(well_elec_fig, 'Visible', 'off')
-            [well_electrode_data(well_count).electrode_data] = reanalyse_time_region_well(well_electrode_data(well_count).electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
+            [well_electrode_data(well_count).electrode_data] = reanalyse_time_region_well(well_electrode_data(well_count).electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, [], [], spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, ['all']);
             
             %electrode_data = well_electrode_data(well_count).electrode_data;
         end
