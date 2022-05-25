@@ -350,7 +350,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
             
           
             colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
-            colormap(dt_ax, hsv)
+            colormap(dt_ax, jet)
             caxis(dt_ax, [min_c_lim max_c_lim])
             title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
         else
@@ -373,7 +373,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
             contourf(dt_ax, X,Y, transpose(dt_array), level_diff, 'LineStyle', 'none')
 
             colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
-            colormap(dt_ax, hsv)
+            colormap(dt_ax, jet)
             caxis(dt_ax, [min_c_lim max_c_lim])
             title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
             
@@ -485,12 +485,13 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
   
         %act_axes = get(act_main_pan, 'Children');
         dt_axes = get(dt_main_pan, 'Children');
-        
         for a = 1:length(dt_axes)
             %colormap(act_axes(a), custom_map)
             colormap(dt_axes(a), custom_map)
-            colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
-            caxis(dt_axes(a), [min_c_lim max_c_lim])
+            %colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            %colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            
+            %caxis(dt_axes(a), [min_c_lim max_c_lim])
             
         end
         
@@ -499,7 +500,6 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     end
 
     function  fullSpectrumPushed(full_spectrum_button, act_main_pan, dt_main_pan,tick_array)
-        
         set(full_spectrum_button, 'Visible', 'off')
         set(RG_colourblind_button, 'Visible', 'on')
         
@@ -508,9 +508,9 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
         
         for a = 1:length(dt_axes)
             %colormap(act_axes(a), hsv)
-            colormap(dt_axes(a), hsv)
-            colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
-            caxis(dt_axes(a), [min_c_lim max_c_lim])
+            colormap(dt_axes(a), jet)
+            %colorbar(dt_axes(a), 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
+            %caxis(dt_axes(a), [min_c_lim max_c_lim])
         end
         
         

@@ -6,19 +6,43 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_
     end
             
     if strcmp(spon_paced, 'spon')
-        post_spike_hold_off_time = time(1)+post_spike_hold_off;
-        pshot_indx = find(time >= post_spike_hold_off_time);
-        pshot_indx_offset = pshot_indx(1);
+        iters = 1;
+        while(1)
+            post_spike_hold_off_time = time(1)+post_spike_hold_off;
+            pshot_indx = find(time >= post_spike_hold_off_time);
+            if length(pshot_indx)>=1
+                pshot_indx_offset = pshot_indx(1);
+                break;
+
+            end
+            post_spike_hold_off = post_spike_hold_off*0.9;
+            iters = iters+1;
+            if iters == 20
+                pshot_indx_offset = length(time);
+                break;
+            end
+        end
         depol_complex_time = time(1:pshot_indx_offset);
         depol_complex_data = data(1:pshot_indx_offset);
     elseif strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
         start_time_indx = find(time >= time(1)+stim_spike_hold_off);
         
         %start_time_indx(1)
-        
-        post_spike_hold_off_time = time(1)+post_spike_hold_off;
-        pshot_indx = find(time >= post_spike_hold_off_time);
-        pshot_indx_offset = pshot_indx(1);
+        iters = 1;
+        while(1)
+            post_spike_hold_off_time = time(1)+post_spike_hold_off;
+            pshot_indx = find(time >= post_spike_hold_off_time);
+            if length(pshot_indx)>=1
+                pshot_indx_offset = pshot_indx(1);
+                break;
+            end
+            post_spike_hold_off = post_spike_hold_off*0.9;
+            iters = iters+1;
+            if iters == 20
+                pshot_indx_offset = length(time);
+                break;
+            end
+        end
         try
             depol_complex_time = time(start_time_indx(1):pshot_indx_offset);
             depol_complex_data = data(start_time_indx(1):pshot_indx_offset);

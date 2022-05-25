@@ -1227,7 +1227,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                     end
                                     %}
                                     
-                                    if strcmp(beat_to_beat_, 'on')
+                                    if strcmp(beat_to_beat, 'on')
                                         beat_warning = well_electrode_data(well_count).electrode_data(electrode_count).warning_array{mid_beat};
                                         %{
                                         if ~isempty(beat_warning)

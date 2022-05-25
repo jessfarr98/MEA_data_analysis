@@ -146,10 +146,9 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
     
           prev_x = nan;
           curr_x = nan;
-
-          ruler_label = uieditfield(well_p,'Text', 'FontSize', 8,'Value', 'Distance Ruler (s)', 'Position', [screen_width-200 570 100 60], 'Editable','off');
-          ruler_value = uieditfield(well_p, 'numeric', 'Position', [screen_width-200 510 100 60], 'Value', 0, 'editable', 'off');
           
+          help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
+     
     
           time_offset = 0;
           max_voltage = NaN;
@@ -233,7 +232,6 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           if strcmp(spon_paced, 'spon') || strcmp(spon_paced, 'paced bdt')
               well_bdt_text = uieditfield(well_p,'Text', 'FontSize', 8,'Value', strcat(wellID, {' '}, 'BDT (mV)'),  'Position', [10 60 100 40], 'Editable','off');
               well_bdt_ui = uieditfield(well_p, 'numeric', 'Tag', 'BDT', 'BackgroundColor','#e68e8e', 'Position', [10 10 100 40], 'ValueChangedFcn',@(well_bdt_ui,event) changeBDT(well_bdt_ui, well_p, submit_in_well_button, beat_to_beat, analyse_all_b2b, stable_ave_analysis, time(end)));
-          
           end
           
           t_wave_up_down_text = uieditfield(well_p, 'Text', 'FontSize', 8, 'Value', strcat(wellID, {' '}, 'T-wave Peak Analysis'), 'Position', [120 60 100 40], 'Editable','off');
@@ -436,7 +434,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
                 distance = curr_x-prev_x;
             end
             
-            set(ruler_value, 'value', distance)
+            set(distance_text, 'value', distance)
            
         end
         prev_x = curr_x;
