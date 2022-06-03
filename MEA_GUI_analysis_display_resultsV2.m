@@ -516,11 +516,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         %disp(well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_times)
                         
                         t_wave_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_times >= time_start);
-                        t_wave_indx = t_wave_indx(1);
-                        t_wave_peak_time = well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
-                        t_wave_p = well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
-                        if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
-                            plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                        if length(t_wave_indx) > 1
+                            t_wave_indx = t_wave_indx(1);
+                            t_wave_peak_time = well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
+                            t_wave_p = well_electrode_data(well_count).electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
+                            if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
+                                plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                            end
                         end
 
                         max_depol_indx = find(well_electrode_data(well_count).electrode_data(electrode_count).max_depol_time_array >= time_start);
@@ -2977,9 +2979,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         %set(well_button, 'Visible', 'off');
         
         
-        if exist(fullfile(save_dir, strcat(well_electrode_data(well_count).wellID, '.xls')), 'file')
+        if exist(fullfile(save_dir, strcat(well_electrode_data(well_count).wellID, '.xlsx')), 'file')
             %disp('yeah')
-            delete(fullfile(save_dir, strcat(well_electrode_data(well_count).wellID, '.xls')))
+            delete(fullfile(save_dir, strcat(well_electrode_data(well_count).wellID, '.xlsx')))
         end
         
         if exist(fullfile(save_dir, strcat(well_electrode_data(well_count).wellID, '_figures')), 'dir')
@@ -3037,7 +3039,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
         
         disp(strcat('Saving Data for', {' '}, well_ID))
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xlsx'));
         if exist(output_filename, 'file')
             try
                 delete(output_filename);
@@ -3751,7 +3753,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
         %cell%disp(well_stats)
         
-        %xlswrite(output_filename, well_stats, 1);
+        %xlsxwrite(output_filename, well_stats, 1);
         fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         
@@ -3961,7 +3963,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         %%disp(save_dir)
         %%disp(well_ID)
         disp(strcat('Saving Data for', {' '}, well_ID))
-        output_filename = fullfile(save_dir, strcat(well_ID, '.xls'));
+        output_filename = fullfile(save_dir, strcat(well_ID, '.xlsx'));
         if exist(output_filename, 'file')
             try
                 delete(output_filename);
@@ -4520,7 +4522,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         
         %cell%disp(well_stats)
         
-        %xlswrite(output_filename, well_stats, 1);
+        %xlsxwrite(output_filename, well_stats, 1);
         fileattrib(output_filename, '-h +w');
         writecell(well_stats, output_filename, 'Sheet', 1);
         

@@ -143,7 +143,10 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
           dcm = datacursormode(well_fig);
           dcm.Enable = 'on';
           dcm.UpdateFcn = @DistanceRulerCallback;
-    
+          
+          b = brush(well_fig);
+          b.Enable = 'off';
+          
           prev_x = nan;
           curr_x = nan;
 

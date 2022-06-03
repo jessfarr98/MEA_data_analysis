@@ -386,11 +386,14 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
 
 
                                 t_wave_indx = find(electrode_data(electrode_count).t_wave_peak_times >= time_start);
-                                t_wave_indx = t_wave_indx(1);
-                                t_wave_peak_time = electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
-                                t_wave_p = electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
-                                if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
-                                    plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                                
+                                if length(t_wave_indx) > 1
+                                    t_wave_indx = t_wave_indx(1);
+                                    t_wave_peak_time = electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
+                                    t_wave_p = electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
+                                    if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
+                                        plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                                    end
                                 end
 
                                 max_depol_indx = find(electrode_data(electrode_count).max_depol_time_array >= time_start);
