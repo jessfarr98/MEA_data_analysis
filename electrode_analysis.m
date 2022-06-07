@@ -246,6 +246,10 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                             end
                         end
                         cla(elec_ax);
+                        
+                        MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax)
+                        
+                        %{
                         hold(elec_ax, 'on')
                         
                         if strcmp(beat_to_beat, 'on')
@@ -721,6 +725,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                             
                         end
                         hold(elec_ax,'off')
+                        %}
                     end
                 end
                 close(well_fig);

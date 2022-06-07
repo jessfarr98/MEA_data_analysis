@@ -332,6 +332,7 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                     cla(elec_ax);
                     hold(elec_ax, 'on')
   
+                    %{
                     if strcmp(beat_to_beat, 'on')
                         if strcmp(well_electrode_data.spon_paced, 'paced')
                             num_beats = length(electrode_data(electrode_count).beat_start_times);
@@ -601,6 +602,9 @@ function [well_electrode_data] = reanalyse_b2b_well_analysis(well_electrode_data
                             end
                         end
                     end
+                    %}
+                    MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax)
+                    
                     hold(elec_ax,'off')
 
                 end
