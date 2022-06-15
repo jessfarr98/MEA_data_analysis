@@ -28,6 +28,13 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             
         end
     end
+    
+    if isempty(act_array)
+        conduction_velocity = nan;
+        model = nan;
+        return
+    end
+    
     min_act_indx = find(act_array == min(act_array));
     origin_electrode = electrode_ids(min_act_indx(1));
     

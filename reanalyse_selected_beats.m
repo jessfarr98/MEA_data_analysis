@@ -11,11 +11,9 @@ function [well_electrode_data] = reanalyse_selected_beats(well_electrode_data, e
     well_fig.Name = electrode_data(electrode_count).electrode_id;
     well_p = uipanel(well_fig, 'BackgroundColor','#f2c2c2', 'Position', [0 0 screen_width screen_height]);
 
-    
-    
+
     [~, beat_start_volts, ~] = intersect(electrode_data(electrode_count).time, electrode_data(electrode_count).beat_start_times);
     beat_start_volts =  electrode_data(electrode_count).data(beat_start_volts);
-            
             
             
     movegui(well_fig,'center');
