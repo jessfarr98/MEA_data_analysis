@@ -121,7 +121,7 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
     end
     
     electrode_count = 0;
-    sheet_count = 2;
+    sheet_count = 3;
     change_all_data_type = 1;
     beat_to_beat = nan;
     analyse_all_b2b = nan;

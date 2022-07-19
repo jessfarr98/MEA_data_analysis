@@ -1,4 +1,4 @@
-function [arrhythmia_indx, warning_array] = arrhythmia_analysis(beat_num_array, cycle_length_array, warning_array)
+function [arrhythmia_indx, warning_array, num_arrhythmic] = arrhythmia_analysis(beat_num_array, cycle_length_array, warning_array)
     % POSSIBLE INDEXING BUG
     arrhythmia_indx = [];
     if length(cycle_length_array) < 2
@@ -64,6 +64,7 @@ function [arrhythmia_indx, warning_array] = arrhythmia_analysis(beat_num_array, 
 
     [arrhythmia_indx] = intersect(arrhythmia_indx, beat_num_array);
     arrhythmia_indx = sort(arrhythmia_indx);
+    num_arrhythmic = length(arrhythmia_indx);
     
     if ~isempty(arrhythmia_indx)
         for w = 1:length(warning_array)

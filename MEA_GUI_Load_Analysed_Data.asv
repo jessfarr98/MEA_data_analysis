@@ -121,7 +121,7 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
     end
     
     electrode_count = 0;
-    sheet_count = 2;
+    sheet_count = 3;
     change_all_data_type = 1;
     beat_to_beat = nan;
     analyse_all_b2b = nan;
@@ -197,15 +197,20 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
            
             if etr >= 1
                 electrode_data(electrode_count).rejected = 0;
-            else
-                electrode_data(electrode_count).rejected = 1;
-                sheet_count = sheet_count+1;
-                continue
+            %else
+                %electrode_data(electrode_count).rejected = 1;
+                %sheet_count = sheet_count+1;
+                %continue
             end
             
             
             
             if strcmp(stable_ave_analysis, 'time_region')
+                if etr < 1
+                    electrode_data(electrode_count).rejected = 1;
+                    sheet_count = sheet_count+1;
+                    continue
+                end
 
                 %{
                     electrode_data(electrode_count).bdt = NaN;
@@ -335,7 +340,11 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 
                   
             else
-                
+                if etr < 1
+                    electrode_data(electrode_count).rejected = 1;
+                    %sheet_count = sheet_count+1;
+                    %continue
+                end
                 if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
                     if strcmp(analyse_all_b2b, 'time_region')
                         conduction_velocity = electrode_stats_table{12, 2};
@@ -919,7 +928,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                 depol_filtered_time = vertcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:filtration_rate:end));
 
             else
-                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_pointactivation_filtration_rate::indx_max_depol_point), depol_complex_time(indx_max_depol_point:filtration_rate:end));
+                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:filtration_rate:end));
 
             end
 
@@ -936,7 +945,32 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
         else
 
+            activation_filtration_rate  = filtration_rate;
+            activation_filter_intensity = filter_intensity;
+            
+            while(1)
+                if (length(depol_complex_data(indx_max_depol_point:indx_min_depol_point))/activation_filtration_rate) >= 5
+                    break
+                else
+                    if strcmp(activation_filter_intensity, 'none')
+                        break;
+                    elseif strcmp(activation_filter_intensity, 'low')
+                        %filtration_rate = 5;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'none';
+                    elseif strcmp(activation_filter_intensity, 'medium')
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 5;
+                        activation_filter_intensity = 'low';
+                    else
+                        %filtration_rate = 10;
+                        activation_filtration_rate  = 1;
+                        activation_filter_intensity = 'medium';
+                    end
 
+                end
+            end
+            
             if dc == 1
                 depol_filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:filtration_rate:end));
 
@@ -951,7 +985,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
             else
 
-                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:indx_min_depol_point), depol_complex_time(indx_min_depol_point:filtration_rate:end));
+                depol_filtered_time = horzcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:filtration_rate:end));
 
             end
 

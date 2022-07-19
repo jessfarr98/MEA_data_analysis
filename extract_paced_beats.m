@@ -85,9 +85,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     end
     %}
     prev_stim_time = Stims(1);
-    for i = 2:length(Stims)
+    for i = 2:length(Stims)+1
         warning = '';
-        stim_time = Stims(i);
+        
+        if i == length(Stims)+1
+            stim_time = time(end);
+        else
+            stim_time = Stims(i);
+        end
         
         %{
         beat_time = time(find(time >= prev_stim_time & time <= stim_time));

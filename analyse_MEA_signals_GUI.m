@@ -446,6 +446,8 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
         
         electrode_data(j).spon_paced = spon_paced;
         
+        electrode_data(j).num_arrhythmic = 0;
+        
         %electrode_data(j).ave_wave_bdt = nan;
         %electrode_data(j).ave_wave_min_bp = nan;
         %electrode_data(j).ave_wave_max_bp = nan;
@@ -681,7 +683,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
             %waitbar(partition, wait_bar, 'Analysing Data')
             waitbar(partition, wait_bar)
             partition = partition+num_partitions;
-            [electrode_data(electrode_count).arrhythmia_indx, electrode_data(electrode_count).warning_array] = arrhythmia_analysis(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).warning_array);
+            [electrode_data(electrode_count).arrhythmia_indx, electrode_data(electrode_count).warning_array, electrode_data(electrode_count).num_arrhythmic] = arrhythmia_analysis(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).warning_array);
         end
         %well_electrode_data = [well_electrode_data; electrode_data];
      end

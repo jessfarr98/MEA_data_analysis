@@ -75,6 +75,7 @@ classdef ElectrodeData
         ave_wave_time_region_end;
         ave_wave_stable_beats_duration;
         ave_wave_filter_intensity;
+        num_arrhythmic;
         
         
         

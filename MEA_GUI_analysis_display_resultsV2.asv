@@ -3245,7 +3245,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                 slopes = [electrode_data(electrode_count).depol_slope_array];
 
-                bps = [electrode_data(electrode_count).beat_periods];
+                bps = [electrode_data(electrode_count).beat_periods];    
                 
                 well_FPDs = [well_FPDs FPDs];
                 well_slopes = [well_slopes slopes];
@@ -3509,9 +3509,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 end
                 
                 activation_times_subtract_min_act_electrode_act_times = sub_activation_times - min_act_electrode_activation_times;
-                [br, bc] = size(activation_times_subtract_min_act_electrode_act_times);
+                [br, bc] = size(activation_times_subtract_min_act_electrode_act_times)
                 
-
+                [ar, ac]
+                
                 if br == 1
                     activation_times_subtract_min_act_electrode_act_times = reshape(activation_times_subtract_min_act_electrode_act_times, [bc br]);
                 end
@@ -3978,55 +3979,55 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 if isempty(well_sum_FPDs_beats)
                     nan_zero_FPDs = FPDs;
                     nan_zero_FPDs(isnan(nan_zero_FPDs)) = 0;
-                    count_FPD_electrodes = ~isnan(nan_zero_FPDs);
+                    count_FPD_electrodes = isnan(nan_zero_FPDs);
                     
                     nan_zero_slopes = slopes;
                     nan_zero_slopes(isnan(nan_zero_slopes)) = 0;
-                    count_slopes_electrodes = ~isnan(nan_zero_slopes);
+                    count_slopes_electrodes = isnan(nan_zero_slopes);
                     
                     nan_zero_amps = amps;
                     nan_zero_amps(isnan(nan_zero_amps)) = 0;
-                    count_amps_electrodes = ~isnan(nan_zero_amps);
+                    count_amps_electrodes = isnan(nan_zero_amps);
                     
-                    nan_zero_bps = beat_periods;
+                    nan_zero_bps = bps;
                     nan_zero_bps(isnan(nan_zero_bps)) = 0;
-                    count_bps_electrodes = ~isnan(nan_zero_bps);
+                    count_bps_electrodes = isnan(nan_zero_bps);
                     
                     nan_zero_act_times = activation_times;
                     nan_zero_act_times(isnan(nan_zero_act_times)) = 0;
-                    count_act_times_electrodes = ~isnan(nan_zero_act_times);
+                    count_act_times_electrodes = isnan(nan_zero_act_times);
                     
                     nan_zero_act_volts = activation_points;
                     nan_zero_act_volts(isnan(nan_zero_act_volts)) = 0;
-                    count_act_volts_electrodes = ~isnan(nan_zero_act_volts);
+                    count_act_volts_electrodes = isnan(nan_zero_act_volts);
                     
                     nan_zero_max_depol_times = max_depol_time_array;
                     nan_zero_max_depol_times(isnan(nan_zero_max_depol_times)) = 0;
-                    count_max_depol_times_electrodes = ~isnan(nan_zero_max_depol_times);
+                    count_max_depol_times_electrodes = isnan(nan_zero_max_depol_times);
                     
                     nan_zero_max_depol_volts = max_depol_point_array;
                     nan_zero_max_depol_volts(isnan(nan_zero_max_depol_volts)) = 0;
-                    count_max_depol_volts_electrodes = ~isnan(nan_zero_max_depol_volts);
+                    count_max_depol_volts_electrodes = isnan(nan_zero_max_depol_volts);
                     
                     nan_zero_min_depol_times = min_depol_time_array;
                     nan_zero_min_depol_times(isnan(nan_zero_min_depol_times)) = 0;
-                    count_min_depol_times_electrodes = ~isnan(nan_zero_min_depol_times);
+                    count_min_depol_times_electrodes = isnan(nan_zero_min_depol_times);
                     
                     nan_zero_min_depol_volts = min_depol_point_array;
                     nan_zero_min_depol_volts(isnan(nan_zero_min_depol_volts)) = 0;
-                    count_min_depol_volts_electrodes = ~isnan(nan_zero_min_depol_volts);
+                    count_min_depol_volts_electrodes = isnan(nan_zero_min_depol_volts);
                     
                     nan_zero_t_wave_times = t_wave_peak_times;
                     nan_zero_t_wave_times(isnan(nan_zero_t_wave_times)) = 0;
-                    count_t_wave_times_electrodes = ~isnan(nan_zero_t_wave_times);
+                    count_t_wave_times_electrodes = isnan(nan_zero_t_wave_times);
                     
                     nan_zero_t_wave_volts = t_wave_peak_array;
                     nan_zero_t_wave_volts(isnan(nan_zero_t_wave_volts)) = 0;
-                    count_t_wave_volts_electrodes = ~isnan(nan_zero_t_wave_volts);
+                    count_t_wave_volts_electrodes = isnan(nan_zero_t_wave_volts);
                     
                     nan_zero_cycle_lengths = cycle_length_array;
                     nan_zero_cycle_lengths(isnan(nan_zero_cycle_lengths)) = 0;
-                    count_cycle_lengths_electrodes = ~isnan(nan_zero_cycle_lengths);
+                    count_cycle_lengths_electrodes = isnan(nan_zero_cycle_lengths);
                     
                     
                     well_sum_FPDs_beats = nan_zero_FPDs;
@@ -4058,7 +4059,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     nan_zero_amps(isnan(nan_zero_amps)) = 0;
                     
                     
-                    nan_zero_bps = beat_periods;
+                    nan_zero_bps = bps;
                     nan_zero_bps(isnan(nan_zero_bps)) = 0;
                     
                     
@@ -4097,19 +4098,19 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     nan_zero_cycle_lengths = cycle_length_array;
                     nan_zero_cycle_lengths(isnan(nan_zero_cycle_lengths)) = 0;
                     
-                    add_FPD_electrodes = ~isnan(nan_zero_FPDs);
-                    add_slopes_electrodes = ~isnan(nan_zero_slopes);
-                    add_amps_electrodes = ~isnan(nan_zero_amps);
-                    add_bps_electrodes = ~isnan(nan_zero_bps);
-                    add_act_times_electrodes = ~isnan(nan_zero_act_times);
-                    add_act_volts_electrodes = ~isnan(nan_zero_act_volts);
-                    add_max_depol_times_electrodes = ~isnan(nan_zero_max_depol_times);
-                    add_max_depol_volts_electrodes = ~isnan(nan_zero_max_depol_volts);
-                    add_min_depol_times_electrodes = ~isnan(nan_zero_min_depol_times);
-                    add_min_depol_volts_electrodes = ~isnan(nan_zero_min_depol_volts);
-                    add_t_wave_times_electrodes = ~isnan(nan_zero_t_wave_times);
-                    add_t_wave_volts_electrodes = ~isnan(nan_zero_t_wave_volts);
-                    add_cycle_lengths_electrodes = ~isnan(nan_zero_cycle_lengths);
+                    add_FPD_electrodes = isnan(nan_zero_FPDs);
+                    add_slopes_electrodes = isnan(nan_zero_slopes);
+                    add_amps_electrodes = isnan(nan_zero_amps);
+                    add_bps_electrodes = isnan(nan_zero_bps);
+                    add_act_times_electrodes = isnan(nan_zero_act_times);
+                    add_act_volts_electrodes = isnan(nan_zero_act_volts);
+                    add_max_depol_times_electrodes = isnan(nan_zero_max_depol_times);
+                    add_max_depol_volts_electrodes = isnan(nan_zero_max_depol_volts);
+                    add_min_depol_times_electrodes = isnan(nan_zero_min_depol_times);
+                    add_min_depol_volts_electrodes = isnan(nan_zero_min_depol_volts);
+                    add_t_wave_times_electrodes = isnan(nan_zero_t_wave_times);
+                    add_t_wave_volts_electrodes = isnan(nan_zero_t_wave_volts);
+                    add_cycle_lengths_electrodes = isnan(nan_zero_cycle_lengths);
                     
                     %Concatenate zero to arrays if some electrodes have additional beats
                     [er, ec] = size(nan_zero_FPDs);
@@ -4216,7 +4217,6 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
         end
         
-        
         well_mean_FPDs_beats = well_sum_FPDs_beats./count_FPD_electrodes;
         well_mean_slopes_beats = well_sum_slopes_beats./count_slopes_electrodes;
         well_mean_amps_beats = well_sum_amps_beats./count_amps_electrodes;
@@ -4231,9 +4231,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
         well_mean_t_wave_volts_beats = well_sum_t_wave_volts_beats./count_t_wave_volts_electrodes;
         well_mean_cycle_lengths_beats = well_sum_cycle_lengths_beats./count_cycle_lengths_electrodes;
         
-       
-        
-        well_stats_table = table('Size', [length(well_mean_act_times_beats) 14], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double"], 'VariableNames', cellstr(["Average stats for each beat across well",  "Ave Activation Time (s)", "Ave Activation Time Volts (V)", "Ave Min. Depol Time (s)", "Ave Min. Depol Point (V)", "Ave Max. Depol Time (s)", "Ave Max. Depol Point (V)", "Ave Depolarisation Spike Amplitude (V)", "Ave Depolarisation slope (dv/dt)", "Ave T-wave peak Time (s)", "Ave T-wave peak (V)", "Ave FPD (s)", "Ave Beat Period (s)", "Ave Cycle Length (s)"]));
+        well_stats_table = table('Size', [length(well_mean_act_times_beats) 14], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id,  "Activation Time (s)", "Activation Time Volts (V)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)"]));
 
         if ~isempty(well_mean_act_times_beats)
             well_stats_table(:, 2) = num2cell(well_mean_act_times_beats);
@@ -4265,14 +4263,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
         end
 
-        
-        
-        
         fileattrib(output_filename, '-h +w');
 
         %writecell(electrode_stats, output_filename, 'Sheet', sheet_count);
-        writetable(well_stats_table, output_filename, 'Sheet', 2);
-        %fileattrib(output_filename, '+h +w');
+        writetable(well_stats_table, output_filename, 'Sheet', 3);
+        fileattrib(output_filename, '+h +w');
         
         
         well_FPDs = well_FPDs(~isnan(well_FPDs));
