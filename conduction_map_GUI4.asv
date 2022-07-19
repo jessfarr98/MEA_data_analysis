@@ -207,15 +207,10 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
         X = [1 2 3 4];
         Y = [4 3 2 1];
 
-        if max_act == min_act
-            level_diff = 1000;
-        else
-            level_diff = 10/(max_act-min_act);
-        end
-        
-        if level_diff > 1000
-            level_diff = 1000;
-        end
+        max_act
+        min_act
+        level_diff = 10/(max_act-min_act)
+        l
 
 
         %{
@@ -337,7 +332,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     tick_array = [];
     for tick = min_c_lim:(max_c_lim-min_c_lim)/7:max_c_lim
 
-       tick_array = [tick_array, tick];
+       tick_array = [tick_array, tick]
     end
 
     for n = 1:num_beats
@@ -348,7 +343,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
         
         min_act = dt_struct_array(n).min_act;
         dt_array = dt_struct_array(n).dt;
-        level_diff = dt_struct_array(n).level_diff;
+        level_diff = dt_struct_array(n).level_diff
         if num_beats <= 5
 
             
