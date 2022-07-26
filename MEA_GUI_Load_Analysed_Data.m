@@ -137,7 +137,7 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
             electrode_table = readtable(results_file, 'Sheet', sheet_count);
             [etr, etc] = size(electrode_table);
             if strcmp(spon_paced, 'paced')
-                if etc == 20
+                if etc == 22
                     electrode_data(electrode_count).spon_paced = 'paced bdt';
                 else
                    change_all_data_type = 0;
@@ -164,14 +164,16 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     [etsr, etsc] = size(electrode_stats_table);
                     
                     if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
-                        if mod((etsr-10), 12) == 0
+                        %if mod((etsr-10), 12) == 0
+                        if mod((etsr-11), 13) == 0
                             analyse_all_b2b = 'all';
 
                         else
                             analyse_all_b2b = 'time_region';
                         end
                     elseif strcmp(electrode_data(electrode_count).spon_paced, 'spon')
-                        if mod((etsr-13), 15) == 0
+                        %if mod((etsr-13), 15) == 0
+                        if mod((etsr-13), 16) == 0
                             analyse_all_b2b = 'all';
 
                         else
@@ -179,7 +181,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                         end
                         
                     else
-                        if mod((etsr-10), 15) == 0
+                        %if mod((etsr-10), 15) == 0
+                        if mod((etsr-11), 16) == 0
                             analyse_all_b2b = 'all';
 
                         else
@@ -349,7 +352,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     if strcmp(analyse_all_b2b, 'time_region')
                         conduction_velocity = electrode_stats_table{12, 2};
                         
-                        electrode_stats_indx = (electrode_count-1)*18+13;
+                        %electrode_stats_indx = (electrode_count-1)*18+13;
+                        electrode_stats_indx = (electrode_count-1)*19+14;
                         
                         time_start_indx = electrode_stats_indx+8;
                         time_end_indx = electrode_stats_indx+9;
@@ -366,7 +370,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                         electrode_data(electrode_count).time_region_end = str2num(string(electrode_stats_table{time_end_indx, 2}));
                     else
                         conduction_velocity = electrode_stats_table{12, 2};
-                        electrode_stats_indx = (electrode_count-1)*16+13;
+                        %electrode_stats_indx = (electrode_count-1)*16+13;
+                        electrode_stats_indx = (electrode_count-1)*17+14;
                         
                         bdt_indx = electrode_stats_indx+8;
                         min_bp_indx = electrode_stats_indx+9;
@@ -402,7 +407,9 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     
                     if strcmp(analyse_all_b2b, 'time_region')
                         conduction_velocity = electrode_stats_table{10, 2};
-                        electrode_stats_indx = (electrode_count-1)*14+11;
+                        
+                        %electrode_stats_indx = (electrode_count-1)*14+11;
+                        electrode_stats_indx = (electrode_count-1)*15+12;
                         
                         time_start_indx = electrode_stats_indx+6;
                         time_end_indx = electrode_stats_indx+7;
@@ -417,7 +424,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                         electrode_data(electrode_count).time_region_end = str2num(string(electrode_stats_table{time_end_indx, 2}));
                     else
                         conduction_velocity = electrode_stats_table{10, 2};
-                        electrode_stats_indx = (electrode_count-1)*12+11;
+                        %electrode_stats_indx = (electrode_count-1)*12+11;
+                        electrode_stats_indx = (electrode_count-1)*13+12;
                         
                         stim_spike_indx = electrode_stats_indx+6;
                         post_spike_indx = electrode_stats_indx+7;
@@ -447,7 +455,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 else
                     if strcmp(analyse_all_b2b, 'time_region')
                         conduction_velocity = electrode_stats_table{10, 2};
-                        electrode_stats_indx = (electrode_count-1)*17+11;
+                        %electrode_stats_indx = (electrode_count-1)*17+11;
+                        electrode_stats_indx = (electrode_count-1)*18+12;
                         
                         time_start_indx = electrode_stats_indx+6;
                         time_end_indx = electrode_stats_indx+7;
@@ -465,7 +474,8 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                         electrode_data(electrode_count).time_region_end = str2num(string(electrode_stats_table{time_end_indx, 2}));
                     else
                         conduction_velocity = electrode_stats_table{10, 2};
-                        electrode_stats_indx = (electrode_count-1)*15+11;
+                        %electrode_stats_indx = (electrode_count-1)*15+11;
+                        electrode_stats_indx = (electrode_count-1)*16+12;
                         
                         bdt_indx = electrode_stats_indx+6;
                         min_bp_indx = electrode_stats_indx+7;
@@ -533,47 +543,68 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 activation_point_array = reshape(activation_point_array, [c, r]);
                 electrode_data(electrode_count).activation_point_array = activation_point_array;
                 
-                min_depol_time_array = table2array(electrode_table(:, 7)); 
+                if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
+                    indx_offset = 1;
+                    
+                elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+                    indx_offset = 2;
+                    
+                else
+                    indx_offset = 0;
+                    
+                end
+                
+                
+                min_depol_time_array = table2array(electrode_table(:, 7+indx_offset)); 
+                %min_depol_time_array = table2array(electrode_table(:, 9)); 
                 [r, c] = size(min_depol_time_array);
                 min_depol_time_array = reshape(min_depol_time_array, [c, r]);
                 electrode_data(electrode_count).min_depol_time_array = min_depol_time_array;
                 
-                min_depol_point_array = table2array(electrode_table(:, 8));
+                min_depol_point_array = table2array(electrode_table(:, 8+indx_offset));
+                %min_depol_point_array = table2array(electrode_table(:, 10));
                 [r, c] = size(min_depol_point_array);
                 min_depol_point_array = reshape(min_depol_point_array, [c, r]);
                 electrode_data(electrode_count).min_depol_point_array = min_depol_point_array;
                 
-                max_depol_time_array = table2array(electrode_table(:, 9));
+                max_depol_time_array = table2array(electrode_table(:, 9+indx_offset));
+                %max_depol_time_array = table2array(electrode_table(:, 11));
                 [r, c] = size(max_depol_time_array);
                 max_depol_time_array = reshape(max_depol_time_array, [c, r]);
                 electrode_data(electrode_count).max_depol_time_array = max_depol_time_array;
                 
-                max_depol_point_array = table2array(electrode_table(:, 10));
+                max_depol_point_array = table2array(electrode_table(:, 10+indx_offset));
+                %max_depol_point_array = table2array(electrode_table(:, 12));
                 [r, c] = size(max_depol_point_array);
                 max_depol_point_array = reshape(max_depol_point_array, [c, r]);
                 electrode_data(electrode_count).max_depol_point_array = max_depol_point_array;
                 
-                depol_slope_array = table2array(electrode_table(:, 12));
+                depol_slope_array = table2array(electrode_table(:, 12+indx_offset));
+                %depol_slope_array = table2array(electrode_table(:, 14));
                 [r, c] = size(depol_slope_array);
                 depol_slope_array = reshape(depol_slope_array, [c, r]);
                 electrode_data(electrode_count).depol_slope_array = depol_slope_array;
                 
-                t_wave_peak_times = table2array(electrode_table(:, 13));
+                t_wave_peak_times = table2array(electrode_table(:, 13+indx_offset));
+                %t_wave_peak_times = table2array(electrode_table(:, 15));
                 [r, c] = size(t_wave_peak_times);
                 t_wave_peak_times = reshape(t_wave_peak_times, [c, r]);
                 electrode_data(electrode_count).t_wave_peak_times = t_wave_peak_times;
                 
-                t_wave_peak_array = table2array(electrode_table(:, 14));
+                t_wave_peak_array = table2array(electrode_table(:, 14+indx_offset));
+                %t_wave_peak_array = table2array(electrode_table(:, 16));
                 [r, c] = size(t_wave_peak_array);
                 t_wave_peak_array = reshape(t_wave_peak_array, [c, r]);
                 electrode_data(electrode_count).t_wave_peak_array = t_wave_peak_array;
                 
-                beat_periods = table2array(electrode_table(:, 16));
+                beat_periods = table2array(electrode_table(:, 16+indx_offset));
+                %beat_periods = table2array(electrode_table(:, 18));
                 [r, c] = size(beat_periods);
                 beat_periods = reshape(beat_periods, [c, r]);
                 electrode_data(electrode_count).beat_periods = beat_periods;
                 
-                cycle_length_array = table2array(electrode_table(:, 17));
+                cycle_length_array = table2array(electrode_table(:, 17+indx_offset));
+                %cycle_length_array = table2array(electrode_table(:, 19));
                 [r, c] = size(cycle_length_array);
                 cycle_length_array = reshape(cycle_length_array, [c, r]);
                 electrode_data(electrode_count).cycle_length_array = cycle_length_array;
@@ -652,17 +683,36 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 cycle_length_array = reshape(cycle_length_array, [c, r]);
                 electrode_data(electrode_count).cycle_length_array = cycle_length_array;
                 %}
-                if etc == 21
-                    wavelet_families = table2array(electrode_table(:, 19));
+                %if etc == 21
+                if strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
+                    %wavelet_families = table2array(electrode_table(:, 19));
+                    wavelet_families = table2array(electrode_table(:, 20));
                     [r, c] = size(wavelet_families);
                     wavelet_families = reshape(wavelet_families, [c, r]);
                     
-                    polynomial_degrees = table2array(electrode_table(:, 20));
+                    %polynomial_degrees = table2array(electrode_table(:, 20));
+                    polynomial_degrees = table2array(electrode_table(:, 21));
                     [r, c] = size(polynomial_degrees);
                     polynomial_degrees = reshape(polynomial_degrees, [c, r]);
                 
                 
-                    electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 21));
+                    %electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 21));
+                    electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 22));
+                    [r, c] = size(electrode_data(electrode_count).warning_array);
+                    electrode_data(electrode_count).warning_array = reshape(electrode_data(electrode_count).warning_array, [c, r]);
+                elseif strcmp(electrode_data(electrode_count).spon_paced, 'paced')
+                    %wavelet_families = table2array(electrode_table(:, 20));
+                    wavelet_families = table2array(electrode_table(:, 21));
+                    [r, c] = size(wavelet_families);
+                    wavelet_families = reshape(wavelet_families, [c, r]);
+                    
+                    %polynomial_degrees = table2array(electrode_table(:, 21));
+                    polynomial_degrees = table2array(electrode_table(:, 22));
+                    [r, c] = size(polynomial_degrees);
+                    polynomial_degrees = reshape(polynomial_degrees, [c, r]);
+                
+                    %electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 22));
+                    electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 23));
                     [r, c] = size(electrode_data(electrode_count).warning_array);
                     electrode_data(electrode_count).warning_array = reshape(electrode_data(electrode_count).warning_array, [c, r]);
                 else
@@ -670,10 +720,12 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     [r, c] = size(wavelet_families);
                     wavelet_families = reshape(wavelet_families, [c, r]);
                     
+                    %polynomial_degrees = table2array(electrode_table(:, 21));
                     polynomial_degrees = table2array(electrode_table(:, 21));
                     [r, c] = size(polynomial_degrees);
                     polynomial_degrees = reshape(polynomial_degrees, [c, r]);
                 
+                    %electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 22));
                     electrode_data(electrode_count).warning_array = table2array(electrode_table(:, 22));
                     [r, c] = size(electrode_data(electrode_count).warning_array);
                     electrode_data(electrode_count).warning_array = reshape(electrode_data(electrode_count).warning_array, [c, r]);
@@ -814,22 +866,46 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         end
 
         if strcmp(spon_paced, 'spon')
-            post_spike_hold_off_time = beat_time(1)+post_spike_hold_off;
-            pshot_indx = find(beat_time >= post_spike_hold_off_time);
-            pshot_indx_offset = pshot_indx(1);
-            depol_complex_time = beat_time(1:pshot_indx_offset);
+            iters = 1;
+            while(1)
+                post_spike_hold_off_time = time(1)+post_spike_hold_off;
+                pshot_indx = find(time >= post_spike_hold_off_time);
+                if length(pshot_indx)>=1
+                    pshot_indx_offset = pshot_indx(1);
+                    break;
+
+                end
+                post_spike_hold_off = post_spike_hold_off*0.9;
+                iters = iters+1;
+                if iters == 20
+                    pshot_indx_offset = length(time);
+                    break;
+                end
+            end
+            depol_complex_time = time(1:pshot_indx_offset);
             depol_complex_data = data(1:pshot_indx_offset);
         elseif strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
-            start_time_indx = find(beat_time >= beat_time(1)+stim_spike_hold_off);
+            start_time_indx = find(time >= time(1)+stim_spike_hold_off);
 
             %start_time_indx(1)
-
-            post_spike_hold_off_time = beat_time(1)+post_spike_hold_off;
-            pshot_indx = find(beat_time >= post_spike_hold_off_time);
-            pshot_indx_offset = pshot_indx(1);
+            iters = 1;
+            while(1)
+                post_spike_hold_off_time = time(1)+post_spike_hold_off;
+                pshot_indx = find(time >= post_spike_hold_off_time);
+                if length(pshot_indx)>=1
+                    pshot_indx_offset = pshot_indx(1);
+                    break;
+                end
+                post_spike_hold_off = post_spike_hold_off*0.9;
+                iters = iters+1;
+                if iters == 20
+                    pshot_indx_offset = length(time);
+                    break;
+                end
+            end
             try
-                depol_complex_time = beat_time(start_time_indx(1):pshot_indx_offset);
-                depol_complex_data = beat_data(start_time_indx(1):pshot_indx_offset);
+                depol_complex_time = time(start_time_indx(1):pshot_indx_offset);
+                depol_complex_data = data(start_time_indx(1):pshot_indx_offset);
                 %{
                 disp(length(depol_complex_time))
                 disp('depol start')
@@ -840,23 +916,24 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
                 % make it require at least 40 elements so strong filtering can be applied if opted for
                 if length(depol_complex_time) < 40
-                    depol_complex_time = beat_time;
-                    depol_complex_data = beat_data;
+                    depol_complex_time = time;
+                    depol_complex_data = data;
                 end
             catch 
                 %disp('catch')
-                depol_complex_time = beat_time(1:pshot_indx_offset);
-                depol_complex_data = beat_data(1:pshot_indx_offset);
+                depol_complex_time = time(1:pshot_indx_offset);
+                depol_complex_data = data(1:pshot_indx_offset);
                 %disp(length(depol_complex_time))
                 % make it require at least 40 elements so strong filtering can be applied if opted for
                 if length(depol_complex_time) < 40
                     %disp('all')
-                    depol_complex_time = beat_time;
-                    depol_complex_data = beat_data;
+                    depol_complex_time = time;
+                    depol_complex_data = data;
                 end
             end
 
         end
+    
 
         %depol_complex_data_derivative = gradient(depol_complex_data_derivative);
 
@@ -865,13 +942,17 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
 
         max_depol_point = max(depol_complex_data);
         indx_max_depol_point = find(depol_complex_data == max_depol_point);
-
+        indx_max_depol_point = indx_max_depol_point(1);
 
         min_depol_point = min(depol_complex_data);
         indx_min_depol_point = find(depol_complex_data == min_depol_point);
+        indx_min_depol_point = indx_min_depol_point(1);
         
         [dr, dc] = size(depol_complex_data);
         [tr, tc] = size(depol_complex_time);
+        
+        %figure();
+        %plot(depol_complex_time, depol_complex_data);
         
         if strcmp(filter_intensity, 'none')
             filtration_rate = 1;
