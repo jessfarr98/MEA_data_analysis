@@ -828,16 +828,18 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
     filtered_data = [];
     
     
-    for b = 1:length(beat_start_times)-1
+    for b = 1:length(beat_start_times)
         
-        if b == length(beat_start_times)-1
-            b_end = length(beat_start_times);
+        if b == length(beat_start_times)
+            b_t = beat_start_times(b);
+            b_t_end = time(end);
         else
             b_end = b+1;
+            b_t = beat_start_times(b);
+            b_t_end = beat_start_times(b_end);
         end
 
-        b_t = beat_start_times(b);
-        b_t_end = beat_start_times(b_end);
+        
         
         beat_indx = find(b_t <= time & time <= b_t_end);
         beat_time = time(beat_indx);
@@ -882,16 +884,16 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                     break;
                 end
             end
-            depol_complex_time = time(1:pshot_indx_offset);
-            depol_complex_data = data(1:pshot_indx_offset);
+            depol_complex_time = beat_time(1:pshot_indx_offset);
+            depol_complex_data = beat_data(1:pshot_indx_offset);
         elseif strcmp(spon_paced, 'paced') || strcmp(spon_paced, 'paced bdt')
             start_time_indx = find(time >= time(1)+stim_spike_hold_off);
 
             %start_time_indx(1)
             iters = 1;
             while(1)
-                post_spike_hold_off_time = time(1)+post_spike_hold_off;
-                pshot_indx = find(time >= post_spike_hold_off_time);
+                post_spike_hold_off_time = beat_time(1)+post_spike_hold_off;
+                pshot_indx = find(beat_time >= post_spike_hold_off_time);
                 if length(pshot_indx)>=1
                     pshot_indx_offset = pshot_indx(1);
                     break;
@@ -899,13 +901,13 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                 post_spike_hold_off = post_spike_hold_off*0.9;
                 iters = iters+1;
                 if iters == 20
-                    pshot_indx_offset = length(time);
+                    pshot_indx_offset = length(beat_time);
                     break;
                 end
             end
             try
-                depol_complex_time = time(start_time_indx(1):pshot_indx_offset);
-                depol_complex_data = data(start_time_indx(1):pshot_indx_offset);
+                depol_complex_time = beat_time(start_time_indx(1):pshot_indx_offset);
+                depol_complex_data = beat_data(start_time_indx(1):pshot_indx_offset);
                 %{
                 disp(length(depol_complex_time))
                 disp('depol start')
@@ -993,7 +995,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                 end
             end
             
-       
+
             if dc == 1
                 depol_filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:activation_filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:filtration_rate:end));
                 %filtered_data = depol_complex_data(1:filtration_rate:indx_min_depol_point);
@@ -1025,7 +1027,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
             %}
 
         else
-
+            
             activation_filtration_rate  = filtration_rate;
             activation_filter_intensity = filter_intensity;
             
@@ -1054,14 +1056,13 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
             
             if dc == 1
                 depol_filtered_data = vertcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:filtration_rate:end));
-
             else
-
                 depol_filtered_data = horzcat(depol_complex_data(1:filtration_rate:indx_max_depol_point), depol_complex_data(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_data(indx_min_depol_point:filtration_rate:end));
 
             end
 
             if tc == 1
+
                 depol_filtered_time = vertcat(depol_complex_time(1:filtration_rate:indx_max_depol_point), depol_complex_time(indx_max_depol_point:activation_filtration_rate:indx_min_depol_point), depol_complex_time(indx_min_depol_point:filtration_rate:end));
 
             else
@@ -1094,6 +1095,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         end
         
         depol_polynomial = depol_filtered_data;
+        
         %T-wave filtration
         
         wavelet_family = wavelet_families{b};

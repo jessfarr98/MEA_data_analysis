@@ -827,6 +827,8 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
     filtered_time = [];
     filtered_data = [];
     
+    figure();
+    hold on;
     
     for b = 1:length(beat_start_times)-1
         
@@ -1094,6 +1096,8 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         end
         
         depol_polynomial = depol_filtered_data;
+        
+        plot(depol_filtered_time, depol_filtered_data)
         %T-wave filtration
         
         wavelet_family = wavelet_families{b};
@@ -1355,6 +1359,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
         %}
         
     end
+
 
 
 end

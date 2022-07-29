@@ -247,8 +247,13 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
 
 
         %[electrode_data(electrode_count).beat_num_array(start_indx:end_indx-1), electrode_data(electrode_count).cycle_length_array(start_indx:end_indx-1), electrode_data(electrode_count).activation_times(start_indx:end_indx-1), electrode_data(electrode_count).activation_point_array(start_indx:end_indx-1), electrode_data(electrode_count).beat_start_times(start_indx:end_indx-1), electrode_data(electrode_count).beat_periods(start_indx:end_indx-1), electrode_data(electrode_count).t_wave_peak_times(start_indx:end_indx-1), electrode_data(electrode_count).t_wave_peak_array(start_indx:end_indx-1), electrode_data(electrode_count).max_depol_time_array(start_indx:end_indx-1), electrode_data(electrode_count).min_depol_time_array(start_indx:end_indx-1), electrode_data(electrode_count).max_depol_point_array(start_indx:end_indx-1), electrode_data(electrode_count).min_depol_point_array(start_indx:end_indx-1), electrode_data(electrode_count).depol_slope_array(start_indx:end_indx-1), electrode_data(electrode_count).warning_array(start_indx:end_indx-1)] = extract_paced_beats('', electrode_data(electrode_count).time(start_plot_indx:end_plot_indx), electrode_data(electrode_count).data(start_plot_indx:end_plot_indx), NaN, electrode_data(electrode_count).spon_paced, 'on', 'all', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims(stim_start_indx:stim_end_indx-1), get(post_spike_ui, 'Value'), get(stim_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan, filter_intensity);     
-        
-        [beat_num_array, cycle_length_array, activation_times, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_paced_beats('', electrode_data(electrode_count).time(start_plot_indx:end_plot_indx), electrode_data(electrode_count).data(start_plot_indx:end_plot_indx), NaN, electrode_data(electrode_count).spon_paced, 'on', 'all', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims(stim_start_indx:stim_end_indx), get(post_spike_ui, 'Value'), get(stim_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan, filter_intensity);     
+        if end_indx == length(electrode_data(electrode_count).Stims)
+            stim_end_indx = end_indx;
+           
+        else
+            stim_end_indx = end_indx;
+        end
+        [beat_num_array, cycle_length_array, activation_times, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_paced_beats('', electrode_data(electrode_count).time(start_plot_indx:end_plot_indx), electrode_data(electrode_count).data(start_plot_indx:end_plot_indx), NaN, electrode_data(electrode_count).spon_paced, 'on', 'all', NaN, NaN, stable_ave_analysis, NaN, NaN, '', electrode_data(electrode_count).electrode_id, t_wave_shape, get(t_wave_duration_ui, 'Value'), electrode_data(electrode_count).Stims(stim_start_indx:stim_end_indx), get(post_spike_ui, 'Value'), get(stim_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'),nan, filter_intensity, 'on');     
 
         %[electrode_data(electrode_count).arrhythmia_indx, warning_array] = arrhythmia_analysis(beat_num_array, cycle_length_array, warning_array);
         
@@ -558,19 +563,19 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
     if filtered_start_indx ~= 1
         
         if end_plot_indx ~= length(electrode_data(electrode_count).filtered_data)
-            electrode_data(electrode_count).filtered_time = [electrode_data(electrode_count).filtered_time(1:filtered_start_indx-1); filtered_time; electrode_data(electrode_count).filtered_time(filtered_end_indx+1:end)];
-            electrode_data(electrode_count).filtered_data = [electrode_data(electrode_count).filtered_data(1:filtered_start_indx-1); filtered_data; electrode_data(electrode_count).filtered_data(filtered_end_indx+1:end)];
+            electrode_data(electrode_count).filtered_time = [electrode_data(electrode_count).filtered_time(1:filtered_start_indx-1); nan; filtered_time; nan; electrode_data(electrode_count).filtered_time(filtered_end_indx+1:end)];
+            electrode_data(electrode_count).filtered_data = [electrode_data(electrode_count).filtered_data(1:filtered_start_indx-1); nan; filtered_data; nan; electrode_data(electrode_count).filtered_data(filtered_end_indx+1:end)];
             
         else
-            electrode_data(electrode_count).filtered_time = [electrode_data(electrode_count).filtered_time(1:filtered_start_indx-1); filtered_time];
-            electrode_data(electrode_count).filtered_data = [electrode_data(electrode_count).filtered_data(1:filtered_start_indx-1); filtered_data];
+            electrode_data(electrode_count).filtered_time = [electrode_data(electrode_count).filtered_time(1:filtered_start_indx-1); nan; filtered_time];
+            electrode_data(electrode_count).filtered_data = [electrode_data(electrode_count).filtered_data(1:filtered_start_indx-1); nan; filtered_data];
             
         end
     else
         if end_plot_indx ~= length(electrode_data(electrode_count).filtered_data)
             
-            electrode_data(electrode_count).filtered_time = [filtered_time; electrode_data(electrode_count).filtered_time(filtered_end_indx+1:end)];
-            electrode_data(electrode_count).filtered_data = [filtered_data; electrode_data(electrode_count).filtered_data(filtered_end_indx+1:end)];
+            electrode_data(electrode_count).filtered_time = [filtered_time; nan; electrode_data(electrode_count).filtered_time(filtered_end_indx+1:end)];
+            electrode_data(electrode_count).filtered_data = [filtered_data; nan; electrode_data(electrode_count).filtered_data(filtered_end_indx+1:end)];
             
         else
             electrode_data(electrode_count).filtered_time = filtered_time;

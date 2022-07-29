@@ -1,5 +1,6 @@
-function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, filter_intensity)
+function [beat_num_array, cycle_length_array, activation_time_array, activation_point_array, beat_start_times, beat_start_volts, beat_periods, t_wave_peak_times, t_wave_peak_array, max_depol_time_array, min_depol_time_array, max_depol_point_array, min_depol_point_array, depol_slope_array, warning_array, Stim_volts, filtered_time, filtered_data, t_wave_wavelet_array, t_wave_polynomial_degree_array] = extract_paced_beats(wellID, time, data, bdt, spon_paced, beat_to_beat, analyse_all_b2b, b2b_time_region1, b2b_time_region2, stable_ave_analysis, average_waveform_time1, average_waveform_time2, plot_ave_dir, electrode_id, t_wave_shape, t_wave_duration, Stims, post_spike_hold_off, stim_spike_hold_off, est_peak_time, est_fpd, filter_intensity, reanalyse_individual_beats)
 
+    orig_Stims = Stims;
     if strcmpi(beat_to_beat, 'on')
         %disp(electrode_id);
         if strcmp(analyse_all_b2b, 'time_region')
@@ -26,7 +27,15 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     
     % Determine voltages that correspond to tje Stim times
     Stim_volts = [];
-    for s = 1:length(Stims)
+    
+    if strcmp(reanalyse_individual_beats, 'on')
+        loop_end = length(Stims)-1;
+    else
+        loop_end = length(Stims);
+        
+    end 
+    
+    for s = 1:loop_end
         Stim_indx = find(time >= Stims(s));
         Stim_volts = [Stim_volts; data(Stim_indx(1))];
         
@@ -85,10 +94,19 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
     end
     %}
     prev_stim_time = Stims(1);
-    for i = 2:length(Stims)+1
+
+    if strcmp(reanalyse_individual_beats, 'on')
+        loop_end = length(Stims);
+    else
+        loop_end = length(Stims)+1;
+        
+    end
+    
+    for i = 2:loop_end
         warning = '';
         
         if i == length(Stims)+1
+            
             stim_time = time(end);
         else
             stim_time = Stims(i);
@@ -307,7 +325,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         prev_stim_time = stim_time;
         count = count + 1;
         t = t + window;
+
     end
+    
+    
+    
     %%disp(strcat('Total Duration = ', {' '}, string(total_duration)))
     %%disp(count);
     %hold off;
