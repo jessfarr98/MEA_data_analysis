@@ -72,7 +72,7 @@ function MEA_GUI(raw_file, save_dir)
    b2bdropdown.ItemsData = [1 2];
    
    paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Paced with Ectopic Beats', 'Editable','off');
-   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'paced bdt'},'Position',[810 180 140 25]);
+   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'paced+ectopic'},'Position',[810 180 140 25]);
    paced_spon_options_dropdown.ItemsData = [1 2];
    
    set(paced_spon_text, 'Visible', 'off');
@@ -90,9 +90,15 @@ function MEA_GUI(raw_file, save_dir)
        
    end
    
-   plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Plate/Well Thresholding', 'Editable','off');
-   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
+   plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Unique/General Well Anlaysis Inputs', 'Editable','off');
+   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'unique', 'general'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
+   
+   cross_talk_text = uieditfield(start_pan,'Text','Position',[810 90 140 25], 'Value','Minimise Cross-talk', 'Editable','off');
+   cross_talk_options_dropdown = uidropdown(start_pan, 'Items', {'no', 'yes'},'Position',[810 60 140 25]);
+   cross_talk_options_dropdown.ItemsData = [1 2];
+   
+   
    
    instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
    
@@ -167,7 +173,7 @@ function MEA_GUI(raw_file, save_dir)
        end
    end
 
-   function runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -249,7 +255,7 @@ function MEA_GUI(raw_file, save_dir)
          added_wells = added_wells_all;
       end
       
-      
+      if cross_talk_options_dropdown
 
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
@@ -263,7 +269,7 @@ function MEA_GUI(raw_file, save_dir)
           
    end
 
-   function runFastButtonPushed(run_fast_button, RawData,RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runFastButtonPushed(run_fast_button, RawData,RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);

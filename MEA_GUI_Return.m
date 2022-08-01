@@ -76,7 +76,7 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
    b2bdropdown.ItemsData = [1 2];
    
    paced_spon_text = uieditfield(start_pan,'Text','Position',[810 210 140 25], 'Value','Paced/Paced with Ectopic Beats', 'Editable','off');
-   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'paced bdt'},'Position',[810 180 140 25]);
+   paced_spon_options_dropdown = uidropdown(start_pan, 'Items', {'paced', 'paced+ectopic'},'Position',[810 180 140 25]);
    paced_spon_options_dropdown.ItemsData = [1 2];
    
    set(paced_spon_text, 'Visible', 'off');
@@ -96,8 +96,8 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
        
    end
    
-   plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Plate/Well Thresholding', 'Editable','off');
-   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'well', 'plate', 'paced bdt'},'Position',[810 120 140 25]);
+   plate_well_text = uieditfield(start_pan,'Text','Position',[810 150 140 25], 'Value','Unique/General Well Anlaysis Inputs', 'Editable','off');
+   plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'unique', 'general'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
    instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
@@ -436,7 +436,12 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
                     
                     check_fig = uifigure;
                     check_pan = uipanel(check_fig, 'Position', [0 0 screen_width screen_height]);
-                    check_text = uieditfield(check_pan,'Text','Position',[80 300 500 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
+                    if screen_width > 150
+                        text_box_width = screen_width-150;
+                    else
+                        text_box_width = 500;
+                    end
+                    check_text = uieditfield(check_pan,'Text','Position',[80 300 text_box_width 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
                     yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button));
                     no_button = uibutton(check_pan,'push','Text', 'No', 'Position',[150 250 50 22], 'ButtonPushedFcn', @(no_button,event) noButtonPushed(no_button, start_fig, check_fig, plots_input_ui));
                     keep_button = uibutton(check_pan,'push','Text', 'Keep', 'Position',[200 250 50 22], 'ButtonPushedFcn', @(keep_button,event) keepButtonPushed(keep_button, start_fig, check_fig, run_button, run_fast_button));

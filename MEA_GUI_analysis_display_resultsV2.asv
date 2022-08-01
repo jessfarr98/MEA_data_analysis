@@ -228,9 +228,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
             save_results_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveB2BButtonPushed(save_results_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0, 0));
 
-            save_plots_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveB2BPlotsButtonPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
+            %save_plots_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveB2BPlotsButtonPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
 
-            save_alldata_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveB2BButtonPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
+            %save_alldata_button = uibutton(main_well_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveB2BButtonPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
 
             %{
             if num_wells == 1
@@ -260,9 +260,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 save_results_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Results', 'Position', [screen_width-300 300 100 50], 'ButtonPushedFcn', @(save_results_button,event) saveAveTimeRegionPushed(save_results_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 0, 0));
             
-                save_plots_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveAveTimeRegionPlotsPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
+                %save_plots_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save Plots', 'Position', [screen_width-200 300 100 50], 'ButtonPushedFcn', @(save_plots_button,event) saveAveTimeRegionPlotsPushed(save_plots_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols));
             
-                save_alldata_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveAveTimeRegionPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
+                %save_alldata_button = uibutton(main_well_pan,'push', 'BackgroundColor', '#3dd4d1', 'Text', 'Save All Data', 'Position', [screen_width-100 300 100 50], 'ButtonPushedFcn', @(save_alldata_button,event) saveAveTimeRegionPushed(save_alldata_button, well_elec_fig, well_count, save_dir, well_ID, num_electrode_rows, num_electrode_cols, 1, 0));
             
                 %set(display_final_button, 'Visible', 'off')
                 reanalyse_background_beats_button = uibutton(main_well_pan,'push','Text', 'Re-analyse All Background Traces', 'Position', [screen_width-250 150 200 50], 'ButtonPushedFcn', @(reanalyse_background_beats_button,event) reanalyseWellButtonPushed(reanalyse_background_beats_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
@@ -3174,7 +3174,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
         end
         
-        min_act_electrode_activation_times = electrode_data(min_act_elec_indx).activation_times;
+        orig_min_act_electrode_activation_times = electrode_data(min_act_elec_indx).activation_times;
         
         for elec_r = num_electrode_rows:-1:1
             for elec_c = 1:num_electrode_cols
@@ -3200,6 +3200,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
                 
                 sheet_count = sheet_count+1;
+                
+                min_act_electrode_activation_times = orig_min_act_electrode_activation_times;
                 
                 %electrode_stats_header = {electrode_data(electrode_count).electrode_id, 'Beat No.', 'Beat Start Time (s)', 'Activation Time (s)', 'Depolarisation Spike Amplitude (V)', 'Depolarisation slope', 'T-wave peak Time (s)', 'T-wave peak (V)', 'FPD (s)', 'Beat Period (s)', 'Cycle Length (s)'};
                 
@@ -3425,8 +3427,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 [br, bc] = size(warning_array);
                 warning_array = reshape(warning_array, [bc br]);
                 
-                [ar, ac] = size(activation_times)
-                [mr, mc] = size(min_act_electrode_activation_times)
+                [ar, ac] = size(activation_times);
+                [mr, mc] = size(min_act_electrode_activation_times);
                 sub_activation_times = activation_times;
                 if ar == 1
                     if mr == 1
@@ -3451,13 +3453,13 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         if ac ~= mr
                             if ac > mr
                                 add_extra = ac-mr;
-                                add_extras_array = zeros(1, add_extra);
+                                add_extras_array = zeros(add_extra, 1);
                                 
                                 min_act_electrode_activation_times = [min_act_electrode_activation_times; add_extras_array];
                                 
                             else
                                 add_extra = mr-ac;
-                                add_extras_array = zeros(add_extra, 1);
+                                add_extras_array = zeros(1, add_extra);
                                 
                                 sub_activation_times = [sub_activation_times add_extras_array];
                                 
@@ -3470,12 +3472,12 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         if ar ~= mc
                             if ar > mc
                                 add_extra = ar-mc;
-                                add_extras_array = zeros(add_extra, 1);
+                                add_extras_array = zeros(1, add_extra);
                                 
                                 min_act_electrode_activation_times = [min_act_electrode_activation_times add_extras_array];
                             else
                                 add_extra = mc-ar;
-                                add_extras_array = zeros(1, add_extra);
+                                add_extras_array = zeros(add_extra, 1);
                                 
                                 sub_activation_times = [sub_activation_times; add_extras_array];
                                 
@@ -3487,11 +3489,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                 add_extra = ar-mr;
                                 add_extras_array = zeros(add_extra, 1);
                                 
-                                [er, ec] = size(add_extras_array)
-                                min_act_electrode_activation_times = [min_act_electrode_activation_times add_extras_array];
+                                min_act_electrode_activation_times = [min_act_electrode_activation_times; add_extras_array];
                             else
                                 add_extra = mr-ar;
-                                add_extras_array = zeros(1, add_extra);
+                                add_extras_array = zeros(add_extra, 1);
                                 
                                 sub_activation_times = [sub_activation_times; add_extras_array];
                                 
@@ -3513,9 +3514,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 [br, bc] = size(activation_times_subtract_min_act_electrode_act_times);
                 
 
+                
                 if br == 1
                     activation_times_subtract_min_act_electrode_act_times = reshape(activation_times_subtract_min_act_electrode_act_times, [bc br]);
                 end
+                
                 
                 if strcmp(electrode_data(electrode_count).spon_paced, 'paced bdt')
                     paced_indxs = ismembertol(beat_start_times, electrode_data(electrode_count).Stims, .00001);
@@ -3787,6 +3790,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     return
                 end
                 
+                %{
                 if save_plots == 1
                     fig = figure();
                     set(fig, 'visible', 'off');
@@ -3901,6 +3905,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     hold('off')
                     close(fig)
                 end
+                %}
                 
                 if isempty(well_sum_FPDs_beats)
                     nan_zero_FPDs = FPDs;
@@ -4045,7 +4050,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         if er > sr
                         %Electrode has more beats, need to add zeros to the end of the summation and counts arrays
                             add_extra = er-sr;
-                            add_extras_array = zeros(add_extra);
+                            add_extras_array = zeros(add_extra, 1);
 
                             well_sum_FPDs_beats = [well_sum_FPDs_beats; add_extras_array];
                             well_sum_slopes_beats = [well_sum_slopes_beats; add_extras_array];
@@ -4077,7 +4082,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         else
                         % Current electrode has less beats than previously saved ones. Need to add zeros to the add arrays and nan_zero_arrays
                             add_extra = sr-er;
-                            add_extras_array = zeros(add_extra);
+                            add_extras_array = zeros(add_extra, 1);
                             
                             nan_zero_FPDs = [nan_zero_FPDs; add_extras_array];
                             nan_zero_slopes = [nan_zero_slopes; add_extras_array];
