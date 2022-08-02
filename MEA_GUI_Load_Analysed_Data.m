@@ -731,6 +731,9 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                     electrode_data(electrode_count).warning_array = reshape(electrode_data(electrode_count).warning_array, [c, r]);
                 end 
                 
+                electrode_data(electrode_count).t_wave_wavelet_array = wavelet_families;
+                electrode_data(electrode_count).t_wave_polynomial_degree_array = polynomial_degrees;
+                
                 
                 
                 [electrode_data(electrode_count).filtered_time, electrode_data(electrode_count).filtered_data] = generate_filtered_data_b2b(electrode_data(electrode_count).time, electrode_data(electrode_count).data, beat_start_times, electrode_data(electrode_count).warning_array, electrode_data(electrode_count).filter_intensity, wavelet_families, polynomial_degrees, spon_paced, electrode_data(electrode_count).t_wave_offset, electrode_data(electrode_count).t_wave_duration, electrode_data(electrode_count).t_wave_shape, electrode_data(electrode_count).post_spike_hold_off, electrode_data(electrode_count).stim_spike_hold_off);
@@ -761,7 +764,10 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
                 end
                 
             end
-
+            
+            if strcmp(beat_to_beat, 'on')
+                [electrode_data(electrode_count).arrhythmia_indx, electrode_data(electrode_count).warning_array, electrode_data(electrode_count).num_arrhythmic] = arrhythmia_analysis(electrode_data(electrode_count).beat_num_array, electrode_data(electrode_count).cycle_length_array, electrode_data(electrode_count).warning_array);
+            end
             
             sheet_count = sheet_count+1;
         end
@@ -780,6 +786,9 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
     
     bipolar = 'on';
     
+    well_electrode_data = WellElectrodeData.empty(1, 0);
+    
+    
     if strcmp(beat_to_beat, 'on')
         if strcmp(spon_paced, 'spon')
             [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity);
@@ -793,7 +802,6 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
     
     end
     
-    well_electrode_data = WellElectrodeData.empty(1, 0);
     
     well_electrode_data(1).electrode_data = electrode_data;
     well_electrode_data(1).wellID = wellID;
@@ -801,7 +809,7 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
     
     well_electrode_data(1).spon_paced = spon_paced;
     
-    
+               
     
     MEA_GUI_analysis_display_resultsV2(Data, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir, 1)
     
@@ -988,7 +996,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                         activation_filter_intensity = 'low';
                     else
                         %filtration_rate = 10;
-                        activation_filtration_rate  = 1;
+                        activation_filtration_rate  = 10;
                         activation_filter_intensity = 'medium';
                     end
 
@@ -1047,7 +1055,7 @@ function [filtered_time, filtered_data] = generate_filtered_data_b2b(time, data,
                         activation_filter_intensity = 'low';
                     else
                         %filtration_rate = 10;
-                        activation_filtration_rate  = 1;
+                        activation_filtration_rate  = 10;
                         activation_filter_intensity = 'medium';
                     end
 

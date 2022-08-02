@@ -94,19 +94,21 @@ function MEA_GUI(raw_file, save_dir)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'unique', 'general'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
+   
    cross_talk_text = uieditfield(start_pan,'Text','Position',[810 90 140 25], 'Value','Minimise Cross-talk', 'Editable','off');
    cross_talk_options_dropdown = uidropdown(start_pan, 'Items', {'no', 'yes'},'Position',[810 60 140 25]);
    cross_talk_options_dropdown.ItemsData = [1 2];
-   
-   
+  
+   set(cross_talk_text, 'visible', 'off')
+   set(cross_talk_options_dropdown, 'visible', 'off')
    
    instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
    
    
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir));
    set(run_button, 'Visible', 'off')
    
-   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, RawFileData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir));
    set(run_fast_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -255,17 +257,24 @@ function MEA_GUI(raw_file, save_dir)
          added_wells = added_wells_all;
       end
       
-      if cross_talk_options_dropdown
-
+      
       set(start_fig, 'Visible', 'off')
-      %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      if plate_well_options_dropdown.Value == 1
-          MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+      if cross_talk_options_dropdown.Value == 2
+          
+          prompt_cross_talk_minimisation_wells(RawData, added_wells, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, get(plots_input_ui, 'Value'))
       else
-          MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+          %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
+          if plate_well_options_dropdown.Value == 1
+              MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+
+          else
+              MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
+
+          end
       end
+
+      
+      
           
    end
 
@@ -437,7 +446,12 @@ function MEA_GUI(raw_file, save_dir)
                     
                     check_fig = uifigure;
                     check_pan = uipanel(check_fig, 'Position', [0 0 screen_width screen_height]);
-                    check_text = uieditfield(check_pan,'Text','Position',[80 300 500 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
+                    if screen_width > 150
+                        text_box_width = screen_width-150;
+                    else
+                        text_box_width = 500;
+                    end
+                    check_text = uieditfield(check_pan,'Text','Position',[80 300 text_box_width 22], 'Value',"The selected directory name"+ " "+ dir_name+" "+ "already exists, do you wish to overwrite?", 'Editable','off');
                     yes_button = uibutton(check_pan,'push','Text', 'Yes', 'Position',[100 250 50 22], 'ButtonPushedFcn', @(yes_button,event) yesButtonPushed(yes_button, start_fig, check_fig, run_button, run_fast_button));
                     no_button = uibutton(check_pan,'push','Text', 'No', 'Position',[150 250 50 22], 'ButtonPushedFcn', @(no_button,event) noButtonPushed(no_button, start_fig, check_fig, plots_input_ui));
                     

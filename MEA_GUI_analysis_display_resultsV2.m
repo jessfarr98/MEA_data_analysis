@@ -1633,7 +1633,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 return
             end
             
-            conduction_velocity = well_electrode_data(well_count).conduction_velocity;
+            conduction_velocity = well_electrode_data(well_count).conduction_velocity
             
             display_con_vel = sprintf('Conduction Velocity = %f', conduction_velocity);
             

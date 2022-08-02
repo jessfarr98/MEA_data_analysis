@@ -99,8 +99,6 @@ function MEA_GUI(raw_file, save_dir)
    cross_talk_options_dropdown = uidropdown(start_pan, 'Items', {'no', 'yes'},'Position',[810 60 140 25]);
    cross_talk_options_dropdown.ItemsData = [1 2];
   
-   set(cross_talk_text, 'visible', 'off')
-   set(cross_talk_options_dropdown, 'visible', 'off')
    
    instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
    
@@ -257,7 +255,6 @@ function MEA_GUI(raw_file, save_dir)
          added_wells = added_wells_all;
       end
       
-      cross_talk_options_dropdown.Value = 1;
       
       set(start_fig, 'Visible', 'off')
       if cross_talk_options_dropdown.Value == 2

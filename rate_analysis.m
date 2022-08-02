@@ -209,7 +209,7 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_
                         activation_filter_intensity = 'low';
                     else
                         %filtration_rate = 10;
-                        activation_filtration_rate  = 1;
+                        activation_filtration_rate  = 10;
                         activation_filter_intensity = 'medium';
                     end
 

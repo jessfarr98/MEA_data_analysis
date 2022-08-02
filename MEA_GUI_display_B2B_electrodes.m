@@ -53,8 +53,9 @@ function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax
             filtered_time_reg_start_indx = find(electrode_data(electrode_count).filtered_time >= time_start);
             filtered_time_reg_end_indx = find(electrode_data(electrode_count).filtered_time >= time_end);
 
-            plot(elec_ax,electrode_data(electrode_count).filtered_time(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)), electrode_data(electrode_count).filtered_data(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)));
-
+            if ~isempty(filtered_time_reg_start_indx)
+                plot(elec_ax,electrode_data(electrode_count).filtered_time(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)), electrode_data(electrode_count).filtered_data(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)));
+            end
                 %end
 
             %plot(elec_ax, electrode_data(electrode_count).Stims(mid_beat), electrode_data(electrode_count).Stim_volts(mid_beat), 'm.', 'MarkerSize', 20);
@@ -111,8 +112,9 @@ function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax
 
                 plot(elec_ax,electrode_data(electrode_count).time(time_reg_start_indx(1):time_reg_end_indx(1)), electrode_data(electrode_count).data(time_reg_start_indx(1):time_reg_end_indx(1)));
 
-                plot(elec_ax,electrode_data(electrode_count).filtered_time(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)), electrode_data(electrode_count).filtered_data(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)));
-
+                if ~isempty(filtered_time_reg_start_indx)
+                    plot(elec_ax,electrode_data(electrode_count).filtered_time(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)), electrode_data(electrode_count).filtered_data(filtered_time_reg_start_indx(1):filtered_time_reg_end_indx(1)));
+                end
 
                 plot(elec_ax, ectopic_plus_stims(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'm.', 'MarkerSize', 20);
 
@@ -179,12 +181,16 @@ function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax
         end
 
         max_depol_indx = find(electrode_data(electrode_count).max_depol_time_array >= time_start);
-        max_depol_indx = max_depol_indx(1);
-
+        if ~isempty(max_depol_indx)
+            max_depol_indx = max_depol_indx(1);
+            plot(elec_ax, electrode_data(electrode_count).max_depol_time_array(max_depol_indx), electrode_data(electrode_count).max_depol_point_array(max_depol_indx), 'r.', 'MarkerSize', 20);
+        end
+        
         min_depol_indx = find(electrode_data(electrode_count).min_depol_time_array >= time_start);
-        min_depol_indx = min_depol_indx(1);
-        plot(elec_ax, electrode_data(electrode_count).max_depol_time_array(max_depol_indx), electrode_data(electrode_count).max_depol_point_array(max_depol_indx), 'r.', 'MarkerSize', 20);
-        plot(elec_ax, electrode_data(electrode_count).min_depol_time_array(min_depol_indx), electrode_data(electrode_count).min_depol_point_array(min_depol_indx), 'b.', 'MarkerSize', 20);
+        if ~isempty(max_depol_indx)
+            min_depol_indx = min_depol_indx(1);
+            plot(elec_ax, electrode_data(electrode_count).min_depol_time_array(min_depol_indx), electrode_data(electrode_count).min_depol_point_array(min_depol_indx), 'b.', 'MarkerSize', 20);
+        end
 
         %plot(elec_ax, electrode_data(electrode_count).beat_start_times(mid_beat), electrode_data(electrode_count).data(time_reg_start_indx(1)), 'go');
 
@@ -192,9 +198,11 @@ function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax
         %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
 
         act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
-        act_indx = act_indx(1);
-        plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
-
+        
+        if ~isempty(act_indx)
+            act_indx = act_indx(1);
+            plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
+        end
          %{
         else
             t_wave_peak_time = electrode_data(electrode_count).t_wave_peak_times(mid_beat);

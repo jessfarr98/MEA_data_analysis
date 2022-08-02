@@ -1,7 +1,8 @@
 function [arrhythmia_indx, warning_array, num_arrhythmic] = arrhythmia_analysis(beat_num_array, cycle_length_array, warning_array)
     % POSSIBLE INDEXING BUG
     arrhythmia_indx = [];
-    if length(cycle_length_array) < 2
+    num_arrhythmic = 0;
+    if length(cycle_length_array) < 2        
         return
         
     end
