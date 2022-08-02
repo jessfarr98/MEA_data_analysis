@@ -1633,7 +1633,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 return
             end
             
-            conduction_velocity = well_electrode_data(well_count).conduction_velocity;
+            conduction_velocity = well_electrode_data(well_count).conduction_velocity
             
             display_con_vel = sprintf('Conduction Velocity = %f', conduction_velocity);
             
@@ -2512,7 +2512,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
             %}
             
-            function removeSelectedBeats(remove_button, reanalyse_beat_fig)
+            function removeSelectedBeats(remove_button, reanalyse_beat_fig, electrode_count)
                 
                 if strcmp(get(range_button, 'visible'), 'off')
                     start_beat = get(beats_range_1_ui, 'value');
@@ -2628,15 +2628,15 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             hmap_prompt_pan = uipanel(hmap_prompt_fig, 'Position', [0 0 screen_width screen_height]);
             
             beat_num_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Reanalyse Beat Number', 'Position', [10 150 200 40], 'Editable','off');
-            beat_num_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [10 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui, electrode_count));
+            beat_num_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [10 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui));
             
             beats_range_1_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Start Beat Range', 'Position', [10 150 150 40], 'Editable','off');
             beats_time_range_1_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Beat Time Range Start (s)', 'Position', [10 150 150 40], 'Editable','off');
-            beats_range_1_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Start Beat Range', 'Position', [10 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui, electrode_count));
+            beats_range_1_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Start Beat Range', 'Position', [10 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui));
             
             beats_range_2_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'End Beat Range', 'Position', [160 150 150 40], 'Editable','off');
             beats_time_range_2_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Beat Time Range End (s)', 'Position', [160 150 150 40], 'Editable','off');
-            beats_range_2_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui, electrode_count));
+            beats_range_2_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui));
             
             
             go_button = uibutton(hmap_prompt_pan,'push','Text', 'Go',  'BackgroundColor', '#3dd4d1', 'Position', [210 50 100 50], 'ButtonPushedFcn', @(go_button,event) conductionMapGo(go_button));
@@ -2657,10 +2657,35 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             set(beats_time_range_2_text, 'visible', 'off')
             set(beats_range_2_ui, 'visible', 'off')
 
-            function changedNumBeats(ui, electrode_count)
+            function changedNumBeats(ui)
                 if strcmp(get(time_range_button, 'visible'), 'on')
                     % Means assessing beat number/index
-                    if get(ui, 'Value') > length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times)
+                    
+                    min_beat_count  = nan;
+                    e_count = 0;
+                    for ee_r = 1:num_electrode_rows
+                        for ee_c = 1:num_electrode_cols
+                            e_count = e_count+1;
+                            if isnan(min_beat_count)
+                                if ~isempty(well_electrode_data(well_count).electrode_data(e_count).beat_start_times)
+                                    
+                                    min_beat_count = length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times);
+                                    
+                                end
+                            else
+                                if ~isempty(well_electrode_data(well_count).electrode_data(e_count).beat_start_times)
+                                   if length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times) < min_beat_count
+                                       min_beat_count = length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times);
+                                   end
+                                end
+                                
+                            end
+                            
+                            
+                        end
+                    end
+                    
+                    if get(ui, 'Value') > min_beat_count
                         msgbox('The value entered was too large')
                         set(ui, 'Value', 1)
                     end
@@ -4962,6 +4987,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         return
                     end
                 end
+                %{
                 if save_plots == 1
                     fig = figure();
                     set(fig, 'visible', 'off');
@@ -4985,6 +5011,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     hold('off')
                     close(fig)
                 end
+                %}
             end
         end
         well_FPDs = well_FPDs(~isnan(well_FPDs));

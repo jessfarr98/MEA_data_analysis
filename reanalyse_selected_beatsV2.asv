@@ -53,8 +53,8 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
 
 
     t_wave_up_down_text = uieditfield(well_p, 'Text', 'Value', 'T-wave shape', 'FontSize', 8,'Position', [120 60 100 40], 'Editable','off');
-    t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection', 'zero crossing'}, 'FontSize', 8, 'Position', [120 10 100 40]);
-    t_wave_up_down_dropdown.ItemsData = [1 2 3 4];
+    t_wave_up_down_dropdown = uidropdown(well_p, 'Items', {'minimum', 'maximum', 'inflection'}, 'FontSize', 8, 'Position', [120 10 100 40]);
+    t_wave_up_down_dropdown.ItemsData = [1 2 3];
 
     help_button = uibutton(well_p, 'push', 'Text', 'Help', 'Position',[screen_width-200 440 100 60], 'ButtonPushedFcn', @(help_button,event) HelpButtonPushed(t_wave_up_down_dropdown));
      
@@ -529,7 +529,7 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
     
     
     filtered_start_indx = find(electrode_data(electrode_count).filtered_time >= electrode_data(electrode_count).time(start_plot_indx));    
-    filtered_end_indx = find(electrode_data(electrode_count).filtered_time <= electrode_data(electrode_count).time(end_plot_indx));
+    filtered_end_indx = find(electrode_data(electrode_count).filtered_time >= electrode_data(electrode_count).time(end_plot_indx));
     
     
     if ~isempty(filtered_start_indx)
@@ -537,7 +537,7 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
         
         if ~isempty(filtered_end_indx)
             filtered_start_indx = filtered_start_indx(1);
-            filtered_end_indx = filtered_end_indx(end);
+            filtered_end_indx = filtered_end_indx(1);
 
 
 
@@ -828,10 +828,10 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
 
         act_indx = find(electrode_data(electrode_count).activation_times >= time_start);
         
-        if ~isempty(act_indx)
-            act_indx = act_indx(1);
-            plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
-        end
+        if ~isempty(min_depol_indx)
+        act_indx = act_indx(1);
+        plot(elec_ax, electrode_data(electrode_count).activation_times(act_indx), electrode_data(electrode_count).activation_point_array(act_indx), 'k.', 'MarkerSize', 20);
+        
         xlim(elec_ax, [time_start time_end])
         %{
         if isnan(post_spike_subtracted)

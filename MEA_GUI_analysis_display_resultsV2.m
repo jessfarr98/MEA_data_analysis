@@ -1270,13 +1270,21 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
 
                                             else
                                                 post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off*2;
+                                                if isnan(post_spike_hold_off)
+                                                    post_spike_hold_off = 0;
+                                                end
                                             end
                                         else
                                             post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).post_spike_hold_off*2;
+                                            if isnan(post_spike_hold_off)
+                                                post_spike_hold_off = 0;
+                                            end
                                         end
                                     else
                                         post_spike_hold_off = well_electrode_data(well_count).electrode_data(electrode_count).ave_wave_post_spike_hold_off;
-                                        
+                                        if isnan(post_spike_hold_off)
+                                            post_spike_hold_off = 0;
+                                        end
                                     end
                                     full_beat_x = [];
                                     for plot_child = 1:length(axes_children)
@@ -1294,9 +1302,9 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                             end
                                         end
                                     end
- 
-                                    set(electrode_panel_children(elec_panel_child), 'xlim', [full_beat_x(1) full_beat_x(1)+post_spike_hold_off])
-                                    
+                                    if full_beat_x(1)~= full_beat_x(1)+post_spike_hold_off
+                                        set(electrode_panel_children(elec_panel_child), 'xlim', [full_beat_x(1) full_beat_x(1)+post_spike_hold_off])
+                                    end
                                 end
                             end
                         end
@@ -1800,8 +1808,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             beats_range_2_ui = uieditfield(reanalyse_beat_panel, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui, electrode_count));
             
             
-            reanalyse_button = uibutton(reanalyse_beat_panel,'push','Text', 'Reanalyse Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 50 100 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig));
-            remove_button = uibutton(reanalyse_beat_panel,'push','Text', 'Remove Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 0 100 50], 'ButtonPushedFcn', @(remove_button,event) removeSelectedBeats(remove_button, reanalyse_beat_fig));
+            reanalyse_button = uibutton(reanalyse_beat_panel,'push','Text', 'Reanalyse Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 50 100 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig, electrode_count));
+            remove_button = uibutton(reanalyse_beat_panel,'push','Text', 'Remove Beats',  'BackgroundColor', '#3dd4d1', 'Position', [210 0 100 50], 'ButtonPushedFcn', @(remove_button,event) removeSelectedBeats(remove_button, reanalyse_beat_fig, electrode_count));
             
 
             range_button = uibutton(reanalyse_beat_panel,'push','Text', 'Enter Beat Number Range', 'Position', [210 100 150 50], 'ButtonPushedFcn', @(range_button,event) numBeatsRangeButtonPressed('off', 'on', 'no'));
@@ -1917,7 +1925,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 
             end
             
-            function reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig)
+            function reanalyseSelectedBeats(reanalyse_button, reanalyse_beat_fig, electrode_count)
                 
                 negative_skip = 'n/a';
                 reanalysed_post_spike = nan;
@@ -2512,7 +2520,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             end
             %}
             
-            function removeSelectedBeats(remove_button, reanalyse_beat_fig)
+            function removeSelectedBeats(remove_button, reanalyse_beat_fig, electrode_count)
                 
                 if strcmp(get(range_button, 'visible'), 'off')
                     start_beat = get(beats_range_1_ui, 'value');
@@ -2628,15 +2636,15 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             hmap_prompt_pan = uipanel(hmap_prompt_fig, 'Position', [0 0 screen_width screen_height]);
             
             beat_num_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Reanalyse Beat Number', 'Position', [10 150 200 40], 'Editable','off');
-            beat_num_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [10 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui, electrode_count));
+            beat_num_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Num Beat Patterns', 'Position', [10 100 200 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beat_num_ui,event) changedNumBeats(beat_num_ui));
             
             beats_range_1_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Start Beat Range', 'Position', [10 150 150 40], 'Editable','off');
             beats_time_range_1_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Beat Time Range Start (s)', 'Position', [10 150 150 40], 'Editable','off');
-            beats_range_1_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Start Beat Range', 'Position', [10 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui, electrode_count));
+            beats_range_1_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'Start Beat Range', 'Position', [10 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_1_ui,event) changedNumBeats(beats_range_1_ui));
             
             beats_range_2_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'End Beat Range', 'Position', [160 150 150 40], 'Editable','off');
             beats_time_range_2_text = uieditfield(hmap_prompt_pan,'Text', 'FontSize', 12, 'Value', 'Beat Time Range End (s)', 'Position', [160 150 150 40], 'Editable','off');
-            beats_range_2_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui, electrode_count));
+            beats_range_2_ui = uieditfield(hmap_prompt_pan, 'numeric', 'Tag', 'End Beat Range', 'Position', [160 100 150 40], 'FontSize', 12, 'Value', 1, 'ValueChangedFcn', @(beats_range_2_ui,event) changedNumBeats(beats_range_2_ui));
             
             
             go_button = uibutton(hmap_prompt_pan,'push','Text', 'Go',  'BackgroundColor', '#3dd4d1', 'Position', [210 50 100 50], 'ButtonPushedFcn', @(go_button,event) conductionMapGo(go_button));
@@ -2657,10 +2665,35 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             set(beats_time_range_2_text, 'visible', 'off')
             set(beats_range_2_ui, 'visible', 'off')
 
-            function changedNumBeats(ui, electrode_count)
+            function changedNumBeats(ui)
                 if strcmp(get(time_range_button, 'visible'), 'on')
                     % Means assessing beat number/index
-                    if get(ui, 'Value') > length(well_electrode_data(well_count).electrode_data(electrode_count).beat_start_times)
+                    
+                    min_beat_count  = nan;
+                    e_count = 0;
+                    for ee_r = 1:num_electrode_rows
+                        for ee_c = 1:num_electrode_cols
+                            e_count = e_count+1;
+                            if isnan(min_beat_count)
+                                if ~isempty(well_electrode_data(well_count).electrode_data(e_count).beat_start_times)
+                                    
+                                    min_beat_count = length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times);
+                                    
+                                end
+                            else
+                                if ~isempty(well_electrode_data(well_count).electrode_data(e_count).beat_start_times)
+                                   if length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times) < min_beat_count
+                                       min_beat_count = length(well_electrode_data(well_count).electrode_data(e_count).beat_start_times);
+                                   end
+                                end
+                                
+                            end
+                            
+                            
+                        end
+                    end
+                    
+                    if get(ui, 'Value') > min_beat_count
                         msgbox('The value entered was too large')
                         set(ui, 'Value', 1)
                     end

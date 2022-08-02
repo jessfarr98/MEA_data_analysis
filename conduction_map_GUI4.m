@@ -340,7 +340,6 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     end
 
     for n = 1:num_beats
-        disp(n)
         waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat)));
         
         partition = partition + num_partitions;
