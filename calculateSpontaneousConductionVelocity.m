@@ -15,7 +15,7 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             elec_indx = find(elec_indx == 1);
             electrode_count = elec_indx;
             
-            if isempty(elec_id)
+            if isempty(elec_indx)
                 %electrode_count = electrode_count + 1;
                 continue
             end

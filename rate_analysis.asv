@@ -811,6 +811,8 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_
     max_raw_act_time = depol_complex_time_filtered(activation_time_indx_max_raw(1));
     max_abs_act_time = depol_complex_time_filtered(activation_time_indx_max_abs(1));
     
+    
+    
     if ((max_depol_time >= min_raw_act_time)&& (min_raw_act_time>= min_depol_time)) || ((min_depol_time >= min_raw_act_time) && (min_raw_act_time>= max_depol_time))
         activation_time = depol_complex_time_filtered(activation_time_indx_min_raw(1));
         %slope = depol_complex_data(activation_time_indx(1)); %3/12/2021 bug was calculating the slope using the original y data, not the dydx of te signal - this is a scalar value
@@ -852,11 +854,35 @@ function [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_
                     %slope = depol_complex_data(activation_time_indx(1)); %3/12/2021 bug was calculating the slope using the original y data, not the dydx of te signal - this is a scalar value
                     slope = depol_complex_data_derivative(activation_time_indx_max_abs(1));
                     
+                    max_depol_filtered = max(filtered_data);
+                    min_depol_filtered = min(filtered_data);
+                    
+                    indx_max_depol_filtered_point = find(filtered_data == max_depol_filtered);
+                    indx_min_depol_filtered_point = find(filtered_data == min_depol_filtered);
+                    
+                    indx_max_depol_filtered_point = indx_max_depol_filtered_point(1);
+                    indx_min_depol_filtered_point = indx_min_depol_filtered_point(1);
+                    
+                    if indx_max_depol_filtered_point < indx_min_depol_filtered_point
+                        depol_complex_filtered_data_derivative = gradient(filtered_data(indx_max_depol_filtered_point:indx_min_depol_filtered_point));
+                        depol_complex_time_filtered = depol_complex_time_filtered(indx_max_depol_filtered_point:indx_min_depol_filtered_point);
+                    else
+                        depol_complex_filtered_data_derivative = gradient(filtered_data(indx_min_depol_filtered_point:indx_max_depol_filtered_point));
+                        depol_complex_time_filtered = depol_complex_time_filtered(indx_min_depol_filtered_point:indx_max_depol_filtered_point);
+                    end
+                    
+                    min_raw_slope = min(depol_complex_data_derivative);
+                    activation_time_indx_min_raw = find(depol_complex_filtered_data_derivative == min_raw_slope);
+                    activation_time = depol_complex_time_filtered(activation_time_indx_min_raw(1));
+                    slope = depol_complex_data_derivative(activation_time_indx_max_abs(1));
+                    
+                    %{
                     if strcmp(warning, '')
                         warning = strcat(warning, 'Activation Point Calculated out of the Max/Min Range');
                     else
                         warning = strcat(warning, {' '}, ' and Activation Point Calculated out of the Max/Min Range');
                     end
+                    %}
                 else
                     activation_time = depol_complex_time_filtered(activation_time_indx_min_raw(1));
                     %slope = depol_complex_data(activation_time_indx(1)); %3/12/2021 bug was calculating the slope using the original y data, not the dydx of te signal - this is a scalar value

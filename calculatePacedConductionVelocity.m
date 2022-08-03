@@ -1,4 +1,4 @@
-function [conduction_velocity, model] =  calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity)
+function [conduction_velocity, model] =  calculatePacedConductionVelocity(well_ID, electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity)
 
     %electrode_count = 1;
     dist_array = [];
@@ -15,7 +15,7 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(electr
             elec_indx = find(elec_indx == 1);
             electrode_count = elec_indx;
             
-            if isempty(elec_id)
+            if isempty(elec_indx)
                 %electrode_count = electrode_count + 1;
                 continue
             end
