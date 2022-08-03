@@ -1,4 +1,4 @@
-function prompt_cross_talk_minimisation_wells(RawData, added_wells)
+function prompt_cross_talk_minimisation_wells(RawData, added_wells, num_well_rows, num_well_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir)
 
     prompt_cross_talk_fig = uifigure;
 
@@ -20,12 +20,21 @@ function prompt_cross_talk_minimisation_wells(RawData, added_wells)
 
 
     function allButtonPushed(all_button, prompt_cross_talk_fig)
-        minimise_cross_talk(RawData, selected_minimisation_wells, prompt_cross_talk_fig);
-        
+        %close prompt_cross_talk_fig
+        minimise_cross_talk(prompt_cross_talk_fig, RawData, added_wells, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir);
+
     end
 
     function subsetButtonPushed(all_button, prompt_cross_talk_fig)
-        
+        %close prompt_cross_talk_fig
+        added_wells
+        num_well_rows 
+        num_well_cols
+        beat_to_beat spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir
+        select_subset_wells_cross_talk_minimisation(prompt_cross_talk_fig, RawData, added_wells, num_well_rows, num_well_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir);
+        %minimise_cross_talk(RawData, minimise_wells, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir);
+
     end
 
 end
+

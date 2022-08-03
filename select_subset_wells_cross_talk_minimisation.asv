@@ -29,18 +29,16 @@ function select_subset_wells_cross_talk_minimisation(RawWellData, added_wells, n
         
     for w_r = 1:num_well_rows
         
-        %sub_row_p = uipanel(p, 'BackgroundColor','#d43d3d', 'Title', sprintf('Add all in row %c', well_dictionary(w_r)), 'FontSize', 10,'Position', [0 ((w_r-1)*(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)]);
-        add_row_button = uibutton(p, 'push', 'BackgroundColor','#dc6161', 'Text', sprintf('Analyse Row %c', well_dictionary(w_r)), 'Position', [0 ((w_r-1)*(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)], 'ButtonPushedFcn', @(add_row_button,event) addRowPushed(add_row_button, w_r, p));
-            
         for w_c = 1:num_well_cols
 
             
-            
-            %%sub_col_p = uipanel(p, 'BackgroundColor','#d43d3d', 'Title', sprintf('Add all in column %d', w_c), 'FontSize', 10,'Position', [((w_c)*((screen_width-200)/(num_well_cols+1))) (screen_height-(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)]);
-            add_col_button = uibutton(p, 'push', 'BackgroundColor','#dc6161', 'Text', sprintf('Analyse Column %d', w_c), 'Position', [((w_c)*((screen_width-200)/(num_well_cols+1))) (screen_height-(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)], 'ButtonPushedFcn', @(add_col_button,event) addColPushed(add_col_button, w_c, p));
-          
+           
             count = count + 1;
             wellID = strcat(well_dictionary(w_r), '0', string(w_c));
+            if ~ismember(wellID, added_wells)
+               continue 
+            end
+            
             %sub_p = uipanel(p, 'BackgroundColor','#d43d3d', 'Title', wellID, 'FontSize', 10,'Position', [((w_c)*((screen_width-200)/(num_well_cols+1))) ((w_r-1)*(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)]);
             add_button = uibutton(p, 'push', 'BackgroundColor','#e68e8e', 'Text', sprintf('Analyse %s', wellID), 'Position',[((w_c)*((screen_width-200)/(num_well_cols+1))) ((w_r-1)*(screen_height/(num_well_rows+1))) (screen_width-200)/(num_well_cols+1) screen_height/(num_well_rows+1)], 'ButtonPushedFcn', @(add_button,event) addWellPushed(add_button, wellID));
             

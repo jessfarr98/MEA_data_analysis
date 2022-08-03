@@ -1,18 +1,27 @@
 function [conduction_velocity, model] =  calculatePacedConductionVelocity(electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity)
 
-    electrode_count = 1;
+    %electrode_count = 1;
     dist_array = [];
     act_array =[];
+    elec_ids = [electrode_data(:).electrode_id];
     for er = num_electrode_rows:-1:1
         for ec = num_electrode_cols:-1:1 % Change this and subtract 1 
-            elec_id = electrode_data(electrode_count).electrode_id;
+            
+            %elec_id = electrode_data(electrode_count).electrode_id;
+            elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
+            
+
+            elec_indx = contains(elec_ids, elec_id);
+            elec_indx = find(elec_indx == 1);
+            electrode_count = elec_indx;
+            
             if isempty(elec_id)
-                electrode_count = electrode_count + 1;
+                %electrode_count = electrode_count + 1;
                 continue
             end
             
             if electrode_data(electrode_count).rejected == 1
-                electrode_count = electrode_count + 1;
+                %electrode_count = electrode_count + 1;
                 continue
             end
             
@@ -40,7 +49,7 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(electr
             dist_array = [dist_array; dist];
             
             act_array =[act_array; electrode_data(electrode_count).activation_times(2)];
-            electrode_count = electrode_count + 1;
+            %electrode_count = electrode_count + 1;
         end
     end
 

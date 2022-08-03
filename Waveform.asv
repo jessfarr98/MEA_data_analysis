@@ -58,32 +58,11 @@ classdef Waveform
             % If this Method is called on an array of waveforms, the
             % lengths of the waveforms MUST agree
             fData = double([this(:).Data]);
-            
-            %fake_time = linspace(0, 1, length(fData));
-            
-            %plot(fake_time, fData)
             fSource = [this(:).Source];
             fHeader = [fSource(:).Header];
             fVoltageScale = [fHeader(:).VoltageScale];
-            %disp(fVoltageScale*max(fData))
-            %disp(diag(fVoltageScale))
             voltageData = fData * diag(fVoltageScale);
         end
-        
-        %{
-        %mofidication by Jessica Farr
-        function SetVoltageVector(this, voltageData)
-
-            %fData = double([this(:).Data]);
-            fSource = [this(:).Source];
-            fHeader = [fSource(:).Header];
-            fVoltageScale = [fHeader(:).VoltageScale];
-            %voltageData = fData * diag(fVoltageScale);
-            
-            this(:).Data = voltageData/diag(fVoltageScale);
-        end
-        %}
-        
         
         function timeData = GetTimeVector(this)
             % GetTimeVector: returns a time vector for this waveform based

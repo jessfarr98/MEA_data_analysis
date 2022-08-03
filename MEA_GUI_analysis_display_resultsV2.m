@@ -250,7 +250,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             
             reanalyse_selected_electrodes_button = uibutton(main_well_pan,'push','Text', 'Re-analyse Selected Electrodes', 'Position', [screen_width-180 100 170 50], 'ButtonPushedFcn', @(reanalyse_selected_electrodes_button,event) reanalyseSelectedElectrodesButtonPushed(reanalyse_selected_electrodes_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
             
-            assess_conduction_velocity_model_button = uibutton(main_well_pan,'push','Text', 'Assess Conduction Velocity Model', 'Position', [screen_width-220 500 200 50], 'ButtonPushedFcn', @(assess_conduction_velocity_model_button,event) assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count));
+            assess_conduction_velocity_model_button = uibutton(main_well_pan,'push','Text', 'Assess Conduction Velocity Model', 'Position', [screen_width-220 500 200 50], 'ButtonPushedFcn', @(assess_conduction_velocity_model_button,event) assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count, wellID));
         
             
         else
@@ -742,10 +742,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             well_electrode_data(well_count).electrode_data(electrode_count).rejected = 1;
             
             if strcmp(well_electrode_data(well_count).spon_paced, 'spon')
-                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculateSpontaneousConductionVelocity(well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
+                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculateSpontaneousConductionVelocity(wellID, well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
             
             else
-                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculatePacedConductionVelocity(well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
+                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculatePacedConductionVelocity(wellID, well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
             
             end
             
@@ -759,10 +759,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             well_electrode_data(well_count).electrode_data(electrode_count).rejected = 0;
             
             if strcmp(well_electrode_data(well_count).spon_paced, 'spon')
-                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculateSpontaneousConductionVelocity(well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
+                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculateSpontaneousConductionVelocity(wellID, well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
             
             else
-                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculatePacedConductionVelocity(well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
+                [well_electrode_data(well_count).conduction_velocity, well_electrode_data(well_count).conduction_velocity_model] = calculatePacedConductionVelocity(wellID, well_electrode_data(well_count).electrode_data,  num_electrode_rows, num_electrode_cols, nan);
             
             end
             set(elec_pan, 'Visible', 'on');
@@ -1522,7 +1522,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
             set(restore_full_beat_button, 'visible', 'off')
         end
         
-        function assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count)
+        function assessConductionVelocityModelButtonPushed(assess_conduction_velocity_model_button, well_elec_fig, well_count, well_ID)
         
             conduction_velocity_figure = uifigure;
             conduction_velocity_figure.Name = 'Conduction Velocity Model';
@@ -1539,9 +1539,14 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 %act_array = one(num_electrode_rows*num_electrode_cols);
                 act_array = [];
                 electrode_ids = [];
+                el_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
                 for er = num_electrode_rows:-1:1
                     for ec = num_electrode_cols:-1:1
-                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
+                        elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
+                        
+                        e_indx = contains(el_ids, elec_id);
+                        e_indx = find(e_indx == 1);
+                        el_count = e_indx;
 
                         if isempty(elec_id)
                             continue
@@ -1551,7 +1556,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         end
                         act_array = [act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
                         electrode_ids = [electrode_ids; elec_id];
-                        el_count = el_count + 1;
+                        %el_count = el_count + 1;
 
                     end
                 end
@@ -1566,8 +1571,12 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 act_array =[];
                 for er = num_electrode_rows:-1:1
                     for ec = 1:num_electrode_cols
-                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
+                        elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
 
+                        e_indx = contains(el_ids, elec_id);
+                        e_indx = find(e_indx == 1);
+                        el_count = e_indx;
+                        
                         if isempty(elec_id)
                             continue
                         end
@@ -1604,17 +1613,22 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         dist_array = [dist_array; dist];
 
                         act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
-                        el_count = el_count + 1;
+                        %el_count = el_count + 1;
                     end
                 end
             else
-                el_count = 1;
+                %el_count = 1;
                 dist_array = [];
                 act_array =[];
+                el_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
                 for er = num_electrode_rows:-1:1
                     for ec = num_electrode_cols:-1:1
-                        elec_id = well_electrode_data(well_count).electrode_data(el_count).electrode_id;
-
+                        elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
+                        e_indx = contains(el_ids, elec_id);
+                        e_indx = find(e_indx == 1);
+                        el_count = e_indx;
+                        
+                        
                         if isempty(elec_id)
                             continue
                         end
@@ -1631,7 +1645,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         dist_array = [dist_array; dist];
 
                         act_array =[act_array; well_electrode_data(well_count).electrode_data(el_count).activation_times(2)];
-                        el_count = el_count + 1;
+                        %el_count = el_count + 1;
                     end
                 end
             end
@@ -1641,7 +1655,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 return
             end
             
-            conduction_velocity = well_electrode_data(well_count).conduction_velocity
+            conduction_velocity = well_electrode_data(well_count).conduction_velocity;
             
             display_con_vel = sprintf('Conduction Velocity = %f', conduction_velocity);
             

@@ -48,11 +48,11 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
     origin_elec_row = str2num(split_orig_elec{2});
     origin_elec_col = str2num(split_orig_elec{3});
 
-    %electrode_count = 1;
+    electrode_count = 1;
     act_array =[];
     for er = num_electrode_rows:-1:1
         for ec = 1:num_electrode_cols
-            elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
+            elec_id = electrode_data(electrode_count).electrode_id;
             
             elec_indx = contains(elec_ids, elec_id);
             elec_indx = find(elec_indx == 1);
@@ -91,7 +91,7 @@ function [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(
             
                 
             if length(electrode_data(electrode_count).activation_times) < 2
-                %electrode_count = electrode_count + 1;
+                electrode_count = electrode_count + 1;
                 continue
             end
             

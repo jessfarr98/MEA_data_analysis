@@ -1,5 +1,8 @@
-function prompt_cross_talk_minimisation_wells(RawData, added_wells, num_well_rows, num_well_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir)
+function prompt_cross_talk_minimisation_wells(RawData, Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir, parameter_input_method)
 
+    close all;
+    close all hidden;
+    
     prompt_cross_talk_fig = uifigure;
 
     prompt_cross_talk_fig.Name = 'Choose Cross Talk Wells';
@@ -20,12 +23,17 @@ function prompt_cross_talk_minimisation_wells(RawData, added_wells, num_well_row
 
 
     function allButtonPushed(all_button, prompt_cross_talk_fig)
-        minimise_cross_talk(RawData, added_wells, prompt_cross_talk_fig, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir);
-        
+        %close prompt_cross_talk_fig
+        minimise_cross_talk(prompt_cross_talk_fig, RawData, Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir, parameter_input_method);
+
     end
 
     function subsetButtonPushed(all_button, prompt_cross_talk_fig)
-        
+
+        select_subset_wells_cross_talk_minimisation(prompt_cross_talk_fig, RawData, Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir, parameter_input_method);
+        %minimise_cross_talk(RawData, minimise_wells, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, save_base_dir);
+
     end
 
 end
+

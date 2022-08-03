@@ -794,7 +794,7 @@ function MEA_GUI_Load_Analysed_Data(raw_data_file, results_file)
             [conduction_velocity, model] =  calculateSpontaneousConductionVelocity(wellID, electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity);
 
         else
-            [conduction_velocity, model] =  calculatePacedConductionVelocity(wellID, electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity);
+            [conduction_velocity, model] =  calculatePacedConductionVelocity(WELLid, electrode_data,  num_electrode_rows, num_electrode_cols, conduction_velocity);
 
         end
         well_electrode_data(1).conduction_velocity = conduction_velocity;

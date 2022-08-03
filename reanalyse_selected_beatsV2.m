@@ -882,10 +882,10 @@ function [well_electrode_data] = reanalyse_selected_beatsV2(well_electrode_data,
     close(well_fig);
 
     if strcmp(electrode_data(electrode_count).spon_paced, 'spon')
-        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculateSpontaneousConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols, nan);
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculateSpontaneousConductionVelocity(well_electrode_data.wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
     
     else
-        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculatePacedConductionVelocity(electrode_data, num_electrode_rows, num_electrode_cols, nan);
+        [well_electrode_data.conduction_velocity, well_electrode_data.conduction_velocity_model] = calculatePacedConductionVelocity(well_electrode_data.wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
     
     end
     well_electrode_data.electrode_data = electrode_data;
