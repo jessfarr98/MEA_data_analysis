@@ -1,4 +1,4 @@
-function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, minimise_wells, constant_signal)
+function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, save_base_dir, minimise_wells, constant_signal, origin_well)
 %  Create and then hide the UI as it is being constructed.
 
 % TO DO
@@ -428,7 +428,7 @@ function MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b
    
 
    
-   analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir), minimise_wells, constant_signal)
+   analyse_MEA_signals_GUI(RawData, Stims, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_bdt_array, well_t_wave_dur_array, well_t_wave_shape_array, well_time_reg_start, well_time_reg_end, well_stable_dur, added_wells, well_min_bp_array, well_max_bp_array, bipolar, post_spike_array, stim_spike_array, well_t_wave_time_array, well_fpd_array, filter_intensity_array, fullfile(save_dir, save_base_dir), minimise_wells, constant_signal, origin_well)
 
    
    function txt = DistanceRulerCallback(~, info)

@@ -1540,6 +1540,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 act_array = [];
                 electrode_ids = [];
                 el_ids = [well_electrode_data(well_count).electrode_data(:).electrode_id];
+                well_ID = well_electrode_data(well_count).wellID;
                 for er = num_electrode_rows:-1:1
                     for ec = num_electrode_cols:-1:1
                         elec_id = strcat(well_ID, '_', num2str(ec), '_', num2str(er));
@@ -1551,6 +1552,8 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         if isempty(elec_id)
                             continue
                         end
+                        
+                        
                         if well_electrode_data(well_count).electrode_data(el_count).rejected == 1
                             continue
                         end
@@ -3474,9 +3477,11 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 [br, bc] = size(warning_array);
                 warning_array = reshape(warning_array, [bc br]);
                 
-                [ar, ac] = size(activation_times);
-                [mr, mc] = size(min_act_electrode_activation_times);
+                [ar, ac] = size(activation_times)
+                [mr, mc] = size(min_act_electrode_activation_times)
                 sub_activation_times = activation_times;
+                
+                %{
                 if ar == 1
                     if mr == 1
                         if ac ~= mc
@@ -3550,6 +3555,38 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     
                 end
                 
+                %}
+                
+                if ar == 1
+                    if mr == 1
+                        if ac ~= mc
+                            min_act_electrode_activation_times = zeros(1, ac);
+                            min_act_electrode_activation_times(:) = nan;
+
+                        end
+                    else
+                        if ac ~= mr
+                            min_act_electrode_activation_times = zeros(1, ac);
+                            min_act_electrode_activation_times(:) = nan;
+                        end
+                        
+                    end
+                else
+                    if mr == 1
+                        if ar ~= mc
+                            min_act_electrode_activation_times = zeros(1, ar);
+                            min_act_electrode_activation_times(:) = nan;
+                        end
+                    else
+                        if ar ~= mr
+                            min_act_electrode_activation_times = zeros(1, rc);
+                            min_act_electrode_activation_times(:) = nan;
+                        end
+                        
+                    end
+                    
+                end
+                
                 [sr, sc] = size(sub_activation_times);
                 [mr, mc] = size(min_act_electrode_activation_times);
                 
@@ -3560,7 +3597,6 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                 activation_times_subtract_min_act_electrode_act_times = sub_activation_times - min_act_electrode_activation_times;
                 [br, bc] = size(activation_times_subtract_min_act_electrode_act_times);
                 
-
                 
                 if br == 1
                     activation_times_subtract_min_act_electrode_act_times = reshape(activation_times_subtract_min_act_electrode_act_times, [bc br]);
@@ -3763,6 +3799,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                     %}
                     
                     if electrode_data(electrode_count).rejected == 0
+                        
                         electrode_stats_table = table('Size', [length(beat_num_array) 22], 'VariableTypes',["string", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double","double","double","double","double","double","double", "string", "double", "string"], 'VariableNames', cellstr([electrode_data(electrode_count).electrode_id, "Beat No.", "Beat Start Time (s)", "Beat Start Volts (V)", "Activation Time (s)", "Activation Time Volts (V)", "Activation Times-min Elec. Activation Times (s)", "Min. Depol Time (s)", "Min. Depol Point (V)", "Max. Depol Time (s)", "Max. Depol Point (V)", "Depolarisation Spike Amplitude (V)", "Depolarisation slope (dv/dt)", "T-wave peak Time (s)", "T-wave peak (V)", "FPD (s)", "Beat Period (s)", "Cycle Length (s)", "Activation Time - minimum Activation Time (s)", "T-wave Denoising Wavelet Family", "T-wave Polynomial Degree", "Warnings"]));
 
                         if ~isempty(beat_num_array)
@@ -3775,6 +3812,10 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                             electrode_stats_table(:, 5) = num2cell(activation_times);
 
                             electrode_stats_table(:, 6) = num2cell(activation_points);
+                            
+                            disp(size(activation_points))
+                            disp(size(activation_times_subtract_min_act_electrode_act_times))
+                            
                             
                             electrode_stats_table(:, 7) = num2cell(activation_times_subtract_min_act_electrode_act_times);
 

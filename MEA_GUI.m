@@ -267,10 +267,10 @@ function MEA_GUI(raw_file, save_dir)
       else
           %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
           if plate_well_options_dropdown.Value == 1
-              MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [])
+              MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
 
           else
-              MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [])
+              MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
 
           end
       end
@@ -382,10 +382,10 @@ function MEA_GUI(raw_file, save_dir)
           prompt_cross_talk_minimisation_wells(RawData, Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, get(plots_input_ui, 'Value'), parameter_input_method)
       else
           if plate_well_options_dropdown.Value == 1
-              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [])
+              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
 
           else
-              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [])
+              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
 
           end
       end
