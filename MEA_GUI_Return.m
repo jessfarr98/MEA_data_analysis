@@ -100,14 +100,19 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
    plate_well_options_dropdown = uidropdown(start_pan, 'Items', {'unique', 'general'},'Position',[810 120 140 25]);
    plate_well_options_dropdown.ItemsData = [1 2];
    
+   
+   cross_talk_text = uieditfield(start_pan,'Text','Position',[810 90 140 25], 'Value','Minimise Cross-talk', 'Editable','off');
+   cross_talk_options_dropdown = uidropdown(start_pan, 'Items', {'no', 'yes'},'Position',[810 60 140 25]);
+   cross_talk_options_dropdown.ItemsData = [1 2];
+   
    instructions_button = uibutton(start_pan,'push','Text', 'Instructions', 'Position',[810, 20, 140, 22], 'ButtonPushedFcn', @(instructions_button,event) instructionsButtonPushed(instructions_button, start_fig));
    
    
    
-   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Visual)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 630, 180, 22], 'ButtonPushedFcn', @(run_button,event) runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir));
    set(run_button, 'Visible', 'off')
    
-   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, save_dir));
+   run_fast_button = uibutton(start_pan,'push','Text', 'Choose Well Inputs (Fast)', 'BackgroundColor', '#3dd4d1', 'Position',[810, 600, 180, 22], 'ButtonPushedFcn', @(run_fast_button,event) runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolar_dropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir));
    set(run_fast_button, 'Visible', 'off')
    
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
@@ -173,7 +178,7 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
    end
    %}
 
-   function runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runButtonPushed(run_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -259,17 +264,27 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
 
       set(start_fig, 'Visible', 'off')
       %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
-      if plate_well_options_dropdown.Value == 1
-          MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+      if cross_talk_options_dropdown.Value == 2
+          if plate_well_options_dropdown.Value == 1
+              parameter_input_method = 'unique';
+          else
+              parameter_input_method = 'general';
+          end
+          prompt_cross_talk_minimisation_wells(RawData,Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, get(plots_input_ui, 'Value'), parameter_input_method)
       else
-          MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+          %analyse_MEA_signals(raw_file, beat_to_beat, 'paced', well_thresholding, 1)
+          if plate_well_options_dropdown.Value == 1
+              MEA_BDT_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
+
+          else
+              MEA_BDT_PLATE_GUI_V2(RawData,Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
+
+          end
       end
           
    end
 
-   function runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, save_dir)
+   function runFastButtonPushed(run_fast_button, RawData, Stims, b2b_options_dropdown, stable_options_dropdown, b2bdropdown, paced_spon_options_dropdown, start_fig, bipolarDropdown, plate_well_options_dropdown, cross_talk_options_dropdown, save_dir)
       %disp('worked')
       %disp(b2bdropdown.Value);
       %disp(stable_options_dropdown.Value);
@@ -363,12 +378,19 @@ function MEA_GUI_Return(RawData, Stims, save_dir, skipped_data)
          added_wells = added_wells_all;
       end
       
-      if plate_well_options_dropdown.Value == 1
-          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+      if cross_talk_options_dropdown.Value == 2
+
+          parameter_input_method = 'fast';
+          
+          prompt_cross_talk_minimisation_wells(RawData, Stims, added_wells, num_well_rows, num_well_cols, num_electrode_rows, num_electrode_cols, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, bipolar, save_dir, get(plots_input_ui, 'Value'), parameter_input_method)
       else
-          MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'))
-      
+          if plate_well_options_dropdown.Value == 1
+              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
+
+          else
+              MEA_GUI_FAST_THRESHOLD_INPUTS(RawData, Stims, beat_to_beat, spon_paced, analyse_all_b2b, stable_ave_analysis, added_wells, bipolar, save_dir, get(plots_input_ui, 'Value'), [], [], '')
+
+          end
       end
       
       
