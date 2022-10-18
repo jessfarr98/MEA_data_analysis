@@ -116,10 +116,21 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                
            if bdt > 0
                beat_indx = find(d_ata(pshot_indx) >= bdt);
-               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset
+               
+               wind_indx(1)
+               pshot_indx_offset
+               
+               if beat_indx > length(time)
+                  beat_indx = length(time); 
+               end
            else
                beat_indx = find(d_ata(pshot_indx) <= bdt);
-               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset
+               
+               if beat_indx > length(time)
+                  beat_indx = length(time); 
+               end
            end
 
        catch
@@ -142,7 +153,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        end
        
        % Between 10 and 12 seconds 2 beats are being picked up as one
-       
+       disp(length(time))
+       disp(prev_beat_indx)
+       disp(beat_indx)
        beat_time = time(prev_beat_indx:beat_indx);
        beat_data = data(prev_beat_indx:beat_indx);
        

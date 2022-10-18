@@ -132,6 +132,11 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                beat_indx = find(d_ata(pshot_indx) >= bdt);
                %beat_indx_orig = beat_indx;
                beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset-2;
+               
+               if beat_indx > length(time)
+                  beat_indx = length(time); 
+               end
+               
            else
                beat_indx = find(d_ata(pshot_indx) <= bdt);
                
@@ -147,6 +152,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                %}
                beat_indx = beat_indx(1)+wind_indx(1)+pshot_indx_offset-2;
                
+               if beat_indx > length(time)
+                  beat_indx = length(time); 
+               end
                
            end
 
