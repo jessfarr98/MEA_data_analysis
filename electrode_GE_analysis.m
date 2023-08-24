@@ -148,7 +148,7 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                         stim_spike_ho = NaN;
                     end
                     [electrode_data.ave_activation_time, ~, electrode_data.ave_max_depol_time, electrode_data.ave_max_depol_point, indx_max_depol_point, electrode_data.ave_min_depol_time, electrode_data.ave_min_depol_point, indx_min_depol_point, electrode_data.ave_depol_slope, electrode_data.ave_warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(electrode_data.ave_wave_time, electrode_data.average_waveform, get(post_spike_ui, 'Value'), stim_spike_ho, spon_paced, NaN, electrode_data.electrode_id, filter_intensity, '');
-                    [electrode_data.ave_t_wave_peak_time, ~, ~, electrode_data.ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial,  electrode_data.ave_t_wave_wavelet, electrode_data.ave_t_wave_polynomial_degree] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data.electrode_id, filter_intensity, electrode_data.ave_warning);
+                    [electrode_data.ave_t_wave_peak_time, electrode_data.ave_t_wave_peak, ~, electrode_data.ave_warning, t_wave_indx_start, t_wave_indx_end, polynomial_time, polynomial,  electrode_data.ave_t_wave_wavelet, electrode_data.ave_t_wave_polynomial_degree] = t_wave_complex_analysis(electrode_data.ave_wave_time,  electrode_data.average_waveform, beat_to_beat,  electrode_data.ave_activation_time, 0, spon_paced, t_wave_shape, NaN, get(t_wave_duration_ui, 'Value'), get(post_spike_ui, 'Value'), get(t_wave_peak_offset_ui, 'Value'), nan, electrode_data.electrode_id, filter_intensity, electrode_data.ave_warning);
 
         
                     %electrode_data.ave_wave_time
@@ -292,7 +292,11 @@ function [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_
                                     elec_ax = elec_pan_children(e_ch);
                                 end
                             end
-
+                            disp(electrode_data.ave_max_depol_time)
+                            disp(electrode_data.ave_min_depol_time)
+                            disp(electrode_data.ave_t_wave_peak_time)
+                            disp(electrode_data.ave_activation_point)
+                            
                             cla(elec_ax);
                             hold(elec_ax,'on')
                             plot(elec_ax, electrode_data.ave_wave_time, electrode_data.average_waveform)

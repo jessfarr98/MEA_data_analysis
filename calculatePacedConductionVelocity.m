@@ -39,7 +39,10 @@ function [conduction_velocity, model] =  calculatePacedConductionVelocity(well_I
             %}
             
             %%x = y = 350um
-            dist = sqrt(((350*(ec-1))^2)+((350*(er-1))^2));
+            dist_ec = 5-ec;
+            
+            
+            dist = sqrt(((350*(dist_ec-1))^2)+((350*(er-1))^2));
             
                 
             if length(electrode_data(electrode_count).activation_times) < 2

@@ -151,8 +151,9 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
             for e_r = num_electrode_rows:-1:1
                 for e_c = 1:num_electrode_cols
                 %for e_c = num_electrode_cols:-1:1
-                    %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c}; %2/12/2021 was using the NORMAL computer convention of row, col electrode data index accessing, apparntly axis thinks col,row is logical 
+                    %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c}; %2/12/2021 incorrect indexing
                     WellRawData = AllDataRaw{w_r, w_c, e_c, e_r};
+                    
                     if strcmp(class(WellRawData),'Waveform')
                         %if ~empty(WellRawData)
                         [time, data] = WellRawData.GetTimeVoltageVector;
@@ -360,8 +361,9 @@ function well_thresholding_analysis(AllDataRaw, beat_to_beat, analyse_all_b2b, s
             MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir)
     
         else
-            
-            MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir, 0)
+            MEA_GUI_analysis_display_ave_waveform_results(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir, 0)
+    
+            %MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_cols, beat_to_beat, analyse_all_b2b, stable_ave_analysis, spon_paced, well_electrode_data, Stims, added_wells, bipolar, save_dir, 0)
     
         end
         
@@ -467,7 +469,7 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
      for e_r = num_electrode_rows:-1:1
          for e_c = 1:num_electrode_cols
             electrode_count = electrode_count+1;
-            %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c}; %%2/12/2021 was using the NORMAL computer convention of row, col electrode data index accessing, apparntly axis thinks col,row is logical 
+            %WellRawData = AllDataRaw{w_r, w_c, e_r, e_c}; %%2/12/2021 incorrect indexing
             WellRawData = AllDataRaw{w_r, w_c, e_c, e_r};
             if strcmp(class(WellRawData),'Waveform')
             electrode_id = strcat(wellID, {'_'}, string(e_c), {'_'}, string(e_r));
@@ -703,7 +705,8 @@ function [well_electrode_data, partition] = extract_well_threshold_beats(AllData
          [conduction_velocity, model] = calculateSpontaneousConductionVelocity(wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
      
      else
-         [conduction_velocity, model] = calculatePacedConductionVelocity(wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
+         %[conduction_velocity, model] = calculatePacedConductionVelocity(wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
+         [conduction_velocity, model] = calculateSpontaneousConductionVelocity(wellID, electrode_data, num_electrode_rows, num_electrode_cols, nan);
      
      end
     

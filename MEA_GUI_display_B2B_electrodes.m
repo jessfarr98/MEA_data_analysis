@@ -1,5 +1,5 @@
 function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax)
-
+    disp('in MEA_GUI_display_B2B_electrodes')
     hold(elec_ax,'on');
     if strcmp(electrode_data(electrode_count).spon_paced, 'paced')
         num_beats = length(electrode_data(electrode_count).beat_start_times);
@@ -176,7 +176,7 @@ function MEA_GUI_display_B2B_electrodes(electrode_data, electrode_count, elec_ax
             t_wave_peak_time = electrode_data(electrode_count).t_wave_peak_times(t_wave_indx);
             t_wave_p = electrode_data(electrode_count).t_wave_peak_array(t_wave_indx);
             if ~isnan(t_wave_peak_time) && ~isnan(t_wave_p)
-                plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 20);
+                plot(elec_ax, t_wave_peak_time, t_wave_p, 'c.', 'MarkerSize', 35);
             end
         end
 

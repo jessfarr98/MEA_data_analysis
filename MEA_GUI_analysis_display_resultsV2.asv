@@ -498,7 +498,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                         if well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time ~= 0 
                             plot(elec_ax, well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak_time, well_electrode_data(well_count).electrode_data(electrode_count).ave_t_wave_peak, 'c.', 'MarkerSize', 20);
                         end
-                        hold(elec_ax,'off')
+                        
                                
 
                     end
@@ -1368,7 +1368,7 @@ function MEA_GUI_analysis_display_resultsV2(AllDataRaw, num_well_rows, num_well_
                                             end
                                         end
                                     end
-                                    
+                                    disp()
                                     if ~isempty(full_beat_x)
                                         set(electrode_panel_children(elec_panel_child), 'xlim', [full_beat_x(1) full_beat_x(end)])
                                     end

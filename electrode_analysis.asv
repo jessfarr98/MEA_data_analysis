@@ -340,15 +340,10 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                                 
                             elseif strcmp(stable_ave_analysis, 'stable')
                                 window = electrode_data(electrode_count).window;
-                                if change_GE == 1
-                                    MEA_GUI_display_GE_stable_waveform(GE_ax, electrode_data(min_electrode_beat_stdev_indx))
-                                end
-                                MEA_GUI_display_GE_stable_waveform(elec_ax, electrode_data(electrode_count))
-                                %{
+                                
                                 if change_GE == 1
                                     cla(GE_ax)
-                                    %hold(GE_ax, 'on');
-                                    
+                                    hold(GE_ax, 'on');
                                 end
                                 hold(elec_ax, 'on') 
                                 for k = 1:window
@@ -379,7 +374,6 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                                 if change_GE == 1
                                     hold(GE_ax, 'off');
                                 end
-                                %}
                                 
                                 %{
                                 exp_children = get(expand_elec_panel, 'children');
@@ -441,7 +435,7 @@ function [well_electrode_data] = electrode_analysis(well_electrode_data, num_ele
                                 %}
                                 cla(exp_ax);
                                 
-                                MEA_GUI_display_GE_background_B2B_analysis(expand_elec_panel, exp_ax, electrode_data, electrode_count)
+                                
                                 
                                 %{
                                 hold(exp_ax,'on')

@@ -304,7 +304,9 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
         
         activation_point_array = [activation_point_array act_point];
         activation_time_array = [activation_time_array activation_time];
-        cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
+        if count > 0
+            cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
+        end
         beat_num_array = [beat_num_array count];
         beat_start_times = [beat_start_times beat_time(1)];
         beat_start_volts = [beat_start_volts beat_data(1)];

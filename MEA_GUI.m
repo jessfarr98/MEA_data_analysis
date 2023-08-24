@@ -23,8 +23,8 @@ function MEA_GUI(raw_file, save_dir)
    num_electrode_cols = shape_data(4);   
    
    screen_size = get(groot, 'ScreenSize');
-   screen_width = screen_size(3);
-   screen_height = screen_size(4);
+   screen_width = screen_size(3)
+   screen_height = screen_size(4)
    
    start_fig = uifigure;
 
@@ -32,6 +32,8 @@ function MEA_GUI(raw_file, save_dir)
 
    % Move the window to the center of the screen.
    movegui(start_fig,'center')
+   
+   start_fig.Position = [0, 0, 1200, 1000];
    
    start_pan = uipanel(start_fig, 'BackgroundColor','#B02727', 'Position', [0 0 screen_width screen_height]);
    set(start_pan, 'AutoResizeChildren', 'off');   
@@ -112,7 +114,7 @@ function MEA_GUI(raw_file, save_dir)
    plots_text = uieditfield(start_pan,'Text','Position',[810 510 140 25], 'Value','Enter Save Data Directory Name', 'Editable','off');
    plots_input_ui = uieditfield(start_pan,'Text','Position',[810 480 140 25], 'ValueChangedFcn',@(plots_input_ui,event) changePlotsDir(plots_input_ui, start_fig, save_dir, run_button, run_fast_button));
    
-   start_fig.WindowState = 'maximized';
+   %start_fig.WindowState = 'fullscreen';
    
    function b2bdropdown_menu_Callback(b2bdropdown,beat_to_beat, start_fig, b2b_options_text, b2b_options_dropdown, stable_options_text, stable_options_dropdown, bipolar_text, bipolar_dropdown) 
       beat_to_beat = b2bdropdown.Value;

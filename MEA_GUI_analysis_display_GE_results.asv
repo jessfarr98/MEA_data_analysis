@@ -67,6 +67,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
     screen_width = screen_size(3);
     screen_height = screen_size(4);
     
+    screen_width = 1700;
+    screen_height = 956;
+    
     num_wells = length(added_wells);
     num_button_rows = 1;
     num_button_cols = num_wells;
@@ -87,21 +90,22 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
     button_panel_width = screen_width-200;
     
     button_width = button_panel_width/num_button_cols;
-    button_height = (screen_height-40)/num_button_rows;
+    button_height = (screen_height)/num_button_rows;
     
     out_fig = uifigure;
     out_fig.Name = 'MEA Results';
     movegui(out_fig,'center')
-    out_fig.WindowState = 'maximized';
+    %out_fig.WindowState = 'maximized';
+    out_fig.Position = [100, 100, screen_width, screen_height];
     % left bottom width height
     main_p = uipanel(out_fig, 'BackgroundColor', '#e68e8e', 'Position', [0 0 screen_width screen_height]);
     
-    close_all_button = uibutton(main_p,'push', 'BackgroundColor', '#B02727', 'Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
-    accept_GE_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1','Text', 'Accept Golden Electrodes', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(accept_GE_button,event) acceptGEButtonPushed(accept_GE_button, out_fig));
+    close_all_button = uibutton(main_p,'push', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Text', 'Close', 'Position', [screen_width-160 100 120 50], 'ButtonPushedFcn', @(close_all_button,event) closeAllButtonPushed(close_all_button, out_fig));
+    accept_GE_button = uibutton(main_p,'push', 'BackgroundColor', '#3dd4d1', 'Fontcolor', 'w', 'Text', 'Accept Golden Electrodes', 'Position', [screen_width-190 200 180 50], 'ButtonPushedFcn', @(accept_GE_button,event) acceptGEButtonPushed(accept_GE_button, out_fig));
             
     
     
-    main_pan = uipanel(main_p, 'Title', 'Review Well Results', 'Position', [0 0 button_panel_width screen_height-40]);
+    main_pan = uipanel(main_p, 'Title', 'Review Well Results', 'Position', [0 0 button_panel_width screen_height]);
     
     %global electrode_data;
     dropdown_array = [];
@@ -217,12 +221,12 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
             dropdown_array = [dropdown_array; change_GE_dropdown];
 
-            change_GE_button = uibutton(button_panel,'push','BackgroundColor', '#e37f7f', 'Text', strcat('Change', {' '}, wellID, {' '},'Golden Electrode'), 'Position', [2*(button_width/3) 0 button_width/3 button_height], 'ButtonPushedFcn', @(change_GE_button,event) changeGEButtonPushed(change_GE_button, added_wells, change_GE_text, change_GE_dropdown, button_panel));
+            change_GE_button = uibutton(button_panel,'push','BackgroundColor', '#e37f7f', 'Fontcolor', 'w', 'Text', strcat('Change', {' '}, wellID, {' '},'Golden Electrode'), 'Position', [2*(button_width/3) 0 button_width/3 button_height], 'ButtonPushedFcn', @(change_GE_button,event) changeGEButtonPushed(change_GE_button, added_wells, change_GE_text, change_GE_dropdown, button_panel));
 
             %stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
             %average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b, :), change_GE_dropdown));
-            stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown, b));
-            average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown, b));
+            stable_button = uibutton(button_panel,'push','BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Text', strcat(wellID, {' '}, 'Show Electrode Stable Waveforms'), 'Position', [0 0 button_width/3 button_height], 'ButtonPushedFcn', @(stable_button,event) stableElectrodesButtonPushed(stable_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown, b));
+            average_button = uibutton(button_panel,'push','BackgroundColor', '#d43d3d', 'Fontcolor', 'w', 'Text', strcat(wellID, {' '}, 'Show Electrode Average Waveforms'), 'Position', [button_width/3 0 button_width/3 button_height], 'ButtonPushedFcn', @(average_button,event) averageElectrodesButtonPushed(average_button, added_wells, num_electrode_rows, num_electrode_cols, well_electrode_data(b).electrode_data, change_GE_dropdown, b));
             panel_array(b).panel = button_panel;
 
         end
@@ -274,10 +278,11 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         
         well_elec_fig = uifigure;
         movegui(well_elec_fig,'center')
-        well_elec_fig.WindowState = 'maximized';
-        well_elec_fig.Name = strcat(well_ID, '_', 'Electrode Results');
+        %well_elec_fig.WindowState = 'maximized';
+        well_elec_fig.Position = [100, 100, screen_width, screen_height];
+        well_elec_fig.Name = strcat(well_ID, '_', 'Stable_Waveforms');
         % left bottom width height
-        main_well_pan = uipanel(well_elec_fig, 'Position', [0 0 screen_width screen_height]);
+        main_well_pan = uipanel(well_elec_fig, 'BackgroundColor', '#fbeaea', 'Position', [0 0 screen_width screen_height]);
         
         well_p_width = screen_width-300;
         well_p_height = screen_height -100;
@@ -292,9 +297,11 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             non_zero_stddevs = find(min_stdevs ~=0);
             min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
-        GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " +electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]); 
+        GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " +electrode_data(min_electrode_beat_stdev_indx).electrode_id,  'BackgroundColor', '#f2c2c2', 'Position', [well_p_width screen_height-450 300 320]); 
         GE_ax = uiaxes(GE_pan, 'Position', [0 0 300 300]);
         
+        MEA_GUI_display_GE_stable_waveform(GE_ax, electrode_data(min_electrode_beat_stdev_indx))
+        %{
         hold(GE_ax, 'on')
         window = electrode_data(min_electrode_beat_stdev_indx).window;
         for k = 1:window
@@ -306,11 +313,14 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
            plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).activation_times(stable_act_time_indx), electrode_data(min_electrode_beat_stdev_indx).activation_point_array(stable_act_time_indx), 'k.', 'MarkerSize', 20)
         end
         hold(GE_ax, 'off');
+        %}
         
-        reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re', 'Position', [screen_width-300 100 120 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+        reanalyse_well_button = uibutton(main_well_pan,'push','Text', 'Re-analyse All Background Traces', 'Position', [screen_width-275 120 250 50], 'ButtonPushedFcn', @(reanalyse_well_button,event) reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, GE_ax, GE_pan, change_GE_dropdown));
         
         
         close_button = uibutton(main_well_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_button,event) closeStableGUIsPushed(close_button, well_elec_fig, out_fig));
+        
+        
         
         electrode_count = 0;
         elec_ids = [electrode_data(:).electrode_id];
@@ -323,11 +333,15 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 electrode_count = elec_indx;
                 %electrode_count = electrode_count+1;
                 if ~isempty(electrode_data(electrode_count))
+                    elec_pan = uipanel(well_pan,  'BackgroundColor', '#f2c2c2', 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
+                    elec_ax = uiaxes(elec_pan, 'Position', [10 20 (well_p_width/num_electrode_cols)-20 (well_p_height/num_electrode_rows)-40]);
                     
+                    %{
                     window = electrode_data(electrode_count).window;
-                    elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
+                    elec_pan = uipanel(well_pan,  'BackgroundColor', '#f2c2c2', 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
 
-                    elec_ax = uiaxes(elec_pan, 'Position', [0 20 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-40]);
+                    elec_ax = uiaxes(elec_pan, 'Position', [10 20 (well_p_width/num_electrode_cols)-20 (well_p_height/num_electrode_rows)-40]);
+                    
                     hold(elec_ax, 'on')
                     for k = 1:window
                        plot(elec_ax, electrode_data(electrode_count).stable_times{k, 1}, electrode_data(electrode_count).stable_waveforms{k, 1});
@@ -340,11 +354,14 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                        
                     end
                     hold(elec_ax, 'off');
+                    %}
+                    MEA_GUI_display_GE_stable_waveform(elec_ax, electrode_data(electrode_count))
                 end
-                expand_background_signals_button = uibutton(elec_pan,'push','Text', 'Expand Background Beats', 'Position', [0 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(expand_background_signals_button,event) expandAllTimeRegionDataButtonPushed(expand_background_signals_button, num_electrode_rows, num_electrode_cols, elec_pan, well_count, electrode_count, GE_ax, GE_pan, change_GE_dropdown));
+                expand_background_signals_button = uibutton(elec_pan,'push','Text', 'Expand Background Beats', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Position', [0 0 ((well_p_width/num_electrode_cols)-25)/2 20], 'ButtonPushedFcn', @(expand_background_signals_button,event) expandAllTimeRegionDataButtonPushed(expand_background_signals_button, num_electrode_rows, num_electrode_cols, elec_pan, well_count, electrode_count, GE_ax, GE_pan, change_GE_dropdown));
                         
             end
         end
+        
         
         function closeStableGUIsPushed(close_button, well_elec_fig, out_fig)
             close(well_elec_fig)
@@ -358,16 +375,26 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             
         end
         
+        function reanalyseWellButtonPushed(reanalyse_well_button, well_elec_fig, num_electrode_rows, num_electrode_cols, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, GE_ax, GE_pan, change_GE_dropdown)
+            set(well_elec_fig, 'Visible', 'off')
+            %[well_electrode_data(well_count, :)] = reanalyse_b2b_well_analysis(electrode_data, num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID);
+            [well_electrode_data(well_count)] = reanalyse_b2b_well_analysis(well_electrode_data(well_count), num_electrode_rows, num_electrode_cols, well_elec_fig, well_pan, GE_ax, GE_pan, change_GE_dropdown, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, well_ID, ['all']);
+            
+            %electrode_data = well_electrode_data(well_count).electrode_data;
+        end
+        
         function expandAllTimeRegionDataButtonPushed(expand_electrode_button, num_electrode_rows, num_electrode_cols, elec_pan, well_count, electrode_count, GE_ax, GE_pan, change_GE_dropdown)
             expand_elec_fig = uifigure;
             expand_elec_fig.Name = 'Background Beats_'+well_electrode_data(well_count).electrode_data(electrode_count).electrode_id;
             movegui(expand_elec_fig,'center')
             expand_elec_fig.WindowState = 'maximized';
-            expand_elec_panel = uipanel(expand_elec_fig, 'Position', [0 0 screen_width screen_height]);
+            expand_elec_panel = uipanel(expand_elec_fig, 'BackgroundColor', '#fbeaea', 'Position', [0 0 screen_width screen_height]);
                 
-            expand_elec_p = uipanel(expand_elec_panel, 'Position', [0 0 well_p_width well_p_height]);
+            expand_elec_p = uipanel(expand_elec_panel, 'BackgroundColor', '#f2c2c2', 'Position', [0 0 well_p_width well_p_height]);
 
             electrode_data = well_electrode_data(well_count).electrode_data;
+            
+            %{
             t_wave_peak_times = electrode_data(electrode_count).t_wave_peak_times;
             t_wave_peak_times = t_wave_peak_times(~isnan(t_wave_peak_times));
             t_wave_peak_array = electrode_data(electrode_count).t_wave_peak_array;
@@ -404,12 +431,24 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             elec_t_wave_duration_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave duration = ', num2str(electrode_data(electrode_count).t_wave_duration)), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*7 200 text_box_height], 'Editable','off');
             elec_t_wave_shape_input_text = uieditfield(expand_elec_panel,'Text', 'Value', strcat('T-wave shape = ', electrode_data(electrode_count).t_wave_shape), 'FontSize', 10, 'Position', [screen_width-220 text_box_height*6 200 text_box_height], 'Editable','off');
             
+            %}
               
             expand_close_button = uibutton(expand_elec_panel,'push','Text', 'Close', 'FontSize', 10,'Position', [screen_width-220 0 120 text_box_height], 'ButtonPushedFcn', @(expand_close_button,event) closeExpandButtonPushed(expand_close_button, expand_elec_fig));
 
             exp_ax = uiaxes(expand_elec_p, 'Position', [0 50 well_p_width well_p_height-50]);
             hold(exp_ax,'on')
             plot(exp_ax, electrode_data(electrode_count).time, electrode_data(electrode_count).data);
+
+            
+            win = electrode_data(electrode_count).window;
+
+            for ks = 1:win
+               plot(exp_ax, electrode_data(electrode_count).stable_times{ks, 1}, electrode_data(electrode_count).stable_waveforms{ks, 1}, 'color','#cc3399');
+
+            end
+            
+            
+            %}
             plot(exp_ax, electrode_data(electrode_count).filtered_time, electrode_data(electrode_count).filtered_data);
             plot(exp_ax, t_wave_peak_times, t_wave_peak_array, 'c.', 'MarkerSize', 20);
             plot(exp_ax, electrode_data(electrode_count).max_depol_time_array, electrode_data(electrode_count).max_depol_point_array, 'r.', 'MarkerSize', 20);
@@ -452,7 +491,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             end
             hold(exp_ax,'off')
             
-            reanalyse_background_button = uibutton(expand_elec_panel,'push','Text', 'Reanalyse Trace', 'Position', [screen_width-220 text_box_height*2 120 text_box_height], 'ButtonPushedFcn', @(reanalyse_background_button,event) reanalyseElectrodeButtonPushed(well_count, electrode_data(electrode_count).electrode_id, exp_ax, expand_elec_panel, GE_ax, GE_pan, change_GE_dropdown));
+            reanalyse_background_button = uibutton(expand_elec_panel,'push', 'Text', 'Reanalyse Trace', 'Position', [screen_width-220 text_box_height*2 120 text_box_height], 'ButtonPushedFcn', @(reanalyse_background_button,event) reanalyseElectrodeButtonPushed(well_count, electrode_data(electrode_count).electrode_id, exp_ax, expand_elec_panel, GE_ax, GE_pan, change_GE_dropdown));
                
             
             function closeExpandButtonPushed(expand_close_button, expand_elec_fig)
@@ -480,10 +519,11 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
         electrode_data = well_electrode_data(well_count).electrode_data;
         well_elec_fig = uifigure;
         movegui(well_elec_fig,'center')
-        well_elec_fig.WindowState = 'maximized';
+        %well_elec_fig.WindowState = 'maximized';
+        well_elec_fig.Position = [100, 100, screen_width, screen_height];
         well_elec_fig.Name = strcat(well_ID, '_', 'Electrode Results');
         % left bottom width height
-        main_well_pan = uipanel(well_elec_fig, 'Position', [0 0 screen_width screen_height]);
+        main_well_pan = uipanel(well_elec_fig, 'BackgroundColor', '#fbeaea', 'Position', [0 0 screen_width screen_height]);
         
         well_p_width = screen_width-300;
         well_p_height = screen_height -100;
@@ -499,7 +539,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
             non_zero_stddevs = find(min_stdevs ~=0);
             min_electrode_beat_stdev_indx = find(min_stdevs == min(min_stdevs(non_zero_stddevs)), 1);
         end
-        GE_pan = uipanel(main_well_pan, 'Title', "Golden Electrode" + " " + electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 300]);
+        GE_pan = uipanel(main_well_pan, 'BackgroundColor', '#f2c2c2', 'Title', "Golden Electrode" + " " + electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [well_p_width screen_height-450 300 320]);
         
         GE_ax = uiaxes(GE_pan, 'Position', [0 0 300 300]);
         
@@ -542,11 +582,11 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 electrode_count = elec_indx;
                 if ~isempty(electrode_data(electrode_count).average_waveform)
                     
-                    elec_pan = uipanel(well_pan, 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
+                    elec_pan = uipanel(well_pan, 'BackgroundColor', '#f2c2c2', 'Title', electrode_data(electrode_count).electrode_id, 'Position', [(elec_c-1)*(well_p_width/num_electrode_cols) (elec_r-1)*(well_p_height/num_electrode_rows) well_p_width/num_electrode_cols well_p_height/num_electrode_rows]);
 
-                    reanalyse_electrode_button = uibutton(elec_pan,'push','Text', 'Reanalyse', 'Position', [0 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(reanalyse_electrode_button,event) reanalyseAverageElectrodeButtonPushed(well_count, elec_id, GE_ax, electrode_data(min_electrode_beat_stdev_indx).electrode_id));
+                    reanalyse_electrode_button = uibutton(elec_pan,'push', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Text', 'Reanalyse', 'Position', [0 0 ((well_p_width/num_electrode_cols)-25)/4 20], 'ButtonPushedFcn', @(reanalyse_electrode_button,event) reanalyseAverageElectrodeButtonPushed(well_count, elec_id, GE_ax, electrode_data(min_electrode_beat_stdev_indx).electrode_id));
                     
-                    elec_ax = uiaxes(elec_pan, 'Position', [0 20 (well_p_width/num_electrode_cols)-25 (well_p_height/num_electrode_rows)-40]);
+                    elec_ax = uiaxes(elec_pan, 'Position', [10 20 (well_p_width/num_electrode_cols)-20 (well_p_height/num_electrode_rows)-40]);
                     
                     hold(elec_ax,'on')
                     plot(elec_ax, electrode_data(electrode_count).ave_wave_time, electrode_data(electrode_count).average_waveform);
@@ -1046,24 +1086,25 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 
         ge_results_fig = uifigure;
         movegui(ge_results_fig,'center')
-        ge_results_fig.WindowState = 'maximized';
+        %ge_results_fig.WindowState = 'maximized';
+        ge_results_fig.Position = [100, 100, screen_width, screen_height];
         ge_results_fig.Name = 'Golden Electrode Results';
         % left bottom width height
-        main_ge_pan = uipanel(ge_results_fig, 'Position', [0 0 screen_width screen_height]);
+        main_ge_pan = uipanel(ge_results_fig, 'BackgroundColor', '#fbeaea', 'Position', [0 0 screen_width screen_height]);
         
-        back_GE_button = uibutton(main_ge_pan,'push','Text', 'Back', 'Position', [screen_width-220 550 100 50], 'ButtonPushedFcn', @(back_GE_button,event) backButtonPushed(ge_results_fig, out_fig));
+        back_GE_button = uibutton(main_ge_pan,'push','Text', 'Back', 'Position', [screen_width-200 550 100 50], 'ButtonPushedFcn', @(back_GE_button,event) backButtonPushed(ge_results_fig, out_fig));
             
         %display_results_button = uibutton(main_ge_pan,'push', 'BackgroundColor', '#3dd483','Text', 'Show Results', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(display_results_button,event) displayGEResultsPushed(display_results_button, ge_results_fig));
         
-        save_button = uibutton(main_ge_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save', 'Position', [screen_width-220 300 100 50], 'ButtonPushedFcn', @(save_button,event) saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array));
-        close_button = uibutton(main_ge_pan,'push','Text', 'Close', 'Position', [screen_width-220 50 120 50], 'ButtonPushedFcn', @(close_button,event) closeAllButtonPushed(close_button, ge_results_fig));
+        save_button = uibutton(main_ge_pan,'push',  'BackgroundColor', '#3dd4d1', 'Text', 'Save', 'Position', [screen_width-210 250 100 50], 'ButtonPushedFcn', @(save_button,event) saveGEPushed(save_button, ge_results_fig, save_dir, num_electrode_rows, num_electrode_cols, dropdown_array));
+        close_button = uibutton(main_ge_pan,'push','Text', 'Close', 'FontColor', 'w', 'BackgroundColor', '#B02727','Position', [screen_width-210 50 120 50], 'ButtonPushedFcn', @(close_button,event) closeAllButtonPushed(close_button, ge_results_fig));
             
         
         well_p_width = screen_width-300;
         well_p_height = screen_height -100;
         ge_pan = uipanel(main_ge_pan, 'Position', [0 0 well_p_width well_p_height]);
         
-        reanalyse_button = uibutton(main_ge_pan,'push','Text', 'Re-analyse Electrodes', 'Position', [screen_width-220 100 120 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseGEButtonPushed(reanalyse_button, ge_results_fig, num_electrode_rows, num_electrode_cols, ge_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
+        reanalyse_button = uibutton(main_ge_pan,'push','Text', 'Re-analyse Electrodes', 'Position', [screen_width-250 150 200 50], 'ButtonPushedFcn', @(reanalyse_button,event) reanalyseGEButtonPushed(reanalyse_button, ge_results_fig, num_electrode_rows, num_electrode_cols, ge_pan, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis));
         
         depol_zoom_button = uibutton(main_ge_pan,'push','Text', 'Expand Depol. Complexes', 'Position', [screen_width-220 350 150 50], 'ButtonPushedFcn', @(depol_zoom_button,event) depolGEZoomButtonPushed(depol_zoom_button, num_electrode_rows, num_electrode_cols, ge_pan));
         
@@ -1100,9 +1141,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                         min_electrode_beat_stdev_indx = find(new_ge_indx == 1);
                    end
                    
-                   ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position',[((ge_c-1)*button_w) ((ge_r-1)*button_h) button_w button_h]);
+                   ge_panel = uipanel(ge_pan, 'BackgroundColor', '#f2c2c2', 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position',[((ge_c-1)*button_w) ((ge_r-1)*button_h) button_w button_h]);
                    
-                   GE_ax = uiaxes(ge_panel,  'Position', [0 40 button_w button_h-40]);
+                   GE_ax = uiaxes(ge_panel,  'Position', [5 40 button_w-10 button_h-60]);
                    
                    hold(GE_ax,'on')
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
@@ -1118,23 +1159,26 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
                    plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time, t_wave_peak, 'c.', 'MarkerSize', 20);
 
+                   GE_dur =  electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end)- electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1);
+                   xlim(GE_ax, [electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1)-0.1*GE_dur,  electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end)+0.1*GE_dur]);
+                   
                    %activation_points = electrode_data(electrode_count).data(find(electrode_data(electrode_count).activation_times), 'ko');
                    %plot(elec_ax, electrode_data(electrode_count).activation_times, electrode_data(electrode_count).activation_point_array, 'ko');
                    hold(GE_ax,'off')
-                   undo_reject_ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((ge_c-1)*button_w) ((ge_r-1)*button_h) button_w button_h]);
-                   undo_reject_well_button = uibutton(undo_reject_ge_panel,'push','Text', 'Undo Reject Well', 'Position', [0 0 button_w button_h], 'ButtonPushedFcn', @(undo_reject_well_button,event) undoRejectGEWellPushed(undo_reject_ge_panel, ge_panel, ge_count, undo_reject_ge_panel));
+                   undo_reject_ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'BackgroundColor', '#f2c2c2', 'Position', [((ge_c-1)*button_w) ((ge_r-1)*button_h) button_w button_h]);
+                   undo_reject_well_button = uibutton(undo_reject_ge_panel,'push','Text', 'Undo Reject Well', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Position', [0 0 button_w button_h], 'ButtonPushedFcn', @(undo_reject_well_button,event) undoRejectGEWellPushed(undo_reject_ge_panel, ge_panel, ge_count, undo_reject_ge_panel));
                    if well_electrode_data(ge_count).rejected_well == 1
                         set(undo_reject_ge_panel, 'visible', 'on')
                    else
                         set(undo_reject_ge_panel, 'visible', 'off')
                    end
                 
-                   t_wave_time_text = uieditfield(ge_panel,'Text', 'Value', 'T-wave Peak Time', 'FontSize', 8, 'Position', [0 0 (button_w/2)-25 20], 'Editable','off');
-                   t_wave_time_ui = uieditfield(ge_panel, 'numeric', 'Tag', 'T-Wave', 'Position', [button_w/2 0 (button_w/2)-25 20], 'FontSize', 8, 'ValueChangedFcn',@(t_wave_time_ui,event) changeGETWaveTime(t_wave_time_ui, GE_ax, ge_count, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform, min_electrode_beat_stdev_indx));
+                   t_wave_time_text = uieditfield(ge_panel,'Text', 'Value', 'T-wave Peak Time', 'Position', [0 0 (button_w/2) 20], 'Editable','off');
+                   t_wave_time_ui = uieditfield(ge_panel, 'numeric', 'Tag', 'T-Wave', 'Position', [button_w/2 0 (button_w/2) 20], 'ValueChangedFcn',@(t_wave_time_ui,event) changeGETWaveTime(t_wave_time_ui, GE_ax, ge_count, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform, min_electrode_beat_stdev_indx));
 
-                   manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
+                   manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Position', [0 20 (button_w/2) 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
                    
-                   reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge_count, undo_reject_ge_panel));
+                   reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2) 20 (button_w/2) 20], 'BackgroundColor', '#d64343','Fontcolor', 'w', 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge_count, undo_reject_ge_panel));
                    
                    set(t_wave_time_text, 'Visible', 'off')
                    set(t_wave_time_ui, 'Visible', 'off')
@@ -1167,9 +1211,9 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                     min_electrode_beat_stdev_indx = find(new_ge_indx == 1);
                 end
                 
-                ge_panel = uipanel(ge_pan, 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((ge-1)*button_w) 0 button_w button_h]);
+                ge_panel = uipanel(ge_pan,'BackgroundColor', '#f2c2c2', 'Title', electrode_data(min_electrode_beat_stdev_indx).electrode_id, 'Position', [((ge-1)*button_w) 0 button_w button_h]);
                 
-                GE_ax = uiaxes(ge_panel,  'Position', [0 40 button_w button_h-40]);
+                GE_ax = uiaxes(ge_panel,  'Position', [5 40 button_w-10 button_h-60]);
                 
                 hold(GE_ax,'on')
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform);
@@ -1182,11 +1226,14 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
 
                 plot(GE_ax, electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak_time, electrode_data(min_electrode_beat_stdev_indx).ave_t_wave_peak, 'c.', 'MarkerSize', 20);
 
-                t_wave_time_text = uieditfield(ge_panel,'Text', 'Value', 'T-wave Peak Time', 'FontSize', 8, 'Position', [0 0 (button_w/2)-25 20], 'Editable','off');
-                t_wave_time_ui = uieditfield(ge_panel, 'numeric', 'Tag', 'T-Wave', 'Position', [button_w/2 0 (button_w/2)-25 20], 'FontSize', 8, 'ValueChangedFcn',@(t_wave_time_ui,event) changeGETWaveTime(t_wave_time_ui, GE_ax, ge, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform, min_electrode_beat_stdev_indx));
+                t_wave_time_text = uieditfield(ge_panel,'Text', 'Value', 'T-wave Peak Time', 'Position', [0 0 (button_w/2) 20], 'Editable','off');
+                t_wave_time_ui = uieditfield(ge_panel, 'numeric', 'Tag', 'T-Wave', 'Position', [button_w/2 0 (button_w/2) 20], 'ValueChangedFcn',@(t_wave_time_ui,event) changeGETWaveTime(t_wave_time_ui, GE_ax, ge, electrode_data(min_electrode_beat_stdev_indx).ave_wave_time, electrode_data(min_electrode_beat_stdev_indx).average_waveform, min_electrode_beat_stdev_indx));
 
-                undo_reject_ge_panel = uipanel(ge_pan, 'Title', strcat(electrode_data(min_electrode_beat_stdev_indx).electrode_id, '_rejected'), 'Position', [((ge-1)*button_w) 0 button_w button_h]);
-                undo_reject_well_button = uibutton(undo_reject_ge_panel,'push','Text', 'Undo Reject Well', 'Position', [0 0 button_w button_h], 'ButtonPushedFcn', @(undo_reject_well_button,event) undoRejectGEWellPushed(undo_reject_ge_panel, ge_panel, ge, undo_reject_ge_panel));
+                GE_dur =  electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end)- electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1);
+                xlim(GE_ax, [electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(1)-0.1*GE_dur,  electrode_data(min_electrode_beat_stdev_indx).ave_wave_time(end)+0.1*GE_dur]);
+                
+                undo_reject_ge_panel = uipanel(ge_pan,  'BackgroundColor', '#f2c2c2', 'Title', strcat(electrode_data(min_electrode_beat_stdev_indx).electrode_id, '_rejected'), 'Position', [((ge-1)*button_w) 0 button_w button_h]);
+                undo_reject_well_button = uibutton(undo_reject_ge_panel,'push', 'BackgroundColor', '#B02727',  'Fontcolor', 'w', 'Text', 'Undo Reject Well', 'Position', [0 0 button_w button_h], 'ButtonPushedFcn', @(undo_reject_well_button,event) undoRejectGEWellPushed(undo_reject_ge_panel, ge_panel, ge, undo_reject_ge_panel));
                 if well_electrode_data(ge).rejected_well == 1
                     set(undo_reject_ge_panel, 'visible', 'on')
                 else
@@ -1194,8 +1241,8 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 end
                 
                
-                manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'Position', [0 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
-                reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2)-25 20 (button_w/2)-25 20], 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge, undo_reject_ge_panel));
+                manual_t_wave_button = uibutton(ge_panel,'push','Text', 'Manual T-Wave Peak Input', 'BackgroundColor', '#B02727', 'Fontcolor', 'w', 'Position', [0 20 (button_w/2) 20], 'ButtonPushedFcn', @(manual_t_wave_button,event) manualTwavePeakButtonPushed(manual_t_wave_button, t_wave_time_text, t_wave_time_ui));
+                reject_well_button = uibutton(ge_panel,'push','Text', 'Reject Well', 'Position', [(button_w/2) 20 (button_w/2) 20], 'BackgroundColor', '#d64343','Fontcolor', 'w', 'ButtonPushedFcn', @(reject_well_button,event) rejectGEWellPushed(reject_well_button, ge_panel, ge, undo_reject_ge_panel));
                    
                 
                 
@@ -1568,6 +1615,7 @@ function MEA_GUI_analysis_display_GE_results(AllDataRaw, num_well_rows, num_well
                 if isempty(electrode_data)
                    return; 
                 end
+                disp(reanalyse_electrodes)
                 [well_electrode_data] = electrode_GE_analysis(well_electrode_data, num_electrode_rows, num_electrode_cols, reanalyse_electrodes, ge_results_fig, spon_paced, beat_to_beat, analyse_all_b2b, stable_ave_analysis, num_wells, reanalyse_panels);
                 %%disp(electrode_data(re_count).activation_times(2))
             end

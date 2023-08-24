@@ -116,17 +116,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
                
            if bdt > 0
                beat_indx = find(d_ata(pshot_indx) >= bdt);
-               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset
-               
-               wind_indx(1)
-               pshot_indx_offset
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
                
                if beat_indx > length(time)
                   beat_indx = length(time); 
                end
            else
                beat_indx = find(d_ata(pshot_indx) <= bdt);
-               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset
+               beat_indx = beat_indx(1)+wind_indx(1)-1+pshot_indx_offset;
                
                if beat_indx > length(time)
                   beat_indx = length(time); 
@@ -153,9 +150,6 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        end
        
        % Between 10 and 12 seconds 2 beats are being picked up as one
-       disp(length(time))
-       disp(prev_beat_indx)
-       disp(beat_indx)
        beat_time = time(prev_beat_indx:beat_indx);
        beat_data = data(prev_beat_indx:beat_indx);
        
@@ -259,6 +253,10 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            end           
        end
        
+       
+       %skip first spon beat
+       
+       
        if strcmp(spon_paced, 'paced bdt')
            if count == 1
                [activation_time, amplitude, max_depol_time, max_depol_point, indx_max_depol_point, min_depol_time, min_depol_point, indx_min_depol_point, slope, warning, pshot_indx_offset, depol_polynomial, depol_filtered_time] = rate_analysis(beat_time, beat_data, post_spike_hold_off, stim_spike_hold_off, 'paced', stim_time, electrode_id, filter_intensity, warning);
@@ -297,6 +295,14 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
            hold off;
            %}
            %pause(10)
+           if count == 0
+               prev_activation_time = activation_time;
+               prev_beat_indx = beat_indx;
+               count = count + 1;
+               t = t + window;
+               continue
+
+           end
            
            t_wave_peak_times = [t_wave_peak_times t_wave_peak_time];
            t_wave_peak_array = [t_wave_peak_array t_wave_peak];
@@ -672,9 +678,12 @@ function [beat_num_array, cycle_length_array, activation_time_array, activation_
        
        
        
+       
        activation_point_array = [activation_point_array act_point];
        activation_time_array = [activation_time_array activation_time];
-       cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
+       if count > 1
+          cycle_length_array = [cycle_length_array (activation_time-prev_activation_time)];
+       end
        beat_num_array = [beat_num_array count];
        beat_start_times = [beat_start_times beat_time(1)];
        beat_start_volts = [beat_start_volts beat_data(1)];

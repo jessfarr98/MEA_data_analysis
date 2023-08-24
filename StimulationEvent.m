@@ -68,6 +68,7 @@ classdef StimulationEvent < EventTag
                 fChannels = this.ChannelsTag.ChannelGroups;
                 this.EventData = fEventDatas(find(arrayfun(@(a)(a.ID) == this.EventData, fEventDatas),1));
                 
+                
                 this.Electrodes = arrayfun(...
                     @(aChanId)(fChannels(find(arrayfun(@(a)(a.ID) == aChanId, fChannels),1))),...
                     this.EventData.ChannelArrayIdList);

@@ -1,24 +1,30 @@
-function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat)
+function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_electrode_cols, spon_paced, well_elec_fig, hmap_prompt_fig, num_beats, start_beat, map_type, ave_waves)
     % Calculate dx/dt for each electrode wrt. electrode in bottom left corner. 
-    close(hmap_prompt_fig)
+    if ave_waves == 0
+        close(hmap_prompt_fig)
+    end
     
     screen_size = get(groot, 'ScreenSize');
     screen_width = screen_size(3);
     screen_height = screen_size(4);
     
+    screen_width = 1700;
+    screen_height = 1300;
     
     con_fig = uifigure;
     
-    con_pan = uipanel(con_fig, 'Position', [0 0 screen_width screen_height-20]);
+    con_pan = uipanel(con_fig, 'Position', [0 0 screen_width screen_height-20], 'BackgroundColor', '#fbeaea');
     movegui(con_fig,'center')
     
-    close_button = uibutton(con_pan,'push','Text', 'Close', 'Position', [screen_width-180 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, well_elec_fig, con_fig));
+    close_button = uibutton(con_pan,'push','Text', 'Close', 'Position', [screen_width-160 100 120 50], 'ButtonPushedFcn', @(close_button,event) closeButtonPushed(close_button, well_elec_fig, con_fig));
          
 
     
     fig_width = screen_width-200;
-    fig_pan = uipanel(con_pan, 'Position', [0 0 fig_width screen_height]);
+    fig_pan = uipanel(con_pan, 'Position', [0 0 fig_width screen_height], 'BackgroundColor', '#fbeaea');
     
+    con_fig.Position = [0, 0, screen_width, screen_height];
+    set(con_fig, 'AutoResizeChildren', 'off'); 
     
     %{
     act_base_pan = uipanel(fig_pan, 'Title','Start Activation Times','Position', [0 0 fig_width/2 screen_height-80]);
@@ -32,7 +38,11 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     dt_main_pan = uipanel(dt_base_pan, 'Position',[0 0 fig_width/2 screen_height-100]);
     %}
 
-    dt_base_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[0 0 fig_width screen_height-80]);
+    if strcmp(map_type, 'depol')
+        dt_base_pan = uipanel(fig_pan, 'Title','Start Act Times-min Act Time','Position',[0 0 fig_width screen_height-80]);
+    else
+        dt_base_pan = uipanel(fig_pan, 'Title','FPD Isochrone Maps','Position',[0 0 fig_width screen_height-80]);
+    end
     
     dt_main_pan = uipanel(dt_base_pan, 'Position',[0 0 fig_width screen_height-100]);
     
@@ -85,10 +95,20 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
                 for e_c = 1:num_electrode_cols
                     if e_r == 4 && e_c == 1
                         dx = 0;
-                        dt = activation_times(count)-min_act;
+                        if strcmp(map_type, 'depol')
+                            dt = activation_times(count)-min_act;
+                        elseif strcmp(map_type, 'fpd')
+                            dt = activation_times(count);
+                            
+                        end
                     else
                         dx = sqrt(e_r^2 + e_c^2);
-                        dt = activation_times(count)-min_act;
+                        if strcmp(map_type, 'depol')
+                            dt = activation_times(count)-min_act;
+                        elseif strcmp(map_type, 'fpd')
+                            dt = activation_times(count);
+                            
+                        end
                     end
                     
                     if isnan(min_dt)
@@ -146,10 +166,18 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
                         %disp('count');
                         %disp(count);
                         dx = 0;
-                        dt = activation_times(count)-activation_times(min_act_indx(1));
+                        if strcmp(map_type, 'depol')
+                            dt = activation_times(count)-activation_times(min_act_indx(1));
+                        else
+                            dt = activation_times(count);
+                        end
                     else
                         dx = sqrt(e_r^2 + e_c^2);
-                        dt = activation_times(count)-activation_times(min_act_indx(1));
+                        if strcmp(map_type, 'depol')
+                            dt = activation_times(count)-activation_times(min_act_indx(1));
+                        else
+                            dt = activation_times(count);
+                        end
                     end
                     %dt = round(dt, 2, 'significant');
                     %num2str(e_r)
@@ -340,7 +368,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     end
 
     for n = 1:num_beats
-        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat)));
+        waitbar(partition, wait_bar, strcat('Loading Beat No.', {' '}, num2str(n+start_beat-1)));
         
         partition = partition + num_partitions;
         
@@ -359,7 +387,12 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
             colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
             colormap(dt_ax, jet)
             caxis(dt_ax, [min_c_lim max_c_lim])
-            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
+            if strcmp(map_type, 'depol')
+                title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'), 'FontSize', 8)
+            else
+                
+                title(dt_ax, strcat('FPD Isochrone map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min FPD = ', {' '}, num2str(min_act), ')'),  'FontSize', 8)
+            end
         else
 
             n_rows = ceil(num_beats/5);
@@ -382,8 +415,12 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
             colorbar(dt_ax, 'TickLabels', tick_array, 'Ticks', tick_array, 'Limits', [min_c_lim max_c_lim]);
             colormap(dt_ax, jet)
             caxis(dt_ax, [min_c_lim max_c_lim])
-            title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'))
-            
+            if strcmp(map_type, 'depol')
+                title(dt_ax, strcat('Propagation map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min activation time = ', {' '}, num2str(min_act), ')'),  'FontSize', 8)
+            else
+                
+                title(dt_ax, strcat('FPD Isochrone map for beat No.', {' '}, num2str(n+start_beat-1), {' '}, '(min FPD = ', {' '}, num2str(min_act), ')'),  'FontSize', 8)
+            end
             
             
         end
@@ -423,10 +460,10 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     set(full_spectrum_button, 'Visible', 'off')
     
     %RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, act_main_pan, dt_main_pan));
-    RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, '', dt_main_pan, tick_array));
+    %RG_colourblind_button = uibutton(con_pan,'push','Text', 'RG ColourBlind Friendly', 'Position', [screen_width-180 200 120 50], 'ButtonPushedFcn', @(RG_colourblind_button,event) RGColourBlindPushed(RG_colourblind_button, '', dt_main_pan, tick_array));
     
     
-    con_fig.WindowState = 'maximized';
+    %con_fig.WindowState = 'maximized';
     
     %{
     if num_beats > 1
@@ -436,7 +473,7 @@ function conduction_map_GUI4(all_activation_times, num_electrode_rows, num_elect
     end
     %}
     
-    set(con_fig, 'Visible', 'on')
+    %set(con_fig, 'Visible', 'on')
 
     
     
