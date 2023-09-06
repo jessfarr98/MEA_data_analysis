@@ -1,6 +1,6 @@
 function MEA_GUI(raw_file, save_dir)
 %  Create and then hide the UI as it is being constructed.
-    
+   addpath('./maestro_apex_extraction_scripts/')
    close all hidden;
    close all;
    
